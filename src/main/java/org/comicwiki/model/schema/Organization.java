@@ -19,8 +19,8 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 
-import org.comicwiki.gcdb.YearDeserializer;
-import org.comicwiki.gcdb.YearSerializer;
+import org.comicwiki.YearDeserializer;
+import org.comicwiki.YearSerializer;
 import org.comicwiki.rdf.annotations.ObjectDate;
 import org.comicwiki.rdf.annotations.ObjectIRI;
 import org.comicwiki.rdf.annotations.ObjectString;

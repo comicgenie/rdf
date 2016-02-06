@@ -21,11 +21,13 @@ import java.util.HashSet;
 import org.comicwiki.rdf.annotations.ObjectIRI;
 import org.comicwiki.rdf.annotations.ObjectString;
 import org.comicwiki.rdf.annotations.Predicate;
+import org.comicwiki.rdf.annotations.Subject;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 @JsonInclude(Include.NON_DEFAULT)
+@Subject(value = "Extension", key= "publisher")
 public class CreativeWorkExtension  {
 
 	@Predicate("comment")
@@ -55,7 +57,7 @@ public class CreativeWorkExtension  {
 
 	@Predicate("publisher")
 	@ObjectIRI
-	public Collection<String> publishers = new HashSet<>(1);// organization
+	public String publisher;
 
 	@Predicate("editor")
 	@ObjectIRI

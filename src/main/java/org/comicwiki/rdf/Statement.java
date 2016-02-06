@@ -18,10 +18,13 @@ package org.comicwiki.rdf;
 import java.net.URI;
 import java.net.URL;
 
-import org.comicwiki.gcdb.ResourceUtils;
+import org.comicwiki.ResourceUtils;
 import org.comicwiki.rdf.annotations.ObjectInteger;
 import org.comicwiki.rdf.annotations.Predicate;
 import org.comicwiki.rdf.annotations.Subject;
+import org.comicwiki.rdf.values.RdfObject;
+import org.comicwiki.rdf.values.RdfPredicate;
+import org.comicwiki.rdf.values.RdfSubject;
 
 public class Statement implements Comparable<Statement> {
 
