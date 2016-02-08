@@ -33,12 +33,15 @@ import org.comicwiki.model.ComicCharacter;
 import com.google.common.base.Joiner;
 
 public class ComicCharacterRepository extends BaseRepository<ComicCharacter> {
-
+/*
 	@Override
 	public ComicCharacter merge(ComicCharacter source, ComicCharacter target) {
+		target.abilities.addAll(source.abilities);
+		target.alternateNames.addAll(source.alternateNames);
+		target.areasWorkedIn.addAll(source.areasWorkedIn);
 		return target;
 	}
-
+*/
 	@Override
 	public void load() throws IOException {
 

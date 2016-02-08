@@ -22,11 +22,6 @@ import org.comicwiki.model.schema.Person;
 
 public class CreatorRepository extends BaseRepository<Person>{
 
-	@Override
-	public Person merge(Person source, Person target) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	@Override
 	public void load() throws IOException {

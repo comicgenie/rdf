@@ -22,11 +22,6 @@ import org.comicwiki.model.ComicOrganization;
 
 public class ComicOrganizationRepository extends BaseRepository<ComicOrganization>{
 
-	@Override
-	public ComicOrganization merge(ComicOrganization source,
-			ComicOrganization target) {
-		return target;
-	}
 
 	@Override
 	public void load() throws IOException {

@@ -23,12 +23,6 @@ import org.comicwiki.model.schema.ComicStory;
 public class ComicStoryRepository extends BaseRepository<ComicStory>{
 
 	@Override
-	public ComicStory merge(ComicStory source, ComicStory target) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public void load() throws IOException {
 		// TODO Auto-generated method stub
 		

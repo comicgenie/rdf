@@ -22,11 +22,6 @@ import org.comicwiki.model.schema.ComicSeries;
 
 public class ComicSeriesRepository extends BaseRepository<ComicSeries> {
 
-	@Override
-	public ComicSeries merge(ComicSeries source, ComicSeries target) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	@Override
 	public void load() throws IOException {

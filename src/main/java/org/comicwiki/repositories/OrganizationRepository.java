@@ -91,8 +91,5 @@ public class OrganizationRepository extends BaseRepository<Organization> {
 		*/
 	}
 
-	@Override
-	public Organization merge(Organization source, Organization target) {
-		return target;
-	}
+
 }

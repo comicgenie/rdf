@@ -22,11 +22,7 @@ import org.comicwiki.model.schema.ComicIssue;
 
 public final class ComicIssueRepository extends BaseRepository<ComicIssue> {
 
-	@Override
-	public ComicIssue merge(ComicIssue source, ComicIssue target) {
-		// TODO Auto-generated method stub
-		return target;
-	}
+
 
 	@Override
 	public void load() throws IOException {

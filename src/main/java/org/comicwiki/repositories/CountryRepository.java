@@ -22,10 +22,6 @@ import org.comicwiki.model.schema.Country;
 
 public class CountryRepository extends BaseRepository<Country>{
 
-	@Override
-	public Country merge(Country source, Country target) {
-		return target;
-	}
 
 	@Override
 	public void load() throws IOException {
