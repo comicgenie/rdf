@@ -35,7 +35,7 @@ import com.google.common.collect.Lists;
 
 public final class StatementFactory {
 
-	public static Statement createSubjectStatement(Subject subject,
+	public static Statement subject(Subject subject,
 			String compositeId) {
 		RdfSubject rdfSubject = Statement.createRdfSubject(compositeId);
 		RdfPredicate rdfPredicate = Statement
@@ -47,19 +47,18 @@ public final class StatementFactory {
 		return statement;
 	}
 
-	public static Collection<Statement> from(Object object) throws Exception {
+	public static Collection<Statement> transform(Object object) throws Exception {
 		Collection<Statement> statements = new ArrayList<>();
 		Class<?> clazz = object.getClass();
 		Subject subject = clazz.getAnnotation(Subject.class);
 		String id = KeyUtils.readKey(subject, object);
 
-		statements.add(createSubjectStatement(subject, id));
+		statements.add(subject(subject, id));
 		
 		RdfSubject rdfSubject = Statement.createRdfSubject(id);
 		for (Field field : object.getClass().getDeclaredFields()) {
 			field.setAccessible(true);
 			statements.addAll(objects(rdfSubject, field, object));
-			// statements.addAll(process(subject, field));
 		}
 		return statements;
 

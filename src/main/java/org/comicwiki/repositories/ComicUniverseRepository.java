@@ -15,6 +15,23 @@
  *******************************************************************************/
 package org.comicwiki.repositories;
 
-public class ComicUniverseRepository {
+import java.io.IOException;
+
+import org.comicwiki.BaseRepository;
+import org.comicwiki.model.ComicUniverse;
+
+public class ComicUniverseRepository extends BaseRepository<ComicUniverse>{
+
+	@Override
+	public ComicUniverse merge(ComicUniverse source, ComicUniverse target) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void load() throws IOException {
+		// TODO Auto-generated method stub
+		
+	}
 
 }

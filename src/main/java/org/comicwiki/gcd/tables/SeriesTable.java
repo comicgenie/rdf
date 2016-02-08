@@ -168,10 +168,6 @@ public class SeriesTable extends BaseTable<SeriesTable.SeriesRow> {
 	@Override
 	public void exportRowToRepositories(SeriesRow row) {
 		super.exportRowToRepositories(row);
-		//row
-		//generate IDs for objects before placing in repo
-		
-		//export to StoryRepository, CharacterRepository, CreatorRepository
 		
 	}
 

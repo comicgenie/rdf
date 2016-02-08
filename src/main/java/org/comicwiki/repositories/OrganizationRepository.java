@@ -24,6 +24,7 @@ import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.DataFrame;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
+import org.comicwiki.BaseRepository;
 import org.comicwiki.gcd.tables.PublisherTable;
 import org.comicwiki.model.schema.Organization;
 

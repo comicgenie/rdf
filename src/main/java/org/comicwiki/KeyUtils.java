@@ -17,9 +17,22 @@ package org.comicwiki;
 
 import java.lang.reflect.Field;
 
+import org.comicwiki.model.schema.Thing;
 import org.comicwiki.rdf.annotations.Subject;
 
+import com.google.common.base.Strings;
+
 public class KeyUtils {
+	
+	private static KeyIDGenerator idGen = new KeyIDGenerator(0);
+	
+	public static ComicKey createComicKey(Thing thing) {		
+		String internalId = Strings.isNullOrEmpty(thing.internalId) ? KeyUtils
+				.readKey(thing) : thing.internalId;
+		String id = Strings.isNullOrEmpty(thing.resourceId) ? idGen.createID() : thing.resourceId;
+		return new ComicKey(id, internalId);
+
+	}
 	
 	public static String readKeyWithExpandedIri(Object object) {
 		String key = readKey(object);

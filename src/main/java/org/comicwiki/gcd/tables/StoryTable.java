@@ -25,13 +25,14 @@ import java.util.stream.Stream;
 import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
+import org.comicwiki.ComicKeyRepository;
 import org.comicwiki.gcd.CharacterFieldParser;
 import org.comicwiki.gcd.CreatorFieldParser;
-import org.comicwiki.gcd.tables.StoryTable.StoryRow;
 import org.comicwiki.model.ComicCharacter;
 import org.comicwiki.model.ComicOrganization;
 import org.comicwiki.model.schema.ComicStory;
 import org.comicwiki.model.schema.Person;
+import org.comicwiki.repositories.ComicCharacterRepository;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Sets;
@@ -40,8 +41,16 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 
 	@Override
 	public void exportRowToRepositories(StoryRow row) {
-		// TODO Auto-generated method stub
 		super.exportRowToRepositories(row);
+		ComicKeyRepository ckRepo = new ComicKeyRepository();
+		ComicCharacterRepository cRepo = new ComicCharacterRepository();
+		
+		for(ComicCharacter cc : row.characters) {
+			cRepo.add(cc);
+		}
+		
+		
+		//export to StoryRepository, CharacterRepository, CreatorRepository
 	}
 
 	private static final class Columns {

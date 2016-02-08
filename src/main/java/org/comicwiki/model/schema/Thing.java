@@ -48,6 +48,13 @@ public class Thing {
 	@Predicate(CONTEXT + "alternateName")
 	@ObjectString
 	public final Collection<String> alternateNames = new HashSet<>(5);
+	
+	//[not in spec]
+	@Predicate( "http://comicwiki.org/resources/resourceId")
+	@ObjectString
+	public String resourceId;
+	
+	public String internalId;
 
 	@Override
 	public String toString() {

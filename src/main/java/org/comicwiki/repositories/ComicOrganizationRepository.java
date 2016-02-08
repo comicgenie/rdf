@@ -17,6 +17,7 @@ package org.comicwiki.repositories;
 
 import java.io.IOException;
 
+import org.comicwiki.BaseRepository;
 import org.comicwiki.model.ComicOrganization;
 
 public class ComicOrganizationRepository extends BaseRepository<ComicOrganization>{

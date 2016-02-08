@@ -15,6 +15,23 @@
  *******************************************************************************/
 package org.comicwiki.repositories;
 
-public class CreatorRepository {
+import java.io.IOException;
+
+import org.comicwiki.BaseRepository;
+import org.comicwiki.model.schema.Person;
+
+public class CreatorRepository extends BaseRepository<Person>{
+
+	@Override
+	public Person merge(Person source, Person target) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void load() throws IOException {
+		// TODO Auto-generated method stub
+		
+	}
 
 }
