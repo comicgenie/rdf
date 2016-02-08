@@ -35,8 +35,7 @@ import com.google.common.collect.Lists;
 
 public final class StatementFactory {
 
-	public static Statement subject(Subject subject,
-			String compositeId) {
+	public static Statement subject(Subject subject, String compositeId) {
 		RdfSubject rdfSubject = Statement.createRdfSubject(compositeId);
 		RdfPredicate rdfPredicate = Statement
 				.createRdfPredicate(DataTypeConstants.RDF_TYPE);
@@ -47,16 +46,17 @@ public final class StatementFactory {
 		return statement;
 	}
 
-	public static Collection<Statement> transform(Object object) throws Exception {
+	public static Collection<Statement> transform(Object object)
+			throws Exception {
 		Collection<Statement> statements = new ArrayList<>();
 		Class<?> clazz = object.getClass();
 		Subject subject = clazz.getAnnotation(Subject.class);
-		String id = KeyUtils.readKey(subject, object);
+		String id = ((Thing) object).resourceId;
 
 		statements.add(subject(subject, id));
-		
+
 		RdfSubject rdfSubject = Statement.createRdfSubject(id);
-		for (Field field : object.getClass().getDeclaredFields()) {
+		for (Field field : object.getClass().getFields()) {
 			field.setAccessible(true);
 			statements.addAll(objects(rdfSubject, field, object));
 		}
@@ -64,48 +64,60 @@ public final class StatementFactory {
 
 	}
 
-	private static Collection<Statement> objects(RdfSubject rdfSubject, Field field,
-			Object instance) throws Exception {
+	private static Collection<Statement> objects(RdfSubject rdfSubject,
+			Field field, Object instance) throws Exception {
 		Collection<Statement> statements = Lists.newArrayList();
-		
+
 		Annotation predicateAnnotation = field.getAnnotation(Predicate.class);
-		if(predicateAnnotation == null) {
+		if (predicateAnnotation == null) {
 			return statements;
 		}
-		String predicateIRI = ((Predicate) predicateAnnotation).value();		
+		String predicateIRI = ((Predicate) predicateAnnotation).value();
 		RdfPredicate rdfPredicate = Statement.createRdfPredicate(predicateIRI);
-		
+
 		Object fieldInstance = field.get(instance);
-		
+		if (fieldInstance == null) {
+			return statements;
+		}
 		for (Annotation annotation : field.getAnnotations()) {
 			if (annotation instanceof ObjectIRI) {
 				if (fieldInstance instanceof Collection) {
 					Collection<String> c = (Collection<String>) fieldInstance;
-					for(String value : c) {
-						RdfObject rdfObject = Statement.createRdfObjectIRI(URI.create(value));
-						statements.add( new Statement(rdfSubject, rdfPredicate, rdfObject));
-					}	
-				} else if(fieldInstance instanceof String) {
+					for (String value : c) {
+						RdfObject rdfObject = Statement.createRdfObjectIRI(URI
+								.create(value));
+						statements.add(new Statement(rdfSubject, rdfPredicate,
+								rdfObject));
+					}
+				} else if (fieldInstance instanceof String) {
 					String value = (String) fieldInstance;
-					RdfObject rdfObject = Statement.createRdfObjectIRI(URI.create(value));
-					statements.add( new Statement(rdfSubject, rdfPredicate, rdfObject));
-				} else if(Thing.class.isAssignableFrom(fieldInstance.getClass())) {				
+					RdfObject rdfObject = Statement.createRdfObjectIRI(URI
+							.create(value));
+					statements.add(new Statement(rdfSubject, rdfPredicate,
+							rdfObject));
+				} else if (Thing.class.isAssignableFrom(fieldInstance
+						.getClass())) {
 					String value = KeyUtils.readKey(fieldInstance);
-					RdfObject rdfObject = Statement.createRdfObjectIRI(URI.create(value));
-					statements.add( new Statement(rdfSubject, rdfPredicate, rdfObject));
+					RdfObject rdfObject = Statement.createRdfObjectIRI(URI
+							.create(value));
+					statements.add(new Statement(rdfSubject, rdfPredicate,
+							rdfObject));
 				}
-			} else if(annotation instanceof ObjectString) {
+			} else if (annotation instanceof ObjectString) {
 				if (fieldInstance instanceof Collection) {
 					Collection<String> c = (Collection<String>) fieldInstance;
-					for(String value : c) {					
-						statements.add( new Statement(rdfSubject, rdfPredicate, value));
-					}	
-				} else if(fieldInstance instanceof String) {
+					for (String value : c) {
+						statements.add(new Statement(rdfSubject, rdfPredicate,
+								value));
+					}
+				} else if (fieldInstance instanceof String) {
 					String value = (String) fieldInstance;
-					statements.add( new Statement(rdfSubject, rdfPredicate, value));
-				} else if(fieldInstance instanceof Enum) {
+					statements.add(new Statement(rdfSubject, rdfPredicate,
+							value));
+				} else if (fieldInstance instanceof Enum) {
 					String value = ((Enum<?>) fieldInstance).name();
-					statements.add( new Statement(rdfSubject, rdfPredicate, value));
+					statements.add(new Statement(rdfSubject, rdfPredicate,
+							value));
 				}
 			}
 		}

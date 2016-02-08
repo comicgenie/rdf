@@ -38,6 +38,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.jsonldjava.core.JsonLdError;
 import com.github.jsonldjava.core.RDFDataset;
 import com.github.jsonldjava.core.RDFDatasetUtils;
+import com.google.common.base.Strings;
 
 public abstract class BaseRepository<T extends Thing> {
 
@@ -82,6 +83,13 @@ public abstract class BaseRepository<T extends Thing> {
 
 	public void add(T item) {
 		ComicKey key = KeyUtils.createComicKey(item);
+		if (Strings.isNullOrEmpty(key.internalId)) {
+			return;
+		}
+
+		item.resourceId = key.id;
+		item.internalId = key.internalId;
+
 		if (contains(key)) {
 			merge(item, getByKey(key));
 		} else {
@@ -98,11 +106,12 @@ public abstract class BaseRepository<T extends Thing> {
 		if (DataFormat.JSON.equals(format)) {
 			ObjectMapper mapper = new ObjectMapper();
 			mapper.writeValue(out, cache.values());
-		} else if (DataFormat.TURTLE.equals(format)) {
+		} else if (DataFormat.N_TRIPLES.equals(format)) {
 			RDFDataset dataset = new RDFDataset();
 			for (T t : cache.values()) {
 				Collection<Statement> statements = StatementFactory
 						.transform(t);
+
 				for (Statement statement : statements) {
 					dataset.addTriple(statement.getSubject().getValue(),
 							statement.getPredicate().getValue(), statement
@@ -110,7 +119,7 @@ public abstract class BaseRepository<T extends Thing> {
 				}
 
 			}
-			RDFDatasetUtils.toNQuads(dataset);
+			out.write(RDFDatasetUtils.toNQuads(dataset).getBytes());
 		}
 	}
 
@@ -174,40 +183,27 @@ public abstract class BaseRepository<T extends Thing> {
 	public <T> T merge(T source, T target) {
 		mergeObjects(source, target);
 		/*
-		@SuppressWarnings("unchecked")
-		Class<T> clazz = (Class<T>) ((ParameterizedType) getClass()
-				.getGenericSuperclass()).getActualTypeArguments()[0];
-
-		Field[] fields = clazz.getFields();
-		*/
+		 * @SuppressWarnings("unchecked") Class<T> clazz = (Class<T>)
+		 * ((ParameterizedType) getClass()
+		 * .getGenericSuperclass()).getActualTypeArguments()[0];
+		 * 
+		 * Field[] fields = clazz.getFields();
+		 */
 		/*
-		for (Field field : fields) {
-			field.setAccessible(true);
-			try {
-				Object sourceValue = field.get(source);
-				if (sourceValue == null) {
-					continue;
-				}
-				Object targetValue = field.get(source);
-				if (targetValue == null) {
-					field.set(target, sourceValue);
-				} else if (targetValue instanceof Collection) {
-					Collection cT = (Collection<?>) targetValue;
-					Collection sT = (Collection<?>) sourceValue;
-					cT.addAll(sT);
-				} else if (targetValue instanceof Thing
-						|| targetValue instanceof CreativeWorkExtension) {
-					mergeObjects(sourceValue, targetValue);
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		*/
+		 * for (Field field : fields) { field.setAccessible(true); try { Object
+		 * sourceValue = field.get(source); if (sourceValue == null) { continue;
+		 * } Object targetValue = field.get(source); if (targetValue == null) {
+		 * field.set(target, sourceValue); } else if (targetValue instanceof
+		 * Collection) { Collection cT = (Collection<?>) targetValue; Collection
+		 * sT = (Collection<?>) sourceValue; cT.addAll(sT); } else if
+		 * (targetValue instanceof Thing || targetValue instanceof
+		 * CreativeWorkExtension) { mergeObjects(sourceValue, targetValue); } }
+		 * catch (Exception e) { e.printStackTrace(); } }
+		 */
 		return target;
 	}
 
-//	public abstract T merge(T source, T target);
+	// public abstract T merge(T source, T target);
 
 	public void print() throws Exception {
 		ObjectMapper mapper = new ObjectMapper();
