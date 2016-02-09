@@ -19,13 +19,13 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 
-import org.comicwiki.YearDeserializer;
-import org.comicwiki.YearSerializer;
 import org.comicwiki.rdf.annotations.ObjectDate;
 import org.comicwiki.rdf.annotations.ObjectIRI;
 import org.comicwiki.rdf.annotations.ObjectString;
 import org.comicwiki.rdf.annotations.Predicate;
 import org.comicwiki.rdf.annotations.Subject;
+import org.comicwiki.serializers.YearDeserializer;
+import org.comicwiki.serializers.YearSerializer;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;

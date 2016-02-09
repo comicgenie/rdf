@@ -94,8 +94,15 @@ public class Person extends Thing {
 	@ObjectIRI
 	public Collection<String> workedOn = new HashSet<>(3);// creativeWork,
 																// story,
-																// character,
-																// organization
+																// character,															// organization
+	public void makeMale() {
+		this.gender = "M";
+	}
+	
+	public void makeFemale() {
+		this.gender = "F";
+	}
+	
 
 	@Override
 	public String toString() {

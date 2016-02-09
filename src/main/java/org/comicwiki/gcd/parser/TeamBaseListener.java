@@ -1,112 +1,112 @@
 package org.comicwiki.gcd.parser;
-// Generated from Character.g4 by ANTLR 4.5.1
+// Generated from Team.g4 by ANTLR 4.5.1
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 /**
- * This class provides an empty implementation of {@link CharacterListener},
+ * This class provides an empty implementation of {@link TeamListener},
  * which can be extended to create a listener which only needs to handle a subset
  * of the available methods.
  */
-public class CharacterBaseListener implements CharacterListener {
+public class TeamBaseListener implements TeamListener {
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterCharacters(CharacterParser.CharactersContext ctx) { }
+	@Override public void enterCharacters(TeamParser.CharactersContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitCharacters(CharacterParser.CharactersContext ctx) { }
+	@Override public void exitCharacters(TeamParser.CharactersContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterTeams(CharacterParser.TeamsContext ctx) { }
+	@Override public void enterTeams(TeamParser.TeamsContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitTeams(CharacterParser.TeamsContext ctx) { }
+	@Override public void exitTeams(TeamParser.TeamsContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterNoTeam(CharacterParser.NoTeamContext ctx) { }
+	@Override public void enterNoTeam(TeamParser.NoTeamContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitNoTeam(CharacterParser.NoTeamContext ctx) { }
+	@Override public void exitNoTeam(TeamParser.NoTeamContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterTeamAlt(CharacterParser.TeamAltContext ctx) { }
+	@Override public void enterTeamAlt(TeamParser.TeamAltContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitTeamAlt(CharacterParser.TeamAltContext ctx) { }
+	@Override public void exitTeamAlt(TeamParser.TeamAltContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterTeamStandard(CharacterParser.TeamStandardContext ctx) { }
+	@Override public void enterTeamStandard(TeamParser.TeamStandardContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitTeamStandard(CharacterParser.TeamStandardContext ctx) { }
+	@Override public void exitTeamStandard(TeamParser.TeamStandardContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterAliases(CharacterParser.AliasesContext ctx) { }
+	@Override public void enterAliases(TeamParser.AliasesContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitAliases(CharacterParser.AliasesContext ctx) { }
+	@Override public void exitAliases(TeamParser.AliasesContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterNotes(CharacterParser.NotesContext ctx) { }
+	@Override public void enterNotes(TeamParser.NotesContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitNotes(CharacterParser.NotesContext ctx) { }
+	@Override public void exitNotes(TeamParser.NotesContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterCharacter(CharacterParser.CharacterContext ctx) { }
+	@Override public void enterCharacter(TeamParser.CharacterContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitCharacter(CharacterParser.CharacterContext ctx) { }
+	@Override public void exitCharacter(TeamParser.CharacterContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

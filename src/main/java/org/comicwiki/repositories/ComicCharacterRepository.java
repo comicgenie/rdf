@@ -28,180 +28,211 @@ import opennlp.tools.namefind.TokenNameFinderModel;
 import opennlp.tools.util.Span;
 
 import org.comicwiki.BaseRepository;
+import org.comicwiki.PersonNameMatcher;
 import org.comicwiki.model.ComicCharacter;
 
-import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
+import com.google.common.collect.Iterables;
 
 public class ComicCharacterRepository extends BaseRepository<ComicCharacter> {
-/*
-	@Override
-	public ComicCharacter merge(ComicCharacter source, ComicCharacter target) {
-		target.abilities.addAll(source.abilities);
-		target.alternateNames.addAll(source.alternateNames);
-		target.areasWorkedIn.addAll(source.areasWorkedIn);
-		return target;
-	}
-*/
-	@Override
-	public void load() throws IOException {
 
+	private static Pattern impliedFemale = Pattern.compile(".*(girl|woman).*",
+			Pattern.CASE_INSENSITIVE);
+
+	private static Pattern impliedMale = Pattern.compile(".*\\b(man)\\b",
+			Pattern.CASE_INSENSITIVE);
+
+	private static Pattern middleInitial = Pattern.compile("\\w{1}(\\.){1}",
+			Pattern.CASE_INSENSITIVE);
+	private static Pattern prefixFemale = Pattern
+			.compile(
+					"^(mrs|miss|ms|lady|princess|queen|dame|madam|ma'am|duchess|viscountess|countess|baroness|aunt)( |\\.){1}(.*)",
+					Pattern.CASE_INSENSITIVE);
+
+	private static Pattern prefixMale = Pattern
+			.compile(
+					"^(mr|sir|lord|master|king|prince|count|duke|baron|viscount|knight|earl|emperor|uncle|shiek)( |\\.){1}(.*)",
+					Pattern.CASE_INSENSITIVE);
+	private static Pattern prefixNeutral = Pattern
+			.compile(
+					"(^(ambassador|constable|senator|corporal|mayor|cap'n|professor|president|inspector|detective|doctor|dr|sgt|col|captain|major|maj|officer|general|gen|prof|capt|sheriff|lieutenant|lt)( |\\.){1})(.*)",
+					Pattern.CASE_INSENSITIVE);
+
+	private static Pattern suffixMale = Pattern.compile(
+			".*(esq|esquire|caesar)\\.*$", Pattern.CASE_INSENSITIVE);
+
+	private static String[] tokenize(String text) {
+		return Iterables.toArray(Splitter.on(' ').trimResults()
+				.omitEmptyStrings().split(text), String.class);
 	}
+
+	protected String removePrefixAndSuffix(String name) {
+		String s = name;
+		Matcher m = prefixNeutral.matcher(s);
+		if (m.matches()) {
+			s = m.group(m.groupCount());
+		}
+
+		m = suffixMale.matcher(s);
+		if (m.matches()) {
+			s = m.group(m.groupCount());
+		}
+
+		m = prefixMale.matcher(s);
+		if (m.matches()) {
+			s = m.group(m.groupCount());
+		}
+
+		m = prefixFemale.matcher(s);
+		if (m.matches()) {
+			s = m.group(m.groupCount());
+		}
+		return s;
+	}
+
+	private boolean oneName(String[] tokens) {
+		return tokens.length == 1;
+	}
+
+	private boolean firstAndLastName(String[] tokens) {
+		return tokens.length == 2;
+	}
+
+	public void addGender(PersonNameMatcher personMatcher) throws IOException {
+
+		for (ComicCharacter cc : cache.values()) {
+			Matcher prefixMaleMatcher = prefixMale.matcher(cc.name);
+			Matcher suffixMaleMatcher = suffixMale.matcher(cc.name);
+			Matcher prefixFemaleMatcher = prefixFemale.matcher(cc.name);
+
+			String[] nameTokens = tokenize(removePrefixAndSuffix(cc.name));
+
+			if(nameTokens.length == 0) {
+				System.out.println(cc.name);
+				continue;
+			}
+			boolean isImpliedMale = impliedMale.matcher(cc.name).matches();
+			boolean isImpliedFemale = impliedFemale.matcher(cc.name).matches();
+
+			boolean isMale = personMatcher.isMaleName(nameTokens[0]);
+			boolean isFemale = isMale ? false : (personMatcher
+					.isFemaleName(nameTokens[0]));
+
+			if (prefixMaleMatcher.matches()) {
+				cc.honorificPrefix = prefixMaleMatcher.group(1).trim();
+				cc.makeMale();
+				if (oneName(nameTokens)) {
+					if (isMale) {
+						cc.givenName = nameTokens[0];
+					} else {
+						cc.familyName = nameTokens[0];
+					}
+				}
+			} else if (suffixMaleMatcher.matches()) {
+				cc.honorificSuffix = suffixMaleMatcher.group(1).trim();
+				cc.makeMale();
+			} else if (prefixFemaleMatcher.matches()) {
+				cc.honorificPrefix = prefixFemaleMatcher.group(1).trim();
+				cc.makeFemale();
+				if (oneName(nameTokens)) {
+					if (isFemale) {
+						cc.givenName = nameTokens[0];
+					} else {
+						cc.familyName = nameTokens[0];
+					}
+				}
+			} else if (isFemale || isImpliedFemale) {
+				cc.makeFemale();
+			} else if (isMale || isImpliedMale) {
+				cc.makeMale();
+			}
+
+			if (nameTokens.length > 1) {
+				Matcher isMaleName = personMatcher.maleNames(nameTokens[0]);
+				if (isMaleName.matches()) {
+					cc.makeMale();
+					cc.givenName = isMaleName.group(1);
+					if (firstAndLastName(nameTokens)) {
+						cc.familyName = nameTokens[1];
+					} else if (nameTokens.length == 3
+							&& middleInitial.matcher(nameTokens[1]).matches()) {
+						cc.familyName = nameTokens[2];
+						if (Strings.isNullOrEmpty(cc.givenName)) {
+							cc.givenName = nameTokens[0];
+						}
+					}
+				}
+
+				Matcher isFemaleName = personMatcher.femaleNames(nameTokens[0]);
+				if (isFemaleName.matches()) {
+					cc.makeFemale();
+					cc.givenName = isFemaleName.group(1);
+					if (firstAndLastName(nameTokens)) {
+						cc.familyName = nameTokens[1];
+					} else if (nameTokens.length == 3
+							&& middleInitial.matcher(nameTokens[1]).matches()) {
+						cc.familyName = nameTokens[2];
+						if (Strings.isNullOrEmpty(cc.givenName)) {
+							cc.givenName = nameTokens[0];
+						}
+					}
+				}
+
+				Matcher lastNamesMatcher = personMatcher
+						.lastNames(nameTokens[nameTokens.length - 1]);
+				if (lastNamesMatcher.matches()) {
+					cc.familyName = lastNamesMatcher.group(1);
+					if (nameTokens.length == 3
+							&& middleInitial.matcher(nameTokens[1]).matches()
+							&& Strings.isNullOrEmpty(cc.givenName)) {
+						cc.givenName = nameTokens[0];
+					}
+				}
+			}
+
+			Matcher isPrefixNeutral = prefixNeutral.matcher(cc.name);
+			if (isPrefixNeutral.matches()) {
+				cc.honorificPrefix = isPrefixNeutral.group(1).trim();
+				if (oneName(nameTokens)) {
+					if (isFemale || isMale) {
+						if (Strings.isNullOrEmpty(cc.givenName)) {
+							cc.givenName = nameTokens[0];
+						}
+					} else {
+						if (Strings.isNullOrEmpty(cc.familyName)) {
+							cc.familyName = nameTokens[0];
+						}
+					}
+				} else {
+					
+				}
+			}
+		}
+	}
+
 	public String name(String name) throws IOException {
-		String field [] = name.split("[ ]");
+		String field[] = name.split("[ ]");
 		InputStream modelIn = new FileInputStream("en-ner-person.bin");
 		StringBuilder sb = new StringBuilder();
 		try {
-		  TokenNameFinderModel model = new TokenNameFinderModel(modelIn);
-		  NameFinderME nameFinder = new NameFinderME(model);
-		  //String[] field = new String[]{"George", "M.", "Cohan"};
-		  Span nameSpans[] = nameFinder.find(field);
-		  if(nameSpans == null || nameSpans.length == 0 ) {
-			  return "";
-		  }
-		  return field[nameSpans[nameSpans.length - 1].getEnd() - 1];
-		  /*
-		  for(Span span : nameSpans) {
-			  
-			  for(int i = span.getStart() ; i < span.getEnd(); i++) {
-				  sb.append(field[i]);
-				 // System.out.println(field[i]);
-			  }
-			  
-		  }
-		  */
-		}
-		catch (IOException e) {
-		  e.printStackTrace();
-		}
-		finally {
-		  if (modelIn != null) {
-		    try {
-		      modelIn.close();
-		    }
-		    catch (IOException e) {
-		    }
-		  }
+			TokenNameFinderModel model = new TokenNameFinderModel(modelIn);
+			NameFinderME nameFinder = new NameFinderME(model);
+			Span nameSpans[] = nameFinder.find(field);
+			if (nameSpans == null || nameSpans.length == 0) {
+				return "";
+			}
+			return field[nameSpans[nameSpans.length - 1].getEnd() - 1];
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if (modelIn != null) {
+				try {
+					modelIn.close();
+				} catch (IOException e) {
+				}
+			}
 		}
 		return sb.toString();
 	}
-	
-	public void addGender(Collection<String> m, Collection<String> f, Collection<String> lastNames) throws IOException {
-		FileOutputStream charactersFile = new FileOutputStream("character.txt");
-		Pattern malePrefix = Pattern
-				.compile(
-						"^(mr|sir|lord|master|king|prince|count|duke|baron|viscount|knight|earl|emperor)( |\\.){1}.*",
-						Pattern.CASE_INSENSITIVE);
-		Pattern maleSuffix = Pattern.compile(".*(esq|esquire|caesar)\\.*$",
-				Pattern.CASE_INSENSITIVE);
-		Pattern femalePrefix = Pattern
-				.compile(
-						"^(mrs|miss|ms|lady|princess|queen|dame|madam|ma'am|duchess|viscountess|countess|baroness)( |\\.){1}.*",
-						Pattern.CASE_INSENSITIVE);
-		Pattern femaleReference = Pattern.compile(".*(girl|woman).*",
-				Pattern.CASE_INSENSITIVE);
-		Pattern maleReference = Pattern.compile(".*\\b(man)\\b",
-				Pattern.CASE_INSENSITIVE);
-		Pattern honorific = Pattern.compile(".*(mayor|professor|inspector|detective|doctor|dr|sgt|col|captain|major|general|prof|capt|sheriff|gen|ancle|aunt|lt)\\.*$",
-				Pattern.CASE_INSENSITIVE);
-		
-		//Professor/Inspector
-		String mj = Joiner.on("|").join(m.toArray());
-		String fj = Joiner.on("|").join(f.toArray());
-		String ln = Joiner.on("|").join(lastNames.toArray());
-		
-		Pattern patternM = Pattern.compile(".*\\b(" + mj + ")\\b.*", Pattern.CASE_INSENSITIVE);
-		Pattern patternF = Pattern.compile(".*\\b(" + fj + ")\\b.*", Pattern.CASE_INSENSITIVE);
-		Pattern patternLN = Pattern.compile(".*\\b(" + ln + ")\\b.*", Pattern.CASE_INSENSITIVE);
-		
-		int c = 0;
-		int male = 0;
-		int female = 0;
-		int countLast = 0;
-		int honorCount = 0;
-		int familyCount = 0;
-		for (ComicCharacter cc : cache.values()) {
-			
-			//charactersFile.write( (cc.name+"\r\n").getBytes());
-			Matcher malePrefixMatcher = malePrefix.matcher(cc.name);
-			Matcher suffixPrefixMatcher = maleSuffix.matcher(cc.name);
-			Matcher femalePrefixMatcher = femalePrefix.matcher(cc.name);
-
-			Matcher maleMatcher = maleReference.matcher(cc.name);
-			Matcher femaleMatcher = femaleReference.matcher(cc.name);
-
-			if (malePrefixMatcher.matches()) {
-				c++;
-				cc.honorificPrefix = malePrefixMatcher.group(1);
-				cc.gender = "M";
-			} else if (suffixPrefixMatcher.matches()) {
-				c++;
-				cc.honorificSuffix = suffixPrefixMatcher.group(1);
-				cc.gender = "M";
-			} else if (femalePrefixMatcher.matches()) {
-				c++;
-				cc.honorificSuffix = femalePrefixMatcher.group(1);
-				cc.gender = "F";
-			} else if (femaleMatcher.matches()) {
-				c++;
-				cc.gender = "F";
-			} else if (maleMatcher.matches()) {
-				c++;
-				cc.gender = "M";
-			}
-			Matcher lnm = patternLN.matcher(cc.name);
-			if(lnm.matches()) {
-				countLast++;
-				cc.familyName = lnm.group(1);
-				String[] tokens = cc.name.split("[ ]");
-				/*
-				if(tokens.length == 2) {
-					familyCount++;
-					cc.givenName = tokens[0];
-				}
-				*/
-			}
-			
-			Matcher mmm = patternM.matcher(cc.name);
-			if (mmm.matches()) {
-				male++;
-				cc.gender = "M";
-				cc.givenName = mmm.group(1);
-				String[] tokens = cc.name.split("[ ]");
-				/*
-				if(tokens.length == 2) {
-					familyCount++;
-					cc.familyName = tokens[0];
-				}
-				*/
-			}
-
-			Matcher mmf = patternF.matcher(cc.name);
-			if (mmf.matches()) {
-				female++;
-				cc.gender = "F";
-				cc.givenName = mmf.group(1);
-			//	cc.familyName = name(cc.name);
-			//	System.out.println(cc.name + " : " + cc.givenName + "," + cc.familyName);
-				/*
-				String[] tokens = cc.name.split("[ ]");
-				
-				if(tokens.length == 2) {
-					familyCount++;
-					cc.familyName = tokens[0];
-				}
-				*/
-			}
-			
-			Matcher mmh = honorific.matcher(cc.name);
-			if(mmh.matches()) {
-				honorCount++;
-				cc.honorificPrefix = mmh.group(1);
-			}
-		}
-		System.out.println("------Gender Count:" + c + ":" + male + ":"
-				+ female + ":" + countLast +":" + honorCount +":"+ familyCount);
-		charactersFile.close();
-
-	}
-
 }

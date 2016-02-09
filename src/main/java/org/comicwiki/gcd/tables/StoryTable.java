@@ -17,6 +17,8 @@ package org.comicwiki.gcd.tables;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -26,6 +28,7 @@ import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 import org.comicwiki.ComicKeyRepository;
+import org.comicwiki.PersonNameMatcher;
 import org.comicwiki.gcd.CharacterFieldParser;
 import org.comicwiki.gcd.CreatorFieldParser;
 import org.comicwiki.model.ComicCharacter;
@@ -38,18 +41,41 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Sets;
 
 public class StoryTable extends BaseTable<StoryTable.StoryRow> {
+	ComicCharacterRepository cRepo = new ComicCharacterRepository();
+	int i = 0;
+	
+	public void preExport() {
+		PersonNameMatcher imp = new PersonNameMatcher();
+		try {
+			imp.load(new File("./src/main/resources/names/yob2014.txt"));
+			imp.loadLastNames(new File("./src/main/resources/names/lastname.txt"));
+			cRepo.addGender(imp);
 
+			try {
+				cRepo.print();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	@Override
 	public void exportRowToRepositories(StoryRow row) {
 		super.exportRowToRepositories(row);
-		ComicKeyRepository ckRepo = new ComicKeyRepository();
-		ComicCharacterRepository cRepo = new ComicCharacterRepository();
-		
+	
 		for(ComicCharacter cc : row.characters) {
+			System.out.println(i +":" + "NAME: " + cc.name);
 			cRepo.add(cc);
+			if(i++ > 100) {
+				
+				break;
+			}
 		}
-		
-		
+
+	
 		//export to StoryRepository, CharacterRepository, CreatorRepository
 	}
 
@@ -127,7 +153,7 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 
 		public Collection<ComicOrganization> organizations;
 
-		public int pageCount;
+		public BigDecimal pageCount;
 
 		public boolean pageCountUncertain;
 
@@ -246,10 +272,10 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 			storyRow.typeId = row.getInt(Columns.TYPE_ID);
 		}
 		if (!row.isNullAt(Columns.PAGE_COUNT)) {
-			storyRow.pageCount = row.getInt(Columns.PAGE_COUNT);
+			storyRow.pageCount = (BigDecimal) row.get(Columns.PAGE_COUNT);
 		}
 		if (!row.isNullAt(Columns.SEQUENCE_NUMBER)) {
-			storyRow.pageCount = row.getInt(Columns.SEQUENCE_NUMBER);
+			storyRow.sequenceNumber = row.getInt(Columns.SEQUENCE_NUMBER);
 		}
 
 		if (!row.isNullAt(Columns.ISSUE_ID)) {
@@ -268,6 +294,8 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 		super.assignRelations(row);
 		Stream<Person> creators = Stream.of(row.inks, row.colors, row.editing)
 				.flatMap(Collection::stream);
+	
+		
 		// RelationsAssigner.colleagues(creators);
 		// RelationsAssigner.creatorRoles(row.colors, CreatorRole.colorist);
 		// RelationsAssigner.creatorRoles(row.inks, CreatorRole.inker);

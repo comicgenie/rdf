@@ -18,7 +18,8 @@ package org.comicwiki.gcd.tables;
 import java.io.File;
 import java.io.IOException;
 
-import org.comicwiki.NamesImporter;
+import org.comicwiki.DataFormat;
+import org.comicwiki.PersonNameMatcher;
 import org.comicwiki.model.schema.ComicStory;
 import org.comicwiki.repositories.ComicCharacterRepository;
 
@@ -39,10 +40,14 @@ public class RepositoryBuilder {
 			comicStory.name = storyRow.title;
 			// add to Repo
 		}
-		NamesImporter imp = new NamesImporter();
+		PersonNameMatcher imp = new PersonNameMatcher();
 		imp.load(new File("yob2014.txt"));
 		imp.loadLastNames(new File("lastname.txt"));
-		repo2.addGender(imp.maleCache, imp.femaleCache, imp.lastNamesCache);
-		repo2.save(new File("character.repo.txt"));
+		repo2.addGender(imp);
+		try {
+			repo2.save(new File("character.repo.txt"), DataFormat.JSON);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }

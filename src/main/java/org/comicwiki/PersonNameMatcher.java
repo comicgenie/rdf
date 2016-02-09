@@ -22,8 +22,12 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-public class NamesImporter {
+import com.google.common.base.Joiner;
+
+public class PersonNameMatcher {
 
 	public HashMap<String, String> cache = new HashMap<>();
 	
@@ -32,21 +36,31 @@ public class NamesImporter {
 	public HashSet<String> femaleCache = new HashSet<>();
 	
 	public HashSet<String> lastNamesCache = new HashSet<>();
+
+	private Pattern patternLastNames;
+
+	private Pattern patternMaleNames;
+
+	private Pattern patternFemaleNames;
 	
-	public void load2(File file) throws IOException {
-		BufferedReader in = new BufferedReader(new FileReader(file));
-		String line = null;
-		while ((line = in.readLine()) != null) {
-			String[] tokens = line.split(",");
-			if(cache.containsKey(tokens[0])) {
-				cache.remove(tokens[0]);
-			} else {
-				cache.put(tokens[0], tokens[1]);
-			}
-		}
-		
-		in.close();
-		System.out.println(cache);
+	public boolean isMaleName(String name) {
+		return maleNames(name).matches();
+	}
+	
+	public boolean isFemaleName(String name) {
+		return femaleNames(name).matches();
+	}
+	
+	public Matcher femaleNames(String text) {
+		return patternFemaleNames.matcher(text);
+	}
+	
+	public Matcher maleNames(String text) {
+		return patternMaleNames.matcher(text);
+	}
+	
+	public Matcher lastNames(String text) {
+		return patternLastNames.matcher(text);
 	}
 	
 	public void load(File file) throws IOException {
@@ -69,6 +83,14 @@ public class NamesImporter {
 			}
 		}
 		in.close();
+		
+		patternMaleNames = Pattern.compile(
+				".*\\b(" + Joiner.on("|").join(maleCache.toArray()) + ")\\b.*",
+				Pattern.CASE_INSENSITIVE);
+		patternFemaleNames = Pattern.compile(
+				".*\\b(" + Joiner.on("|").join(femaleCache.toArray())
+						+ ")\\b.*", Pattern.CASE_INSENSITIVE);
+		
 	}
 	
 	public void loadLastNames(File file) throws IOException {
@@ -78,5 +100,8 @@ public class NamesImporter {
 			lastNamesCache.add(line);
 		}
 		in.close();
+		patternLastNames = Pattern.compile(".*\\b("
+				+ Joiner.on("|").join(lastNamesCache.toArray()) + ")\\b.*",
+				Pattern.CASE_INSENSITIVE);
 	}
 }

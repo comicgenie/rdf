@@ -16,21 +16,15 @@
 package org.comicwiki.repositories;
 
 import java.io.IOException;
-import java.net.URI;
-import java.util.Calendar;
 
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaSparkContext;
-import org.apache.spark.sql.DataFrame;
-import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 import org.comicwiki.BaseRepository;
-import org.comicwiki.gcd.tables.PublisherTable;
 import org.comicwiki.model.schema.Organization;
 
 public class OrganizationRepository extends BaseRepository<Organization> {
 
-	@Override
 	public void load() throws IOException {
 		SparkConf conf = new SparkConf().setAppName("GCDB").setMaster("local");
 		JavaSparkContext sc = new JavaSparkContext(conf);

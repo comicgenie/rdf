@@ -16,6 +16,7 @@
 package org.comicwiki;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,7 +25,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.TreeSet;
 
 import org.comicwiki.model.CreativeWorkExtension;
@@ -36,6 +36,7 @@ import org.comicwiki.rdf.TurtleImporter;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.jsonldjava.core.JsonLdError;
+import com.github.jsonldjava.core.JsonLdProcessor;
 import com.github.jsonldjava.core.RDFDataset;
 import com.github.jsonldjava.core.RDFDatasetUtils;
 import com.google.common.base.Strings;
@@ -69,7 +70,7 @@ public abstract class BaseRepository<T extends Thing> {
 		return target;
 	}
 
-	protected final HashMap<ComicKey, T> cache = new HashMap<>();
+	public final HashMap<ComicKey, T> cache = new HashMap<>();
 
 	ComicKeyRepository ckRepo = new ComicKeyRepository();
 
@@ -101,10 +102,14 @@ public abstract class BaseRepository<T extends Thing> {
 		return cache.containsKey(key);
 	}
 
-	public void exportData(OutputStream out, DataFormat format)
-			throws Exception {
+	public void save(File file, DataFormat format) throws Exception {
+		save(new FileOutputStream(file), format);
+	}
+
+	public void save(OutputStream out, DataFormat format) throws Exception {
 		if (DataFormat.JSON.equals(format)) {
 			ObjectMapper mapper = new ObjectMapper();
+			mapper.setSerializationInclusion(Include.NON_DEFAULT);
 			mapper.writeValue(out, cache.values());
 		} else if (DataFormat.N_TRIPLES.equals(format)) {
 			RDFDataset dataset = new RDFDataset();
@@ -117,35 +122,39 @@ public abstract class BaseRepository<T extends Thing> {
 							statement.getPredicate().getValue(), statement
 									.getObject().getValue());
 				}
-
 			}
 			out.write(RDFDatasetUtils.toNQuads(dataset).getBytes());
-		}
-	}
+		} else if (DataFormat.TURTLE.equals(format)) {
+			RDFDataset dataset = new RDFDataset();
+			for (T t : cache.values()) {
+				Collection<Statement> statements = StatementFactory
+						.transform(t);
 
-	public Collection<T> find(Collection<ComicMatcher<T>> matchers) {
-		if (matchers == null) {
-			return cache.values();
-		}
-
-		Collection<T> items = new HashSet<T>();
-		for (T item : cache.values()) {
-			for (ComicMatcher<T> matcher : matchers) {
-				if (!matcher.match(item)) {
-					continue;
+				for (Statement statement : statements) {
+					dataset.addTriple(statement.getSubject().getValue(),
+							statement.getPredicate().getValue(), statement
+									.getObject().getValue());
 				}
-				items.add(item);
 			}
+			Object output = JsonLdProcessor.fromRDF(RDFDatasetUtils
+					.toNQuads(dataset));
+
+			out.write(output.toString().getBytes());
 		}
-		return items;
+		out.close();
 	}
 
 	public T getByKey(ComicKey key) {
 		return cache.get(key);
 	}
 
-	public void importData(InputStream is, DataFormat format)
-			throws IOException, JsonLdError {
+	public void load(File file, DataFormat format) throws IOException,
+			JsonLdError {
+		load(new FileInputStream(file), format);
+	}
+
+	public void load(InputStream is, DataFormat format) throws IOException,
+			JsonLdError {
 		Collection<T> results = new TreeSet<T>();
 		if (DataFormat.JSON.equals(format)) {
 			@SuppressWarnings("unchecked")
@@ -169,54 +178,13 @@ public abstract class BaseRepository<T extends Thing> {
 		}
 	}
 
-	public abstract void load() throws IOException;
-
-	public void load(File file) throws IOException {
-		RepositoryFile<T> repoFile = mapper.readValue(file,
-				RepositoryFile.class);
-		Collection<T> values = repoFile.values;
-		for (T value : values) {
-			add(value);
-		}
-	}
-
 	public <T> T merge(T source, T target) {
 		mergeObjects(source, target);
-		/*
-		 * @SuppressWarnings("unchecked") Class<T> clazz = (Class<T>)
-		 * ((ParameterizedType) getClass()
-		 * .getGenericSuperclass()).getActualTypeArguments()[0];
-		 * 
-		 * Field[] fields = clazz.getFields();
-		 */
-		/*
-		 * for (Field field : fields) { field.setAccessible(true); try { Object
-		 * sourceValue = field.get(source); if (sourceValue == null) { continue;
-		 * } Object targetValue = field.get(source); if (targetValue == null) {
-		 * field.set(target, sourceValue); } else if (targetValue instanceof
-		 * Collection) { Collection cT = (Collection<?>) targetValue; Collection
-		 * sT = (Collection<?>) sourceValue; cT.addAll(sT); } else if
-		 * (targetValue instanceof Thing || targetValue instanceof
-		 * CreativeWorkExtension) { mergeObjects(sourceValue, targetValue); } }
-		 * catch (Exception e) { e.printStackTrace(); } }
-		 */
 		return target;
 	}
-
-	// public abstract T merge(T source, T target);
 
 	public void print() throws Exception {
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.writeValue(System.out, cache.values());
 	}
-
-	public void save(File file) throws IOException {
-		FileOutputStream fos = new FileOutputStream(file);
-		RepositoryFile<T> repoFile = new RepositoryFile<T>();
-		repoFile.values = cache.values();
-		mapper.setSerializationInclusion(Include.NON_DEFAULT);
-		mapper.writeValue(fos, repoFile);
-		fos.close();
-	}
-
 }

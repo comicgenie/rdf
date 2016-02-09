@@ -57,6 +57,5 @@ public class ComicCharacter extends Person  {
 	
 	//TODO: Need a special ser/der for this
 	public CreativeWorkExtension creativeWork = new CreativeWorkExtension();
-	
 
 }

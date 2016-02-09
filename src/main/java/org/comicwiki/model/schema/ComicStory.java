@@ -63,6 +63,6 @@ public class ComicStory extends CreativeWork {
 	
 	@Predicate("pageCountUncertain")
 	@ObjectBoolean
-	public boolean pageCountUncertain;
+	public Boolean pageCountUncertain;
 	
 }

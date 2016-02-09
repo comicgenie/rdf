@@ -1,5 +1,5 @@
 grammar Character;       
-characters  : character (SEMICOLON? character)*SEMICOLON??; 
+characters  : character ((SEMICOLON|' and ')? character)*(SEMICOLON|' and ')?; 
 teams : team+; 
 team : 
 	  characters  			#noTeam

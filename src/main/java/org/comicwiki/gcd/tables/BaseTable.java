@@ -57,8 +57,16 @@ public abstract class BaseTable<R extends TableRow> {
 	public void exportRowToRepositories(R row) {//make abstract
 
 	}
+	
+	public final void assignRelations() {
+		cache.values().forEach(r -> assignRelations(r));
+	}
 
-	public final void exportTableToRepositories() {
+	public void preExport() {
+		
+	}
+	
+	public final void exportToRepositories() {
 		cache.values().forEach(r -> exportRowToRepositories(r));
 	}
 

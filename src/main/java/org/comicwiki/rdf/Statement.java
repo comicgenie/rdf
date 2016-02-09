@@ -62,7 +62,7 @@ public class Statement implements Comparable<Statement> {
 		this.predicate = createRdfPredicate(predicate.value());
 	}
 
-	public Statement(Subject subject, Predicate predicate, boolean value) {
+	public Statement(Subject subject, Predicate predicate, Boolean value) {
 		this(subject, predicate);
 		this.object = createRdfObjectLiteral(value);
 	}
@@ -78,10 +78,27 @@ public class Statement implements Comparable<Statement> {
 	}
 
 	public Statement(RdfSubject subject, RdfPredicate predicate, String string) {
-		// this(subject, predicate);
 		this.subject = subject;
 		this.predicate = predicate;
 		this.object = createRdfObjectLiteral(string);
+	}
+	
+	public Statement(RdfSubject subject, RdfPredicate predicate, Boolean value) {
+		this.subject = subject;
+		this.predicate = predicate;
+		this.object = createRdfObjectLiteral(value);
+	}
+	
+	public Statement(RdfSubject subject, RdfPredicate predicate, Integer value) {
+		this.subject = subject;
+		this.predicate = predicate;
+		this.object = createRdfObjectLiteral(value);
+	}
+	
+	public Statement(RdfSubject subject, RdfPredicate predicate, URL value) {
+		this.subject = subject;
+		this.predicate = predicate;
+		this.object = createRdfObjectLiteral(value);
 	}
 
 	public Statement(Subject subject, Predicate predicate, String string) {
@@ -123,7 +140,6 @@ public class Statement implements Comparable<Statement> {
 	}
 
 	private RdfObject createRdfObjectLiteral(String value) {
-		// "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString"
 		String datatype = "http://www.w3.org/2001/XMLSchema#string";
 		return new RdfObject(value, StatementItemType.literal, datatype, null);
 	}
@@ -186,10 +202,6 @@ public class Statement implements Comparable<Statement> {
 
 	public void setObject(RdfObject object) {
 		this.object = object;
-	}
-
-	public void setObjectValue(String value) {
-
 	}
 
 	public void setPredicate(RdfPredicate predicate) {

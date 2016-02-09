@@ -98,7 +98,7 @@ public class CreativeWork extends Thing {
 	 */
 	@Predicate("isFamilyFriendly")
 	@ObjectBoolean
-	public boolean isFamilyFriendly;
+	public Boolean isFamilyFriendly;
 
 	/**
 	 * The textual content of this CreativeWork.
