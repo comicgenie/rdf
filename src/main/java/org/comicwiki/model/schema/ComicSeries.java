@@ -20,32 +20,39 @@ import java.util.HashSet;
 
 import org.comicwiki.rdf.annotations.ObjectString;
 import org.comicwiki.rdf.annotations.Predicate;
+import org.comicwiki.rdf.annotations.SchemaBib;
+import org.comicwiki.rdf.annotations.SchemaComicWiki;
 import org.comicwiki.rdf.annotations.Subject;
 
 @Subject(value = "http://schema.org/ComicSeries", key= "name")
+@SchemaBib
 public class ComicSeries extends Periodical {
 
 	//use URL to reference http://comics.org/issues/id
 	
-	//ADD [not in spec]
 	@Predicate("format")
 	@ObjectString
+	@SchemaComicWiki
 	public Collection<String> format  = new HashSet<>(3);
 	
 	@Predicate("binding")
 	@ObjectString
+	@SchemaComicWiki
 	public Collection<String> binding  = new HashSet<>(3);
 	
 	@Predicate("color")
 	@ObjectString
+	@SchemaComicWiki
 	public Collection<String> colors  = new HashSet<>(3);
 	
 	@Predicate("dimension")
 	@ObjectString
+	@SchemaComicWiki
 	public Collection<String> dimensions  = new HashSet<>(3);
 	
 	@Predicate("paperStock")
 	@ObjectString
+	@SchemaComicWiki
 	public Collection<String> paperStock  = new HashSet<>(3);
 	
 }

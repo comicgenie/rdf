@@ -20,6 +20,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import org.antlr.v4.runtime.tree.TerminalNode;
+import org.comicwiki.ThingFactory;
 import org.comicwiki.gcd.parser.CharacterParser.CharacterContext;
 import org.comicwiki.model.ComicCharacter;
 import org.comicwiki.model.ComicUniverse;
@@ -28,38 +29,22 @@ public class CharacterCreator {
 
 	private static FileOutputStream fos;
 
-	
-	public static void merge(ComicCharacter newCharacter,
-			ComicCharacter oldCharacter) {
-		/*
-		for (String identity : newCharacter.getIdentities()) {
-			oldCharacter.addIdentity(identity);
-		}
-
-		for (String note : newCharacter.getNotes()) {
-			oldCharacter.addNote(note);
-		}
-		*/
-	}
-
 	public static ComicCharacter createCharacter(CharacterContext ctx) {
 
 		if(fos == null) {
 			try {
 				fos = new FileOutputStream("characters.all.txt");
 			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
-		ComicCharacter character = new ComicCharacter();
+		ComicCharacter character = ThingFactory.create(ComicCharacter.class);
 
 		String printName = ctx.WORD().getText();
 		
 		try {
 			fos.write((printName + "\r\n").getBytes());
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -74,14 +59,15 @@ public class CharacterCreator {
 				try {
 					fos.write(("NOTE: " + note + "\r\n").getBytes());
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				if (!note.isEmpty() && !note.matches("<.*>")
 						&& !exclude(note.toLowerCase())) {
 					if (note.startsWith("Earth")) {
 						universe = note;
-						character.universe = new ComicUniverse(note);
+						//character.universe = new ComicUniverse(note);
+						//character.universe = ThingFactory.create(ComicUniverse.class);
+						//character.universe.name = note;
 					} else {
 						character.creativeWork.comment.add(note);
 					}				
@@ -120,6 +106,7 @@ public class CharacterCreator {
 		return false;
 	}
 
+	//TODO: Convert to Regex
 	private static final String[] excludes = { "death", "dies", "guest-star",
 			"guest", "cameo", "cameos", "cameo flashback", "first appearance",
 			" 1st appearance", "only appearance", "first", "1st", "joins",

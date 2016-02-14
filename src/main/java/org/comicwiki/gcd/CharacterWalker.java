@@ -25,6 +25,7 @@ import java.util.List;
 
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
+import org.comicwiki.ThingFactory;
 import org.comicwiki.gcd.parser.CharacterBaseListener;
 import org.comicwiki.gcd.parser.CharacterParser.CharacterContext;
 import org.comicwiki.gcd.parser.CharacterParser.CharactersContext;
@@ -99,7 +100,7 @@ public final class CharacterWalker extends CharacterBaseListener {
 
 	private void startOrganization(String organizationName) {
 		if (organizationName != null && !organizationName.isEmpty()) {
-			currentOrganization = new ComicOrganization();
+			currentOrganization = ThingFactory.create(ComicOrganization.class);
 			currentOrganization.name = organizationName.trim();
 		}
 	}
@@ -117,7 +118,7 @@ public final class CharacterWalker extends CharacterBaseListener {
 		if(characterContext.aliases() != null) {
 			if(characterContext.aliases().WORD() != null) {
 				for (TerminalNode ac : characterContext.aliases().WORD()) {
-					ComicCharacter cc = new ComicCharacter();
+					ComicCharacter cc = ThingFactory.create(ComicCharacter.class);
 					cc.name = ac.getText().trim();
 					addCharacter(cc);
 				}			

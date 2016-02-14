@@ -18,7 +18,6 @@ package org.comicwiki.relations;
 import java.util.Collection;
 import java.util.stream.Stream;
 
-import org.comicwiki.ResourceUtils;
 import org.comicwiki.model.ComicCharacter;
 import org.comicwiki.model.ComicOrganization;
 import org.comicwiki.model.CreatorRole;
@@ -26,104 +25,105 @@ import org.comicwiki.model.Genre;
 import org.comicwiki.model.schema.ComicStory;
 import org.comicwiki.model.schema.Person;
 
-import static org.comicwiki.KeyUtils.*;
+public final class ComicCreatorAssigner {
+	private final Collection<Person> colors;
+	private final Stream<Person> creators;
+	private final Collection<Person> editors;
+	private final Collection<Person> inks;
+	private final Collection<Person> letters;
+	private final Collection<Person> pencils;
+	private final Collection<Person> script;
 
-public class ComicCreatorAssigner {
-	private Collection<Person> colors;
-	private Collection<Person> inks;
-	private Collection<Person> letters;
-	private Collection<Person> pencils;
-	private Collection<Person> script;
-	private Stream<Person> creators;
-
-	/**
-	 * ComicStory.[inkers][....] -> ComicOrganizations 
-	 */
-	void organizations(Collection<ComicOrganization> organizations) {
-		organizations.forEach(e -> {
-			String key = readKey(e);
-			creators.forEach(c -> {
-				c.workedOn.add(key);
-			});
-		});
-	}
-
-	
 	public ComicCreatorAssigner(Collection<Person> colors,
 			Collection<Person> inks, Collection<Person> letters,
-			Collection<Person> pencils, Collection<Person> script) {
+			Collection<Person> pencils, Collection<Person> script,
+			Collection<Person> editors) {
 		this.colors = colors;
 		this.inks = inks;
 		this.letters = letters;
 		this.pencils = pencils;
 		this.script = script;
-
-		creators = Stream.of(colors, inks, letters, pencils, script).flatMap(
-				Collection::stream);
-	}
-	
-	/**
-	 * ComicStory.[inkers][....] -> ComicStory.genres
-	 */
-	void genres(Collection<Genre> genres) {
-		genres.forEach(g -> {
-			String key = readKey(g);
-			creators.forEach(c -> c.areasWorkedIn.add(key));
-		});
+		this.editors = editors;
+		creators = Stream.of(colors, inks, letters, pencils, script, editors)
+				.flatMap(Collection::stream);
 	}
 
 	/**
-	 * ComicStory.[inkers][....] -> ComicCharacters
-	 * ComicCharacters -> ComicStory.[inkers][pencilers][....]
+	 * ComicStory.[inkers][....] -> ComicCharacters ComicCharacters ->
+	 * ComicStory.[inkers][pencilers][....]
 	 */
-	void characters(Collection<ComicCharacter> characters) {
-			characters.forEach(cc -> {
-				colors.forEach(e -> cc.creativeWork.colorists.add(readKey(e)));
-				inks.forEach(e -> cc.creativeWork.inkers.add(readKey(e)));
-				letters.forEach(e -> cc.creativeWork.letterers.add(readKey(e)));
-				pencils.forEach(e -> cc.creativeWork.pencilers.add(readKey(e)));
-				script.forEach(e -> cc.creativeWork.authors.add(readKey(e)));
-				
-				creators.forEach(c -> {
-					c.workedOn.add(readKey(cc));
+	public void characters(Collection<ComicCharacter> characters) {
+		characters
+				.forEach(cc -> {
+					colors.forEach(e -> cc.creativeWork.colorists
+							.add(e.instanceId));
+					inks.forEach(e -> cc.creativeWork.inkers
+							.add(e.instanceId));
+					letters.forEach(e -> cc.creativeWork.letterers
+							.add(e.instanceId));
+					pencils.forEach(e -> cc.creativeWork.pencilers
+							.add(e.instanceId));
+					script.forEach(e -> cc.creativeWork.authors
+							.add(e.instanceId));
+					editors.forEach(e -> cc.creativeWork.editors
+							.add(e.instanceId));
+					creators.forEach(c -> {
+						c.workedOn.add(cc.instanceId);
+					});
 				});
-			});
-	}
-
-	/**
-	 * ComicStory.[inkers][....] -> ComicStory
-	 */
-	void story(ComicStory story) {
-		colors.forEach(e -> story.colorists.add(readKey(e)));
-		inks.forEach(e -> story.inkers.add(readKey(e)));
-		letters.forEach(e -> story.letterers.add(readKey(e)));
-		pencils.forEach(e -> story.pencilers.add(readKey(e)));
-		script.forEach(e -> story.authors.add(readKey(e)));
 	}
 
 	/**
 	 * ComicStory.[inkers][....] -> ComicStory.[inkers][....]
 	 */
-	 void colleagues() {
+	public void colleagues() {
 		creators.forEach(one -> {
-			String oneKey = readKey(one);
-			if (oneKey != null) {
-				creators.forEach(two -> {
-					String twoKey = readKey(two);
-					if (!oneKey.equals(twoKey)) {
-						one.colleagues.add(ResourceUtils.expandIri(twoKey));
-					}
-				});
-			}
+			creators.forEach(two -> {
+				if (!one.equals(two)) {
+					one.colleagues.add(two.instanceId);
+				}
+			});
 		});
 	}
 
-	public void execute() {
-		colleagues();
+	public void jobTitles() {
 		colors.forEach(e -> e.jobTitle.add(CreatorRole.colorist.name()));
 		inks.forEach(e -> e.jobTitle.add(CreatorRole.inker.name()));
 		letters.forEach(e -> e.jobTitle.add(CreatorRole.letterist.name()));
 		pencils.forEach(e -> e.jobTitle.add(CreatorRole.penclier.name()));
 		script.forEach(e -> e.jobTitle.add(CreatorRole.writer.name()));
+		editors.forEach(e -> e.jobTitle.add(CreatorRole.editor.name()));
+	}
+
+	/**
+	 * ComicStory.[inkers][....] -> ComicStory.genres
+	 */
+	public void genres(Collection<Genre> genres) {
+		genres.forEach(g -> {
+			creators.forEach(c -> c.areasWorkedIn.add(g.instanceId));
+		});
+	}
+
+	/**
+	 * ComicStory.[inkers][....] -> ComicOrganizations
+	 */
+	public void organizations(Collection<ComicOrganization> organizations) {
+		organizations.forEach(e -> {
+			creators.forEach(c -> {
+				c.workedOn.add(e.instanceId);
+			});
+		});
+	}
+
+	/**
+	 * ComicStory.[inkers][....] -> ComicStory
+	 */
+	public void story(ComicStory story) {
+		colors.forEach(e -> story.colorists.add(e.instanceId));
+		inks.forEach(e -> story.inkers.add(e.instanceId));
+		letters.forEach(e -> story.letterers.add(e.instanceId));
+		pencils.forEach(e -> story.pencilers.add(e.instanceId));
+		script.forEach(e -> story.authors.add(e.instanceId));
+		editors.forEach(e -> story.editors.add(e.instanceId));
 	}
 }

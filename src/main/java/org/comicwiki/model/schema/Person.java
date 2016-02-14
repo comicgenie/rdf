@@ -26,6 +26,8 @@ import org.comicwiki.rdf.annotations.Subject;
 @Subject(value = "http://schema.org/Person", key = "name")
 public class Person extends Thing {
 
+	public Person() { }
+	
 	@Predicate("honorificPrefix")
 	@ObjectString
 	public String honorificPrefix;

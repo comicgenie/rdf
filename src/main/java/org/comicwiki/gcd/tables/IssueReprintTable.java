@@ -31,7 +31,7 @@ public class IssueReprintTable extends
 
 	private static final String sParquetName = sInputTable + ".parquet";
 
-	public IssueReprintTable(SQLContext sqlContext, String datasourceName) {
+	public IssueReprintTable(SQLContext sqlContext) {
 		super(sqlContext, sParquetName);
 	}
 

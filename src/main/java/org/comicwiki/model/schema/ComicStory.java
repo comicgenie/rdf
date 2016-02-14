@@ -18,6 +18,7 @@ package org.comicwiki.model.schema;
 import java.util.Collection;
 import java.util.HashSet;
 
+import org.comicwiki.rdf.annotations.SchemaComicWiki;
 import org.comicwiki.rdf.annotations.ObjectBoolean;
 import org.comicwiki.rdf.annotations.ObjectIRI;
 import org.comicwiki.rdf.annotations.ObjectInteger;
@@ -47,22 +48,24 @@ public class ComicStory extends CreativeWork {
 	@ObjectIRI
 	public Collection<String> inkers  = new HashSet<>(3);
 	
-	//Add following [not in schema.org]
 	@Predicate("pageEnd")
 	@ObjectInteger
+	@SchemaComicWiki
 	public int pageEnd;
 	
 	@Predicate("pageStart")
 	@ObjectInteger
+	@SchemaComicWiki
 	public int pageStart;
 	
-	//[not in schema.org]
 	@Predicate("organizations")
 	@ObjectIRI
+	@SchemaComicWiki
 	public Collection<String> organizations = new HashSet<>();
 	
 	@Predicate("pageCountUncertain")
 	@ObjectBoolean
+	@SchemaComicWiki
 	public Boolean pageCountUncertain;
 	
 }

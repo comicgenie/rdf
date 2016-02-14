@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.TreeSet;
@@ -39,9 +40,20 @@ import com.github.jsonldjava.core.JsonLdError;
 import com.github.jsonldjava.core.JsonLdProcessor;
 import com.github.jsonldjava.core.RDFDataset;
 import com.github.jsonldjava.core.RDFDatasetUtils;
-import com.google.common.base.Strings;
 
-public abstract class BaseRepository<T extends Thing> {
+public class Repository<T extends Thing> {
+
+	private ArrayList<RepositoryTransform> transforms = new ArrayList<>();
+	
+	public final void addTransform(RepositoryTransform transform) {
+		transforms.add(transform);
+	}
+	
+	public final void transform() throws IOException {
+		for(RepositoryTransform transform : transforms) {
+			transform.transform();
+		}
+	}
 
 	private static Object mergeObjects(Object source, Object target) {
 		Field[] fields = source.getClass().getFields();
@@ -70,9 +82,8 @@ public abstract class BaseRepository<T extends Thing> {
 		return target;
 	}
 
-	public final HashMap<ComicKey, T> cache = new HashMap<>();
-
-	ComicKeyRepository ckRepo = new ComicKeyRepository();
+	//resourceId->Thing
+	public final HashMap<String, T> cache = new HashMap<>();
 
 	protected ObjectMapper mapper = new ObjectMapper();
 
@@ -82,15 +93,8 @@ public abstract class BaseRepository<T extends Thing> {
 		}
 	}
 
-	public void add(T item) {
-		ComicKey key = KeyUtils.createComicKey(item);
-		if (Strings.isNullOrEmpty(key.internalId)) {
-			return;
-		}
-
-		item.resourceId = key.id;
-		item.internalId = key.internalId;
-
+	public final void add(T item) {
+		String key = item.resourceId;		
 		if (contains(key)) {
 			merge(item, getByKey(key));
 		} else {
@@ -98,14 +102,63 @@ public abstract class BaseRepository<T extends Thing> {
 		}
 	}
 
-	public boolean contains(ComicKey key) {
+	public final void clear() {
+		cache.clear();
+		transforms.clear();
+	}
+
+	private boolean contains(String key) {
 		return cache.containsKey(key);
+	}
+
+	private T getByKey(String key) {
+		return cache.get(key);
+	}
+
+	public void load(File file, DataFormat format) throws IOException,
+			JsonLdError {
+		load(new FileInputStream(file), format);
+	}
+
+	public void load(InputStream is, DataFormat format) throws IOException,
+			JsonLdError {
+		Collection<T> results = new TreeSet<T>();
+		if (DataFormat.JSON.equals(format)) {
+			@SuppressWarnings("unchecked")
+			Class<T> clazz = (Class<T>) ((ParameterizedType) getClass()
+					.getGenericSuperclass()).getActualTypeArguments()[0];
+			ObjectMapper mapper = new ObjectMapper();
+
+			results = mapper.readValue(is, mapper.getTypeFactory()
+					.constructCollectionType(Collection.class, clazz));
+		} else if (DataFormat.TURTLE.equals(format)) {
+			String data = FileUtils.readStream(is);
+			results = TurtleImporter.importTurtle(data, new TreeSet<T>());
+
+		} else if (DataFormat.N_TRIPLES.equals(format)) {
+			String data = FileUtils.readStream(is);
+			results = TurtleImporter.importNTriples(data, new TreeSet<T>());
+		}
+
+		for (T t : results) {
+			cache.put(t.instanceId, t);
+		}
+	}
+
+	public <T> T merge(T source, T target) {
+		mergeObjects(source, target);
+		return target;
+	}
+
+	public void print() throws Exception {
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.writeValue(System.out, cache.values());
 	}
 
 	public void save(File file, DataFormat format) throws Exception {
 		save(new FileOutputStream(file), format);
 	}
-
+	
 	public void save(OutputStream out, DataFormat format) throws Exception {
 		if (DataFormat.JSON.equals(format)) {
 			ObjectMapper mapper = new ObjectMapper();
@@ -142,49 +195,5 @@ public abstract class BaseRepository<T extends Thing> {
 			out.write(output.toString().getBytes());
 		}
 		out.close();
-	}
-
-	public T getByKey(ComicKey key) {
-		return cache.get(key);
-	}
-
-	public void load(File file, DataFormat format) throws IOException,
-			JsonLdError {
-		load(new FileInputStream(file), format);
-	}
-
-	public void load(InputStream is, DataFormat format) throws IOException,
-			JsonLdError {
-		Collection<T> results = new TreeSet<T>();
-		if (DataFormat.JSON.equals(format)) {
-			@SuppressWarnings("unchecked")
-			Class<T> clazz = (Class<T>) ((ParameterizedType) getClass()
-					.getGenericSuperclass()).getActualTypeArguments()[0];
-			ObjectMapper mapper = new ObjectMapper();
-
-			results = mapper.readValue(is, mapper.getTypeFactory()
-					.constructCollectionType(Collection.class, clazz));
-		} else if (DataFormat.TURTLE.equals(format)) {
-			String data = FileUtils.readStream(is);
-			results = TurtleImporter.importTurtle(data, new TreeSet<T>());
-
-		} else if (DataFormat.N_TRIPLES.equals(format)) {
-			String data = FileUtils.readStream(is);
-			results = TurtleImporter.importNTriples(data, new TreeSet<T>());
-		}
-
-		for (T t : results) {
-			cache.put(KeyUtils.createComicKey(t), t);
-		}
-	}
-
-	public <T> T merge(T source, T target) {
-		mergeObjects(source, target);
-		return target;
-	}
-
-	public void print() throws Exception {
-		ObjectMapper mapper = new ObjectMapper();
-		mapper.writeValue(System.out, cache.values());
 	}
 }

@@ -25,6 +25,7 @@ import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 import org.apache.spark.storage.StorageLevel;
 import org.comicwiki.gcd.FieldParser;
+import org.comicwiki.model.schema.Thing;
 
 public abstract class BaseTable<R extends TableRow> {
 
@@ -34,19 +35,17 @@ public abstract class BaseTable<R extends TableRow> {
 
 	protected DataFrame frame;
 
+	protected HashMap<String, Thing> instanceCache = new HashMap<>(1000);
+
 	protected final SQLContext sqlContext;
 
 	public BaseTable(SQLContext sqlContext, String datasourceName) {
 		this.sqlContext = sqlContext;
 		this.datasourceName = datasourceName;
 	}
-
-	public final void add(R row) {
+	
+	protected final void add(R row) {
 		cache.put(row.id, row);
-	}
-
-	public void assignRelations(R row) {
-		// noop
 	}
 
 	private DataFrameReader createReader(String jdbcUrl, String tableName) {
@@ -54,27 +53,7 @@ public abstract class BaseTable<R extends TableRow> {
 				.option("dbtable", tableName);
 	}
 
-	public void exportRowToRepositories(R row) {//make abstract
-
-	}
-	
-	public final void assignRelations() {
-		cache.values().forEach(r -> assignRelations(r));
-	}
-
-	public void preExport() {
-		
-	}
-	
-	public final void exportToRepositories() {
-		cache.values().forEach(r -> exportRowToRepositories(r));
-	}
-
-	public final R get(int id) {
-		return cache.get(id);
-	}
-
-	public final void load() throws IOException {
+	public final void extract() throws IOException {
 		frame = sqlContext.read().load(datasourceName);
 		frame.persist(StorageLevel.MEMORY_AND_DISK_SER());
 
@@ -85,11 +64,26 @@ public abstract class BaseTable<R extends TableRow> {
 		}
 	}
 
-	public final <T> T parseField(int field, Row row, FieldParser<T> fieldParser) {
+	public final R get(int id) {
+		return cache.get(id);
+	}
+
+	public void join(BaseTable<?>... tables) {
+		for (BaseTable<?> table : tables) {
+			join(table);
+		}
+	}
+
+	protected void join(BaseTable<?> table) {
+
+	}
+
+	protected final <T> T parseField(int field, Row row,
+			FieldParser<T> fieldParser) {
 		return fieldParser.parse(field, row);
 	}
 
-	public abstract R process(Row row) throws IOException;
+	protected abstract R process(Row row) throws IOException;
 
 	protected final void saveAllToParquetFormat(String tableName, String jdbcUrl) {
 		DataFrame df = sqlContext.read().format("jdbc").option("url", jdbcUrl)
@@ -99,30 +93,40 @@ public abstract class BaseTable<R extends TableRow> {
 
 	public abstract void saveToParquetFormat(String jdbcUrl);
 
-	protected final void saveToParquetFormat(String tableName, Column[] columns,
-			String jdbcUrl) {
+	protected final void saveToParquetFormat(String tableName,
+			Column[] columns, String jdbcUrl) {
 		DataFrame df = createReader(jdbcUrl, tableName).load();
 		df.select(columns).write().save(datasourceName);
 	}
 
-	protected final void saveToParquetFormat(String tableName, Column[] columns,
-			String jdbcUrl, int limit) {
+	protected final void saveToParquetFormat(String tableName,
+			Column[] columns, String jdbcUrl, int limit) {
 		saveToParquetFormat(tableName, columns, jdbcUrl, limit, datasourceName);
 	}
 
-	protected final void saveToParquetFormat(String tableName, Column[] columns,
-			String jdbcUrl, int limit, String outputName) {
+	protected final void saveToParquetFormat(String tableName,
+			Column[] columns, String jdbcUrl, int limit, String outputName) {
 		DataFrame df = createReader(jdbcUrl, tableName).load();
 		df.limit(limit).select(columns).write().save(outputName);
 	}
 
-	protected final void saveToParquetFormat(String tableName, Column[] columns,
-			String jdbcUrl, String outputName) {
+	protected final void saveToParquetFormat(String tableName,
+			Column[] columns, String jdbcUrl, String outputName) {
 		DataFrame df = createReader(jdbcUrl, tableName).load();
 		df.select(columns).write().save(outputName);
 	}
 
-	protected final void setCacheSize(int size) {
+	private void setCacheSize(int size) {
 		cache = new HashMap<Integer, R>(size);
+	}
+
+	public final void tranform() {
+		cache.values().forEach(r -> {
+			transform(r);
+		});
+	}
+
+	protected void transform(R row) {
+		// noop
 	}
 }

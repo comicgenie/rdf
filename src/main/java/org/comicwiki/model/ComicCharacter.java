@@ -31,6 +31,8 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 @Subject(value = "ComicCharacter", compositeKey= {"name", "universe", "era"})
 public class ComicCharacter extends Person  {
 
+	public ComicCharacter() { }
+	
 	@Predicate("ability")
 	@ObjectString
 	public Collection<String> abilities = new HashSet<>(5);

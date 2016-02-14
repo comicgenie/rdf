@@ -28,6 +28,8 @@ import org.comicwiki.rdf.annotations.Subject;
 //TODO: probably need to add universe/publisher
 public class ComicOrganization extends Organization /*[CreativeWork]*/{
 
+	public ComicOrganization() { }
+	
 	@Predicate("alignment")
 	@ObjectString
 	public Alignment alignment;

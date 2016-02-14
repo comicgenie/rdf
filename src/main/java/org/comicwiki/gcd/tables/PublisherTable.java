@@ -21,6 +21,7 @@ import java.util.Date;
 import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
+import org.comicwiki.model.schema.Organization;
 
 public class PublisherTable extends BaseTable<PublisherTable.PublisherRow> {
 	private static final class Columns {
@@ -44,7 +45,7 @@ public class PublisherTable extends BaseTable<PublisherTable.PublisherRow> {
 		public static final int YEAR_ENDED = 4;
 	}
 
-	public static class PublisherRow extends TableRow {
+	public static class PublisherRow extends TableRow<Organization> {
 
 		public int countryId;
 

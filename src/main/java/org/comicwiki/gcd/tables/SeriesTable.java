@@ -23,7 +23,7 @@ import java.util.HashSet;
 import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
-import org.comicwiki.gcd.tables.SeriesTable.SeriesRow;
+import org.comicwiki.model.schema.ComicSeries;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Sets;
@@ -63,19 +63,23 @@ public class SeriesTable extends BaseTable<SeriesTable.SeriesRow> {
 		public static final int YEAR_ENDED = 4;
 	}
 
-	public static class SeriesRow extends TableRow {
+	public static class SeriesRow extends TableRow<ComicSeries> {
 
 		public Collection<String> binding = new HashSet<>(3);
 
 		public Collection<String> color = new HashSet<>(3);
 
 		public int countryId;
+		
+		public String country;
 
 		public Collection<String> dimensions = new HashSet<>(3);
 
 		public Collection<String> format = new HashSet<>(3);
 
 		public int languageId;
+		
+		public String language;
 
 		public Date modified;
 
@@ -90,6 +94,8 @@ public class SeriesTable extends BaseTable<SeriesTable.SeriesRow> {
 		public String publicationNotes;
 
 		public int publisherId;
+		
+		public String publisher;
 
 		public Collection<String> publishingFormat = new HashSet<>(3);
 
@@ -107,6 +113,24 @@ public class SeriesTable extends BaseTable<SeriesTable.SeriesRow> {
 
 	public SeriesTable(SQLContext sqlContext) {
 		super(sqlContext, sParquetName);
+	}
+
+	@Override
+	protected void transform(SeriesRow row) {
+		super.transform(row);
+	}
+
+	@Override
+	public void join(BaseTable<?>... tables) {
+		super.join(tables);
+	}
+
+	@Override
+	protected void join(BaseTable<?> table) {
+		super.join(table);
+		//publisherId
+		//countryId
+		//languageId
 	}
 
 	@Override
@@ -165,13 +189,7 @@ public class SeriesTable extends BaseTable<SeriesTable.SeriesRow> {
 
 	}
 
-	@Override
-	public void exportRowToRepositories(SeriesRow row) {
-		super.exportRowToRepositories(row);
-		
-	}
-
-	private Collection<String> split(int position, Row r) {
+	private static Collection<String> split(int position, Row r) {
 		return Sets.newHashSet(Splitter.on(';').trimResults()
 				.omitEmptyStrings().split(r.getString(position)));
 	}

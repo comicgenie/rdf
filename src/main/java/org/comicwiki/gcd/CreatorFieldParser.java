@@ -29,6 +29,7 @@ public class CreatorFieldParser implements FieldParser<Collection<Person>> {
 		//create a person, create alias(penName), role?
 		String value = row.getString(field);
 		return new HashSet<Person>();
+		//Put into INSTANCE CACHE
 		//remove typeset
 		//return value.replaceAll("\\(.*?\\)", "").replaceAll("?", "").trim();
 	}

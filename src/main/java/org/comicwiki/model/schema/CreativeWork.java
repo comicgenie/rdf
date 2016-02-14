@@ -25,6 +25,7 @@ import org.comicwiki.rdf.annotations.ObjectIRI;
 import org.comicwiki.rdf.annotations.ObjectInteger;
 import org.comicwiki.rdf.annotations.ObjectString;
 import org.comicwiki.rdf.annotations.Predicate;
+import org.comicwiki.rdf.annotations.SchemaBib;
 import org.comicwiki.rdf.annotations.Subject;
 
 @Subject(value = "http://schema.org/CreativeWork", key = "name")
@@ -91,6 +92,7 @@ public class CreativeWork extends Thing {
 	 */
 	@Predicate("publisherImprints")
 	@ObjectIRI
+	@SchemaBib
 	public Collection<String> publisherImprints = new HashSet<>(2);//Organization
 	
 	/**

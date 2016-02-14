@@ -19,6 +19,8 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.HashSet;
 
+import org.comicwiki.KeyUtils;
+import org.comicwiki.rdf.annotations.SchemaComicWiki;
 import org.comicwiki.rdf.annotations.ObjectString;
 import org.comicwiki.rdf.annotations.ObjectURL;
 import org.comicwiki.rdf.annotations.Predicate;
@@ -43,23 +45,30 @@ public class Thing {
 
 	@Predicate(CONTEXT + "description")
 	@ObjectString
-	public Collection<String> description = new HashSet<>();
+	public Collection<String> description = new HashSet<>(1);
 
 	@Predicate(CONTEXT + "alternateName")
 	@ObjectString
 	public final Collection<String> alternateNames = new HashSet<>(5);
 	
-	//[not in spec]
 	@Predicate( "http://comicwiki.org/resources/resourceId")
 	@ObjectString
+	@SchemaComicWiki
 	public String resourceId;
 	
-	public String internalId;
+	@Predicate( "http://comicwiki.org/resources/compositePropertyKey")
+	@ObjectString
+	@SchemaComicWiki
+	public String compositePropertyKey;
+	
+	@SchemaComicWiki
+	public String instanceId;
 
 	@Override
 	public String toString() {
-		return "Thing [url=" + urls + ", name=" + name + ", description="
-				+ description + ", alternateNames=" + alternateNames + "]";
+		return "Thing [urls=" + urls + ", name=" + name + ", description="
+				+ description + ", alternateNames=" + alternateNames
+				+ ", resourceId=" + resourceId + ", compositePropertyKey="
+				+ compositePropertyKey + ", instanceId=" + instanceId + "]";
 	}
-
 }

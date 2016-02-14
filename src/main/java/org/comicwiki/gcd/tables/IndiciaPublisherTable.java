@@ -21,6 +21,7 @@ import java.util.Date;
 import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
+import org.comicwiki.model.schema.Organization;
 
 public class IndiciaPublisherTable extends
 		BaseTable<IndiciaPublisherTable.IndiciaPublisherRow> {
@@ -49,7 +50,7 @@ public class IndiciaPublisherTable extends
 		public static final int YEAR_ENDED = 4;
 	}
 
-	public static class IndiciaPublisherRow extends TableRow {
+	public static class IndiciaPublisherRow extends TableRow<Organization> {
 
 		public int countryId;
 

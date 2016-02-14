@@ -23,6 +23,8 @@ import java.util.HashSet;
 import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
+import org.comicwiki.model.schema.ComicIssue;
+import org.comicwiki.model.schema.Person;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Sets;
@@ -68,17 +70,21 @@ public class IssueTable extends BaseTable<IssueTable.IssueRow> {
 
 	}
 
-	public static class IssueRow extends TableRow {
+	public static class IssueRow extends TableRow<ComicIssue> {
 
 		public String barcode;
 
 		public int brandId;
+		
+		public String brand;
 
-		public Collection<String> editors = new HashSet<>(3);
+		public Collection<Person> editors = new HashSet<>(3);
 
 		public String indiciaFrequency;
 
 		public int indiciaPublisherId;
+		
+		public String indiciaPublisher;
 
 		public String isbn;
 
@@ -101,6 +107,8 @@ public class IssueTable extends BaseTable<IssueTable.IssueRow> {
 		public String rating;
 
 		public int seriesId;
+		
+		public String series;//Is this unique???
 
 		public String title;
 
@@ -116,6 +124,19 @@ public class IssueTable extends BaseTable<IssueTable.IssueRow> {
 
 	public IssueTable(SQLContext sqlContext) {
 		super(sqlContext, sParquetName);
+	}
+
+	@Override
+	public void join(BaseTable<?>... tables) {
+		super.join(tables);
+	}
+
+	@Override
+	protected void join(BaseTable<?> table) {
+		super.join(table);
+		//indiciaPublisherId
+		//brandId
+		//series
 	}
 
 	@Override
@@ -159,6 +180,12 @@ public class IssueTable extends BaseTable<IssueTable.IssueRow> {
 	@Override
 	public void saveToParquetFormat(String jdbcUrl) {
 		super.saveToParquetFormat(sInputTable, Columns.ALL_COLUMNS, jdbcUrl);
+	}
+
+	@Override
+	protected void transform(IssueRow row) {
+		// TODO Auto-generated method stub
+		super.transform(row);
 	}
 
 }

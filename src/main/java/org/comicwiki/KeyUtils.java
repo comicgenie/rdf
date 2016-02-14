@@ -17,44 +17,32 @@ package org.comicwiki;
 
 import java.lang.reflect.Field;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.comicwiki.model.schema.Thing;
 import org.comicwiki.rdf.annotations.Subject;
 
-import com.google.common.base.Strings;
+public final class KeyUtils {
 
-public class KeyUtils {
-	
-	private static KeyIDGenerator idGen = new KeyIDGenerator(0);
-	
-	public static ComicKey createComicKey(Thing thing) {		
-		String internalId = Strings.isNullOrEmpty(thing.internalId) ? KeyUtils
-				.readKey(thing) : thing.internalId;
-		String id = Strings.isNullOrEmpty(thing.resourceId) ? idGen.createID() : thing.resourceId;
-		return new ComicKey(id, internalId);
+	public static String readResouceIDWithExpandedIri(Thing object) {
+		return ResourceUtils.expandIri(object.resourceId);
+	}
 
-	}
-	
-	public static String readKeyWithExpandedIri(Object object) {
-		String key = readKey(object);
-		return ResourceUtils.expandIri( key );		
-	}
-	
-	public static String readKey(Object object) {
+	public static String readCompositePropertyKey(Thing object) {
 		Class<?> clazz = object.getClass();
 		Subject subject = clazz.getAnnotation(Subject.class);
 		try {
-			return readKey(subject, object);
+			return readCompositePropertyKey(subject, object);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return null;
 	}
 
-	public static String readKey(Subject subject, Object object)
+	private static String readCompositePropertyKey(Subject subject, Thing object)
 			throws NoSuchFieldException, SecurityException,
 			IllegalArgumentException, IllegalAccessException {
 		Class<?> clazz = object.getClass();
-		if (subject.key().isEmpty()) {
+		if (subject.key().isEmpty()) {// composite
 			StringBuilder sb = new StringBuilder();
 			String[] keys = subject.compositeKey();
 
@@ -66,25 +54,25 @@ public class KeyUtils {
 					sb.append(fieldValue);
 				} else if (fieldValue == null) {
 
-				} else {
-					String id = readKey(fieldValue);
+				} else if (Thing.class.isAssignableFrom(fieldValue.getClass())) {
+					String id = readCompositePropertyKey((Thing) fieldValue);
 					sb.append(id);
 				}
 				sb.append("_");
 			}
-			return sb.toString().replaceAll("(_)*$", "");
-
+			return DigestUtils.md5Hex(sb.toString());
 		} else {
 			Field field = clazz.getField(subject.key());
 			field.setAccessible(true);
 			Object fieldValue = field.get(object);
 			if (fieldValue instanceof String) {
-				return (String) fieldValue;
+				return DigestUtils.md5Hex((String) fieldValue);
 			} else if (fieldValue == null) {
-				return "";
-			} else {
-				return readKey(fieldValue);
+				return null;
+			} else if (Thing.class.isAssignableFrom(fieldValue.getClass())) {
+				return readCompositePropertyKey((Thing) fieldValue);
 			}
 		}
+		return null;
 	}
 }

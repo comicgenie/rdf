@@ -59,6 +59,10 @@ public class PersonNameMatcher {
 		return patternMaleNames.matcher(text);
 	}
 	
+	public boolean isLastName(String text) {
+		return lastNames(text).matches();
+	}
+	
 	public Matcher lastNames(String text) {
 		return patternLastNames.matcher(text);
 	}

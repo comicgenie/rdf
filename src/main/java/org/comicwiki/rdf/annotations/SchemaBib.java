@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package org.comicwiki.repositories;
+package org.comicwiki.rdf.annotations;
 
-import org.comicwiki.BaseRepository;
-import org.comicwiki.model.ComicOrganization;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
-public class ComicOrganizationRepository extends
-		BaseRepository<ComicOrganization> {
-
+@Retention(RetentionPolicy.RUNTIME)
+public @interface SchemaBib {
+	
 }

@@ -1,13 +1,17 @@
 package org.comicwiki;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 public final class KeyIDGenerator {
 
-	private final AtomicInteger count;
+	private final AtomicLong count;
 
-	public KeyIDGenerator(int start){
-		count = new AtomicInteger(start);
+	public KeyIDGenerator(long start){
+		count = new AtomicLong(start);
+	}
+	
+	public long createInstanceId() {
+		return count.incrementAndGet();
 	}
 	
 	public String createID() {

@@ -15,57 +15,46 @@
  *******************************************************************************/
 package org.comicwiki.relations;
 
-import static org.comicwiki.KeyUtils.readKey;
-
 import java.util.Collection;
 
-import org.comicwiki.ResourceUtils;
 import org.comicwiki.model.ComicCharacter;
 import org.comicwiki.model.Genre;
 import org.comicwiki.model.schema.ComicStory;
 
-public class ComicCharactersAssigner {
+public final class ComicCharactersAssigner {
 
-	private Collection<ComicCharacter> comicCharacters;
-	
+	private final Collection<ComicCharacter> comicCharacters;
+
 	/**
 	 * ComicCharacters -> ComicCharacters
 	 */
-	 void colleagues() {
-		 comicCharacters.forEach(one -> {
-			String oneKey = readKey(one);
-			if (oneKey != null) {
-				comicCharacters.forEach(two -> {
-					String twoKey = readKey(two);
-					if (!oneKey.equals(twoKey)) {
-						one.colleagues.add(ResourceUtils.expandIri(twoKey));
-					}
-				});
-			}
+	public void colleagues() {
+		comicCharacters.forEach(one -> {
+			comicCharacters.forEach(two -> {
+				if (!two.equals(one)) {
+					one.colleagues.add(two.instanceId);
+				}
+			});
 		});
 	}
-	 
-	//Just put in characters in one team
-	public ComicCharactersAssigner(Collection<ComicCharacter> comicCharacters)  {
+
+	// Just put in characters in one team
+	public ComicCharactersAssigner(Collection<ComicCharacter> comicCharacters) {
 		this.comicCharacters = comicCharacters;
 	}
-	
+
 	/**
 	 * ComicCharacters -> ComicStory
 	 */
-	void story(ComicStory story) {	
-		comicCharacters.forEach(e -> story.characters.add(readKey(e)));
+	public void story(ComicStory story) {
+		comicCharacters.forEach(e -> story.characters.add(e.instanceId));
 	}
-	
+
 	/**
 	 * ComicCharacters -> ComicStory.genres
 	 */
-	void genres(Collection<Genre> genres) {
-		genres.forEach(g -> {
-			String key = readKey(g);
-			comicCharacters.forEach(c -> c.creativeWork.genres.add(key));
-		});
+	public void genres(Collection<Genre> genres) {
+		genres.forEach(g -> comicCharacters.forEach(c -> c.creativeWork.genres
+				.add(g.instanceId)));
 	}
-	
-	
 }

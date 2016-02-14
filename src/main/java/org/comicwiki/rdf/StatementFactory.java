@@ -41,35 +41,6 @@ import com.google.common.collect.Lists;
 
 public final class StatementFactory {
 
-	public static Statement subject(Subject subject, String compositeId) {
-		RdfSubject rdfSubject = Statement.createRdfSubject(compositeId);
-		RdfPredicate rdfPredicate = Statement
-				.createRdfPredicate(DataTypeConstants.RDF_TYPE);
-		RdfObject rdfObject = Statement.createRdfObjectIRI(URI.create(subject
-				.value()));
-		Statement statement = new Statement(rdfSubject, rdfPredicate, rdfObject);
-
-		return statement;
-	}
-
-	public static Collection<Statement> transform(Object object)
-			throws Exception {
-		Collection<Statement> statements = new ArrayList<>();
-		Class<?> clazz = object.getClass();
-		Subject subject = clazz.getAnnotation(Subject.class);
-		String id = ((Thing) object).resourceId;
-
-		statements.add(subject(subject, id));
-
-		RdfSubject rdfSubject = Statement.createRdfSubject(id);
-		for (Field field : object.getClass().getFields()) {
-			field.setAccessible(true);
-			statements.addAll(objects(rdfSubject, field, object));
-		}
-		return statements;
-
-	}
-
 	private static Collection<Statement> objects(RdfSubject rdfSubject,
 			Field field, Object instance) throws Exception {
 		Collection<Statement> statements = Lists.newArrayList();
@@ -103,7 +74,8 @@ public final class StatementFactory {
 							rdfObject));
 				} else if (Thing.class.isAssignableFrom(fieldInstance
 						.getClass())) {
-					String value = KeyUtils.readKey(fieldInstance);
+					String value = KeyUtils
+							.readCompositePropertyKey((Thing) fieldInstance);
 					RdfObject rdfObject = Statement.createRdfObjectIRI(URI
 							.create(value));
 					statements.add(new Statement(rdfSubject, rdfPredicate,
@@ -134,37 +106,63 @@ public final class StatementFactory {
 					throwMismatchException(field);
 				}
 				Boolean value = (Boolean) fieldInstance;
-				statements.add(new Statement(rdfSubject, rdfPredicate,
-						value));
-				
+				statements.add(new Statement(rdfSubject, rdfPredicate, value));
+
 			} else if (annotation instanceof ObjectDate) {
 				if (!(fieldInstance instanceof Date)) {
 					throwMismatchException(field);
 				}
-				//TODO: implement date (formatter)
+				// TODO: implement date (formatter)
 			} else if (annotation instanceof ObjectInteger) {
 				if (!(fieldInstance instanceof Integer)) {
 					throwMismatchException(field);
 				}
 				Integer value = (Integer) fieldInstance;
-				statements.add(new Statement(rdfSubject, rdfPredicate,
-						value));
-				
+				statements.add(new Statement(rdfSubject, rdfPredicate, value));
+
 			} else if (annotation instanceof ObjectURL) {
 				if (!(fieldInstance instanceof URL)) {
 					throwMismatchException(field);
 				}
 				URL value = (URL) fieldInstance;
-				statements.add(new Statement(rdfSubject, rdfPredicate,
-						value));
+				statements.add(new Statement(rdfSubject, rdfPredicate, value));
 			}
 		}
 		return statements;
 	}
-	
+
+	public static Statement subject(Subject subject, String compositeId) {
+		RdfSubject rdfSubject = Statement.createRdfSubject(compositeId);
+		RdfPredicate rdfPredicate = Statement
+				.createRdfPredicate(DataTypeConstants.RDF_TYPE);
+		RdfObject rdfObject = Statement.createRdfObjectIRI(URI.create(subject
+				.value()));
+		Statement statement = new Statement(rdfSubject, rdfPredicate, rdfObject);
+
+		return statement;
+	}
+
 	private static void throwMismatchException(Field field) {
 		throw new IllegalArgumentException(
 				"Annotated type does not match Java field type: "
 						+ field.getName());
+	}
+
+	public static Collection<Statement> transform(Object object)
+			throws Exception {
+		Collection<Statement> statements = new ArrayList<>();
+		Class<?> clazz = object.getClass();
+		Subject subject = clazz.getAnnotation(Subject.class);
+		String id = ((Thing) object).resourceId;
+
+		statements.add(subject(subject, id));
+
+		RdfSubject rdfSubject = Statement.createRdfSubject(id);
+		for (Field field : object.getClass().getFields()) {
+			field.setAccessible(true);
+			statements.addAll(objects(rdfSubject, field, object));
+		}
+		return statements;
+
 	}
 }

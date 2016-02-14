@@ -13,11 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package org.comicwiki.repositories;
+package org.comicwiki.serializers;
 
-import org.comicwiki.BaseRepository;
-import org.comicwiki.model.schema.ComicSeries;
+import java.io.IOException;
 
-public class ComicSeriesRepository extends BaseRepository<ComicSeries> {
+import org.comicwiki.model.CreativeWorkExtension;
+
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+
+public class CreativeWorkSerializer extends StdSerializer<CreativeWorkExtension> {
+
+	protected CreativeWorkSerializer() {
+		super(CreativeWorkExtension.class);
+	}
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1773603738538548563L;
+
+
+	@Override
+	public void serialize(CreativeWorkExtension cw, JsonGenerator gen,
+			SerializerProvider provider) throws IOException,
+			JsonGenerationException {
+	
+		// TODO Auto-generated method stub
+		
+	}
 
 }

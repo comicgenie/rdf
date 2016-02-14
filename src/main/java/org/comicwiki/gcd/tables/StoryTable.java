@@ -18,7 +18,7 @@ package org.comicwiki.gcd.tables;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -27,57 +27,20 @@ import java.util.stream.Stream;
 import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
-import org.comicwiki.ComicKeyRepository;
-import org.comicwiki.PersonNameMatcher;
 import org.comicwiki.gcd.CharacterFieldParser;
 import org.comicwiki.gcd.CreatorFieldParser;
 import org.comicwiki.model.ComicCharacter;
 import org.comicwiki.model.ComicOrganization;
 import org.comicwiki.model.schema.ComicStory;
+import org.comicwiki.model.schema.Organization;
 import org.comicwiki.model.schema.Person;
-import org.comicwiki.repositories.ComicCharacterRepository;
+import org.comicwiki.relations.ComicCharactersAssigner;
+import org.comicwiki.relations.ComicCreatorAssigner;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Sets;
 
 public class StoryTable extends BaseTable<StoryTable.StoryRow> {
-	ComicCharacterRepository cRepo = new ComicCharacterRepository();
-	int i = 0;
-	
-	public void preExport() {
-		PersonNameMatcher imp = new PersonNameMatcher();
-		try {
-			imp.load(new File("./src/main/resources/names/yob2014.txt"));
-			imp.loadLastNames(new File("./src/main/resources/names/lastname.txt"));
-			cRepo.addGender(imp);
-
-			try {
-				cRepo.print();
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	@Override
-	public void exportRowToRepositories(StoryRow row) {
-		super.exportRowToRepositories(row);
-	
-		for(ComicCharacter cc : row.characters) {
-			System.out.println(i +":" + "NAME: " + cc.name);
-			cRepo.add(cc);
-			if(i++ > 100) {
-				
-				break;
-			}
-		}
-
-	
-		//export to StoryRepository, CharacterRepository, CreatorRepository
-	}
 
 	private static final class Columns {
 
@@ -125,13 +88,11 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 		}
 	}
 
-	public static final class StoryRow extends TableRow {
+	public static final class StoryRow extends TableRow<ComicStory> {
 
 		public Collection<ComicCharacter> characters;
 
 		public Collection<Person> colors;
-
-		public ComicStory comicStory;
 
 		public Collection<Person> editing;
 
@@ -159,8 +120,6 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 
 		public Collection<Person> pencils;;
 
-		public String publisher;
-
 		public Collection<String> reprintNotes;;
 
 		public Collection<Person> script;
@@ -175,6 +134,18 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 
 		public int typeId;
 
+		public int indiciaPublisherId;
+
+		public int seriesId;
+
+		public String seriesName;
+
+		public int publisherId;
+
+		public Organization publisher;
+
+		public Organization indiciaPublisher;
+
 	}
 
 	private static final String sInputTable = "gcd_story";
@@ -183,24 +154,6 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 
 	public StoryTable(SQLContext sqlContext) {
 		super(sqlContext, sParquetName);
-	}
-
-	public void addEditors(StoryTypeTable storyTypeTable) {
-		cache.values().forEach(story -> {
-			story.storyType = storyTypeTable.cache.get(story.typeId).name;
-		});
-	}
-
-	public void addPublishers(StoryTypeTable storyTypeTable) {
-		cache.values().forEach(story -> {
-			story.storyType = storyTypeTable.cache.get(story.typeId).name;
-		});
-	}
-
-	public void addStoryTypes(StoryTypeTable storyTypeTable) {
-		cache.values().forEach(story -> {
-			story.storyType = storyTypeTable.cache.get(story.typeId).name;
-		});
 	}
 
 	@Override
@@ -238,7 +191,6 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 				.isNullAt(Columns.PAGE_COUNT_UNCERTAIN) ? false : row
 				.getBoolean(Columns.PAGE_COUNT_UNCERTAIN);
 
-		// storyRow.notes =
 		if (!row.isNullAt(Columns.GENRE)) {
 			storyRow.genre = parseField(
 					Columns.GENRE,
@@ -290,20 +242,103 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 	}
 
 	@Override
-	public void assignRelations(StoryRow row) {
-		super.assignRelations(row);
-		Stream<Person> creators = Stream.of(row.inks, row.colors, row.editing)
-				.flatMap(Collection::stream);
-	
-		
-		// RelationsAssigner.colleagues(creators);
-		// RelationsAssigner.creatorRoles(row.colors, CreatorRole.colorist);
-		// RelationsAssigner.creatorRoles(row.inks, CreatorRole.inker);
-		// RelationsAssigner.creatorRoles(row.letters, CreatorRole.letterist);
-		// RelationsAssigner.creatorRoles(row.pencils, CreatorRole.penclier);
-		// RelationsAssigner.creatorRoles(row.script, CreatorRole.writer);
+	public void join(BaseTable<?>... tables) {
+		// filter and order tables
+		// order IssueTable, SeriesTable, then any order
+		ArrayList<BaseTable<?>> orderedTables = new ArrayList<>();
 
-		// genderOfPersons
+		for (BaseTable<?> table : tables) {
+			if (table instanceof IssueTable) {
+				orderedTables.add(0, table);
+			} else if (table instanceof SeriesTable) {
+				orderedTables.add(1, table);
+			} else {
+				orderedTables.add(table);
+			}
+		}
+
+		for (BaseTable<?> table : orderedTables) {
+			join(table);
+		}		
+	}
+
+	@Override
+	protected void join(BaseTable<?> table) {
+		if (table instanceof IssueTable) {
+			IssueTable issueTable = (IssueTable) table;
+			for (IssueTable.IssueRow issuesRow : issueTable.cache.values()) {
+				Stream<StoryTable.StoryRow> storyRows = cache.values().stream()
+						.filter(r -> r.issueId == issuesRow.id);
+
+				storyRows.forEach(storyRow -> {
+					storyRow.editing.addAll(issuesRow.editors);
+					storyRow.indiciaPublisherId = issuesRow.indiciaPublisherId;
+					storyRow.seriesId = issuesRow.seriesId;
+				});
+			}
+		} else if (table instanceof SeriesTable) {
+			SeriesTable seriesTable = (SeriesTable) table;
+			for (SeriesTable.SeriesRow seriesRow : seriesTable.cache.values()) {
+				Stream<StoryTable.StoryRow> storyRows = cache.values().stream()
+						.filter(r -> r.seriesId == seriesRow.id);
+
+				storyRows.forEach(storyRow -> {
+					storyRow.seriesName = seriesRow.name;
+					storyRow.publisherId = seriesRow.publisherId;
+				});
+			}
+		} else if (table instanceof PublisherTable) {
+			PublisherTable publisherTable = (PublisherTable) table;
+			for (PublisherTable.PublisherRow publisherRow : publisherTable.cache
+					.values()) {
+				Stream<StoryTable.StoryRow> storyRows = cache.values().stream()
+						.filter(r -> r.publisherId == publisherRow.id);
+
+				storyRows.forEach(storyRow -> {
+					storyRow.publisher = publisherRow.instance;
+				});
+			}
+		} else if (table instanceof IndiciaPublisherTable) {
+			IndiciaPublisherTable publisherTable = (IndiciaPublisherTable) table;
+			for (IndiciaPublisherTable.IndiciaPublisherRow publisherRow : publisherTable.cache
+					.values()) {
+				Stream<StoryTable.StoryRow> storyRows = cache.values().stream()
+						.filter(r -> r.indiciaPublisherId == publisherRow.id);
+
+				storyRows.forEach(storyRow -> {
+					storyRow.indiciaPublisher = publisherRow.instance;
+				});
+			}
+		} else if (table instanceof StoryTypeTable) {
+			StoryTypeTable storyTypeTable = (StoryTypeTable) table;
+			for (StoryTypeTable.StoryTypeRow storyTypeRow : storyTypeTable.cache
+					.values()) {
+				Stream<StoryTable.StoryRow> storyRows = cache.values().stream()
+						.filter(r -> r.typeId == storyTypeRow.id);
+
+				storyRows.forEach(storyRow -> {
+					storyRow.storyType = storyTypeRow.name;
+				});
+			}
+		}
+	}
+
+	@Override
+	public void transform(StoryRow row) {
+		super.transform(row);
+		ComicCharactersAssigner ccAssign = new ComicCharactersAssigner(
+				row.characters);
+		//TODO: add all key components first and then calculate KEY
+		ccAssign.colleagues();
+	//	ccAssign.genres(row.genre);
+		ccAssign.story(row.instance);
+
+		ComicCreatorAssigner creatorAssigner = new ComicCreatorAssigner(row.colors,
+				row.inks, row.letters, row.pencils, row.script, row.editing);
+		creatorAssigner.colleagues();
+		creatorAssigner.jobTitles();
+		creatorAssigner.characters(row.characters);
+		creatorAssigner.organizations(row.organizations);
 	}
 
 	@Override

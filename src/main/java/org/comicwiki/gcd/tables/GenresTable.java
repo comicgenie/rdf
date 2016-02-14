@@ -47,7 +47,7 @@ public class GenresTable extends BaseTable<GenresTable.GenreRow> {
 
 	private static final String sTableName = "gcd_story";
 
-	TreeSet<String> g = new TreeSet<>();
+	public TreeSet<String> cache = new TreeSet<>();
 
 	HashMap<String, Integer> g2 = new HashMap<>();
 
@@ -73,7 +73,7 @@ public class GenresTable extends BaseTable<GenresTable.GenreRow> {
 				g2.put(gen, 1);
 			}
 		}
-		g.addAll(genres);
+		cache.addAll(genres);
 		return null;
 	}
 
@@ -84,10 +84,10 @@ public class GenresTable extends BaseTable<GenresTable.GenreRow> {
 
 	public void writeToFile(File file) throws IOException {
 		FileOutputStream fos = new FileOutputStream(file);
-		for (String genre : g) {
+		for (String genre : cache) {
 			fos.write((genre + "\r\n").getBytes());
 		}
 		fos.close();
-		System.out.println(g2);
+		//System.out.println(g2);
 	}
 }

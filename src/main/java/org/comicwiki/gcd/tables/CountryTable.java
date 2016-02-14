@@ -20,8 +20,9 @@ import java.io.IOException;
 import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
+import org.comicwiki.Repositories;
+import org.comicwiki.Repository;
 import org.comicwiki.model.schema.Country;
-import org.comicwiki.repositories.CountryRepository;
 
 public class CountryTable extends BaseTable<CountryTable.CountryRow> {
 
@@ -43,12 +44,10 @@ public class CountryTable extends BaseTable<CountryTable.CountryRow> {
 
 	private static final String sParquetName = sInputTable + ".parquet";
 
-	private CountryRepository countryRepository;
+	private Repository<Country> countryRepository = Repositories.COUNTRY;
 
-	public CountryTable(SQLContext sqlContext,
-			CountryRepository countryRepository) {
+	public CountryTable(SQLContext sqlContext) {
 		super(sqlContext, sParquetName);
-		this.countryRepository = countryRepository;
 	}
 
 	@Override

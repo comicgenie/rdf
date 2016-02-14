@@ -1,42 +1,20 @@
-/*******************************************************************************
- * See the NOTICE file distributed with this work for additional 
- * information regarding copyright ownership. ComicGenie licenses this 
- * file to you under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance with the License.  
- * You may obtain a copy of the License at
- *  
- *     http://www.apache.org/licenses/LICENSE-2.0
- *  
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *******************************************************************************/
-package org.comicwiki.repositories;
+package org.comicwiki.transforms;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import opennlp.tools.namefind.NameFinderME;
-import opennlp.tools.namefind.TokenNameFinderModel;
-import opennlp.tools.util.Span;
-
-import org.comicwiki.BaseRepository;
+import org.comicwiki.HonorificExpander;
 import org.comicwiki.PersonNameMatcher;
+import org.comicwiki.Repositories;
+import org.comicwiki.RepositoryTransform;
 import org.comicwiki.model.ComicCharacter;
 
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 
-public class ComicCharacterRepository extends BaseRepository<ComicCharacter> {
-
+public final class ComicCharacterTransform implements RepositoryTransform {
 	private static Pattern impliedFemale = Pattern.compile(".*(girl|woman).*",
 			Pattern.CASE_INSENSITIVE);
 
@@ -56,15 +34,29 @@ public class ComicCharacterRepository extends BaseRepository<ComicCharacter> {
 					Pattern.CASE_INSENSITIVE);
 	private static Pattern prefixNeutral = Pattern
 			.compile(
-					"(^(ambassador|constable|senator|corporal|mayor|cap'n|professor|president|inspector|detective|doctor|dr|sgt|col|captain|major|maj|officer|general|gen|prof|capt|sheriff|lieutenant|lt)( |\\.){1})(.*)",
+					"(^(ambassador|private|constable|senator|corporal|mayor|cap'n|professor|president|inspector|detective|doctor|doc|dr|sgt|col|captain|major|maj|officer|general|gen|prof|capt|sergeant|sheriff|lieutenant|lt)( |\\.){1})(.*)",
 					Pattern.CASE_INSENSITIVE);
 
 	private static Pattern suffixMale = Pattern.compile(
 			".*(esq|esquire|caesar)\\.*$", Pattern.CASE_INSENSITIVE);
 
+	private static boolean firstAndLastName(String[] tokens) {
+		return tokens.length == 2;
+	}
+
+	private static boolean oneName(String[] tokens) {
+		return tokens.length == 1;
+	}
+
 	private static String[] tokenize(String text) {
 		return Iterables.toArray(Splitter.on(' ').trimResults()
 				.omitEmptyStrings().split(text), String.class);
+	}
+
+	private final PersonNameMatcher personMatcher;
+
+	public ComicCharacterTransform(PersonNameMatcher personMatcher) {
+		this.personMatcher = personMatcher;
 	}
 
 	protected String removePrefixAndSuffix(String name) {
@@ -91,25 +83,17 @@ public class ComicCharacterRepository extends BaseRepository<ComicCharacter> {
 		return s;
 	}
 
-	private boolean oneName(String[] tokens) {
-		return tokens.length == 1;
-	}
+	@Override
+	public void transform() throws IOException {
 
-	private boolean firstAndLastName(String[] tokens) {
-		return tokens.length == 2;
-	}
-
-	public void addGender(PersonNameMatcher personMatcher) throws IOException {
-
-		for (ComicCharacter cc : cache.values()) {
+		for (ComicCharacter cc : Repositories.COMIC_CHARACTERS.cache.values()) {
 			Matcher prefixMaleMatcher = prefixMale.matcher(cc.name);
 			Matcher suffixMaleMatcher = suffixMale.matcher(cc.name);
 			Matcher prefixFemaleMatcher = prefixFemale.matcher(cc.name);
 
 			String[] nameTokens = tokenize(removePrefixAndSuffix(cc.name));
 
-			if(nameTokens.length == 0) {
-				System.out.println(cc.name);
+			if (nameTokens.length == 0) {
 				continue;
 			}
 			boolean isImpliedMale = impliedMale.matcher(cc.name).matches();
@@ -193,46 +177,22 @@ public class ComicCharacterRepository extends BaseRepository<ComicCharacter> {
 
 			Matcher isPrefixNeutral = prefixNeutral.matcher(cc.name);
 			if (isPrefixNeutral.matches()) {
-				cc.honorificPrefix = isPrefixNeutral.group(1).trim();
+				cc.honorificPrefix = HonorificExpander.expand(isPrefixNeutral
+						.group(1).trim());
 				if (oneName(nameTokens)) {
 					if (isFemale || isMale) {
 						if (Strings.isNullOrEmpty(cc.givenName)) {
 							cc.givenName = nameTokens[0];
 						}
-					} else {
+					} else if (personMatcher.isLastName(nameTokens[0])) {
 						if (Strings.isNullOrEmpty(cc.familyName)) {
 							cc.familyName = nameTokens[0];
 						}
 					}
 				} else {
-					
-				}
-			}
-		}
-	}
 
-	public String name(String name) throws IOException {
-		String field[] = name.split("[ ]");
-		InputStream modelIn = new FileInputStream("en-ner-person.bin");
-		StringBuilder sb = new StringBuilder();
-		try {
-			TokenNameFinderModel model = new TokenNameFinderModel(modelIn);
-			NameFinderME nameFinder = new NameFinderME(model);
-			Span nameSpans[] = nameFinder.find(field);
-			if (nameSpans == null || nameSpans.length == 0) {
-				return "";
-			}
-			return field[nameSpans[nameSpans.length - 1].getEnd() - 1];
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			if (modelIn != null) {
-				try {
-					modelIn.close();
-				} catch (IOException e) {
 				}
 			}
 		}
-		return sb.toString();
 	}
 }

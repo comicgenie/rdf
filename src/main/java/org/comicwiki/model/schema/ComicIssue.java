@@ -20,36 +20,44 @@ import java.util.HashSet;
 
 import org.comicwiki.rdf.annotations.ObjectIRI;
 import org.comicwiki.rdf.annotations.Predicate;
+import org.comicwiki.rdf.annotations.SchemaBib;
+import org.comicwiki.rdf.annotations.SchemaComicWiki;
 import org.comicwiki.rdf.annotations.Subject;
 
 @Subject(value = "http://schema.org/ComicIssue",  compositeKey= {"name", "issueNumber"})
+@SchemaBib
 public class ComicIssue extends PublicationIssue {
 
 	//ID: title:vol:num
 	
 	@Predicate("artist")
 	@ObjectIRI
+	@SchemaBib
 	public Collection<String> artists  = new HashSet<>(1);//person
 	
 	@Predicate("colorist")
 	@ObjectIRI
+	@SchemaBib
 	public Collection<String> colorists  = new HashSet<>(1);
 	
 	@Predicate("letterer")
 	@ObjectIRI
+	@SchemaBib
 	public Collection<String> letterers  = new HashSet<>(1);
 	
 	@Predicate("penciler")
 	@ObjectIRI
+	@SchemaBib
 	public Collection<String> pencilers  = new HashSet<>(1);
 	
 	@Predicate("inker")
 	@ObjectIRI
+	@SchemaBib
 	public Collection<String> inkers  = new HashSet<>(1);
 	
-	//Add this [not in spec]
 	@Predicate("brand")
 	@ObjectIRI
+	@SchemaComicWiki
 	public Collection<String> brands  = new HashSet<>(1);//Brand
 	
 }

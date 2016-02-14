@@ -15,6 +15,19 @@
  *******************************************************************************/
 package org.comicwiki.gcd.tables;
 
-public class TableRow {
+import java.lang.reflect.ParameterizedType;
+
+import org.comicwiki.ThingFactory;
+import org.comicwiki.model.schema.Thing;
+
+public class TableRow<T extends Thing> {
 	public int id;
+
+	public T instance = create();
+
+	public T create() {
+		Class<T> clazz = (Class<T>) ((ParameterizedType) getClass()
+				.getGenericSuperclass()).getActualTypeArguments()[0];
+		return ThingFactory.create(clazz);
+	}
 }

@@ -21,6 +21,7 @@ import java.net.URLEncoder;
 public class ResourceUtils {
 	
 	public final static String BASE_URI = "http://comicwiki.org/resources/";
+
 	
 	public static String expandIri(String iri) {
 		try {
