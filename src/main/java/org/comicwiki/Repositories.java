@@ -37,7 +37,7 @@ public class Repositories {
 	public static final Repository<Country> COUNTRY = new Repository<>();
 
 	public static Collection<Repository<? extends Thing>> getRepositories() {
-		return (Collection<Repository<? extends Thing>>) sThingRepoMap.values();
+		return sThingRepoMap.values();
 	}
 	
 	public static <T extends Thing> Repository<Thing> getRepository(

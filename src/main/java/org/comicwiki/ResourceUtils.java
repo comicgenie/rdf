@@ -20,17 +20,29 @@ import java.net.URLEncoder;
 
 import org.comicwiki.model.schema.Thing;
 
+import com.google.common.base.Strings;
+
 public class ResourceUtils {
-	
+
 	public final static String BASE_URI = "http://comicwiki.org/resources/";
 
-	public static String readResouceIDWithExpandedIri(Thing object) {
-		return expandIri(object.resourceId);
+	public static String readResourceIDWithExpandedIri(Thing thing) {
+		String rid = thing.resourceId;
+		if(thing == null || Strings.isNullOrEmpty(rid)){
+			throw new IllegalArgumentException(
+					"Thing null or missing resourceId");
+		}
+		if (!rid.startsWith("@")) {
+			throw new IllegalArgumentException(
+					"Thing resourceId must start with '@'");
+		}
+		return expandIri(rid.substring(1, rid.length()));
 	}
-	
+
 	public static String expandIri(String iri) {
 		try {
-			return isAbsolute(iri) ? iri : BASE_URI + URLEncoder.encode(iri, "UTF-8");
+			return isAbsolute(iri) ? iri : BASE_URI
+					+ URLEncoder.encode(iri, "UTF-8");
 		} catch (UnsupportedEncodingException e) {
 		}
 		return "";

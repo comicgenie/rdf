@@ -30,7 +30,6 @@ import org.comicwiki.gcd.CharacterFieldCleaner;
 import org.comicwiki.gcd.CharacterWalker;
 import org.comicwiki.gcd.parser.CharacterLexer;
 import org.comicwiki.gcd.parser.CharacterParser;
-import org.comicwiki.gcd.parser.CharacterParser.CharactersContext;
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
