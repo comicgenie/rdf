@@ -6,6 +6,7 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.comicwiki.model.ComicCharacter;
 import org.comicwiki.model.schema.Thing;
 import org.comicwiki.rdf.annotations.Subject;
 
@@ -34,6 +35,13 @@ public final class ThingCache {
 			thing.instanceId = "-" + instanceIDGen.createInstanceId();
 		}
 		return thing.instanceId;
+	}
+	
+	public static void load() {
+		for(Thing thing : sInstanceCache.values()) {
+			Repository<Thing> repo = Repositories.getRepository(thing.getClass());
+			repo.add(thing);
+		}
 	}
 	
 	public static synchronized void assignResourceIDs() {

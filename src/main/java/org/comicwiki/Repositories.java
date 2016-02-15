@@ -1,5 +1,10 @@
 package org.comicwiki;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.HashMap;
+
 import org.comicwiki.model.ComicCharacter;
 import org.comicwiki.model.ComicOrganization;
 import org.comicwiki.model.ComicUniverse;
@@ -8,22 +13,60 @@ import org.comicwiki.model.schema.ComicSeries;
 import org.comicwiki.model.schema.ComicStory;
 import org.comicwiki.model.schema.Country;
 import org.comicwiki.model.schema.Person;
+import org.comicwiki.model.schema.Thing;
+import org.comicwiki.transforms.ComicCharacterTransform;
 
 public class Repositories {
 
-	public static Repository<ComicCharacter> COMIC_CHARACTERS = new Repository<>();
+	private static final HashMap<Class<? extends Thing>, Repository<? extends Thing>> sThingRepoMap = new HashMap<>();
 
-	public static Repository<Person> COMIC_CREATOR = new Repository<>();
+	public static final Repository<ComicCharacter> COMIC_CHARACTERS = new Repository<>();
 
-	public static Repository<ComicIssue> COMIC_ISSUE = new Repository<>();
+	public static final Repository<Person> COMIC_CREATOR = new Repository<>();
 
-	public static Repository<ComicOrganization> COMIC_ORGANIZATIONS = new Repository<>();
+	public static final Repository<ComicIssue> COMIC_ISSUE = new Repository<>();
 
-	public static Repository<ComicSeries> COMIC_SERIES = new Repository<>();
+	public static final Repository<ComicOrganization> COMIC_ORGANIZATIONS = new Repository<>();
 
-	public static Repository<ComicStory> COMIC_STORIES = new Repository<>();
+	public static final Repository<ComicSeries> COMIC_SERIES = new Repository<>();
 
-	public static Repository<ComicUniverse> COMIC_UNIVERSE = new Repository<>();
+	public static final Repository<ComicStory> COMIC_STORIES = new Repository<>();
 
-	public static Repository<Country> COUNTRY = new Repository<>();
+	public static final Repository<ComicUniverse> COMIC_UNIVERSE = new Repository<>();
+
+	public static final Repository<Country> COUNTRY = new Repository<>();
+
+	public static Collection<Repository<? extends Thing>> getRepositories() {
+		return (Collection<Repository<? extends Thing>>) sThingRepoMap.values();
+	}
+	
+	public static <T extends Thing> Repository<Thing> getRepository(
+			Class<T> clazz) {
+		return (Repository<Thing>) sThingRepoMap.get(clazz);
+	}
+
+	static {
+		sThingRepoMap.put(Person.class, COMIC_CREATOR);
+		sThingRepoMap.put(ComicIssue.class, COMIC_ISSUE);
+		sThingRepoMap.put(ComicOrganization.class, COMIC_ORGANIZATIONS);
+		sThingRepoMap.put(ComicUniverse.class, COMIC_UNIVERSE);
+		sThingRepoMap.put(Country.class, COUNTRY);
+		sThingRepoMap.put(ComicCharacter.class, COMIC_CHARACTERS);
+		sThingRepoMap.put(ComicStory.class, COMIC_STORIES);
+	}
+
+	static {
+		PersonNameMatcher namesImporter = new PersonNameMatcher();
+		try {
+			namesImporter.load(new File(
+					"./src/main/resources/names/yob2014.txt"));
+			namesImporter.loadLastNames(new File(
+					"./src/main/resources/names/lastname.txt"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		COMIC_CHARACTERS
+				.addTransform(new ComicCharacterTransform(namesImporter));
+	}
+
 }

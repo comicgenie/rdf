@@ -23,7 +23,6 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 import org.comicwiki.ThingFactory;
 import org.comicwiki.gcd.parser.CharacterParser.CharacterContext;
 import org.comicwiki.model.ComicCharacter;
-import org.comicwiki.model.ComicUniverse;
 
 public class CharacterCreator {
 
