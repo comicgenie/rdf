@@ -25,6 +25,7 @@ import java.util.List;
 
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
+import org.comicwiki.IRI;
 import org.comicwiki.ThingFactory;
 import org.comicwiki.gcd.parser.CharacterBaseListener;
 import org.comicwiki.gcd.parser.CharacterParser.CharacterContext;
@@ -150,7 +151,7 @@ public final class CharacterWalker extends CharacterBaseListener {
 				ComicCharacter character = CharacterCreator
 						.createCharacter(characterContext);
 				if (hasOrganization) {
-					addOrganizationMember(character.name);
+					addOrganizationMember(IRI.create(character.instanceId));
 				}
 				addCharacter(character);
 			}
@@ -161,7 +162,7 @@ public final class CharacterWalker extends CharacterBaseListener {
 		characters.put(newCharacter.name, newCharacter);
 	}
 
-	private void addOrganizationMember(String comicCharacter) {
+	private void addOrganizationMember(IRI comicCharacter) {
 		currentOrganization.members.add(comicCharacter);
 	}
 

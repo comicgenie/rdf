@@ -18,6 +18,7 @@ package org.comicwiki.relations;
 import java.util.Collection;
 import java.util.stream.Stream;
 
+import org.comicwiki.IRI;
 import org.comicwiki.model.ComicCharacter;
 import org.comicwiki.model.ComicOrganization;
 import org.comicwiki.model.CreatorRole;
@@ -53,24 +54,23 @@ public final class ComicCreatorAssigner {
 	 * ComicStory.[inkers][pencilers][....]
 	 */
 	public void characters(Collection<ComicCharacter> characters) {
-		characters
-				.forEach(cc -> {
-					colors.forEach(e -> cc.creativeWork.colorists
-							.add(e.instanceId));
-					inks.forEach(e -> cc.creativeWork.inkers
-							.add(e.instanceId));
-					letters.forEach(e -> cc.creativeWork.letterers
-							.add(e.instanceId));
-					pencils.forEach(e -> cc.creativeWork.pencilers
-							.add(e.instanceId));
-					script.forEach(e -> cc.creativeWork.authors
-							.add(e.instanceId));
-					editors.forEach(e -> cc.creativeWork.editors
-							.add(e.instanceId));
-					creators.forEach(c -> {
-						c.workedOn.add(cc.instanceId);
-					});
-				});
+		characters.forEach(cc -> {
+			colors.forEach(e -> cc.creativeWork.colorists.add(IRI
+					.create(e.instanceId)));
+			inks.forEach(e -> cc.creativeWork.inkers.add(IRI
+					.create(e.instanceId)));
+			letters.forEach(e -> cc.creativeWork.letterers.add(IRI
+					.create(e.instanceId)));
+			pencils.forEach(e -> cc.creativeWork.pencilers.add(IRI
+					.create(e.instanceId)));
+			script.forEach(e -> cc.creativeWork.authors.add(IRI
+					.create(e.instanceId)));
+			editors.forEach(e -> cc.creativeWork.editors.add(IRI
+					.create(e.instanceId)));
+			creators.forEach(c -> {
+				c.workedOn.add(IRI.create(cc.instanceId));
+			});
+		});
 	}
 
 	/**
@@ -80,7 +80,7 @@ public final class ComicCreatorAssigner {
 		creators.forEach(one -> {
 			creators.forEach(two -> {
 				if (!one.equals(two)) {
-					one.colleagues.add(two.instanceId);
+					one.colleagues.add(IRI.create(two.instanceId));
 				}
 			});
 		});
@@ -100,7 +100,10 @@ public final class ComicCreatorAssigner {
 	 */
 	public void genres(Collection<Genre> genres) {
 		genres.forEach(g -> {
-			creators.forEach(c -> c.areasWorkedIn.add(g.instanceId));
+			creators.forEach(c -> c.areasWorkedIn.add(IRI.create(g.instanceId)));// TODO:
+																					// STRING
+																					// OR
+																					// IRI
 		});
 	}
 
@@ -110,7 +113,7 @@ public final class ComicCreatorAssigner {
 	public void organizations(Collection<ComicOrganization> organizations) {
 		organizations.forEach(e -> {
 			creators.forEach(c -> {
-				c.workedOn.add(e.instanceId);
+				c.workedOn.add(IRI.create(e.instanceId));
 			});
 		});
 	}
@@ -119,11 +122,11 @@ public final class ComicCreatorAssigner {
 	 * ComicStory.[inkers][....] -> ComicStory
 	 */
 	public void story(ComicStory story) {
-		colors.forEach(e -> story.colorists.add(e.instanceId));
-		inks.forEach(e -> story.inkers.add(e.instanceId));
-		letters.forEach(e -> story.letterers.add(e.instanceId));
-		pencils.forEach(e -> story.pencilers.add(e.instanceId));
-		script.forEach(e -> story.authors.add(e.instanceId));
-		editors.forEach(e -> story.editors.add(e.instanceId));
+		colors.forEach(e -> story.colorists.add(IRI.create(e.instanceId)));
+		inks.forEach(e -> story.inkers.add(IRI.create(e.instanceId)));
+		letters.forEach(e -> story.letterers.add(IRI.create(e.instanceId)));
+		pencils.forEach(e -> story.pencilers.add(IRI.create(e.instanceId)));
+		script.forEach(e -> story.authors.add(IRI.create(e.instanceId)));
+		editors.forEach(e -> story.editors.add(IRI.create(e.instanceId)));
 	}
 }

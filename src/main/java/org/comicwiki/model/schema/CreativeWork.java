@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 
+import org.comicwiki.IRI;
 import org.comicwiki.rdf.annotations.ObjectBoolean;
 import org.comicwiki.rdf.annotations.ObjectDate;
 import org.comicwiki.rdf.annotations.ObjectIRI;
@@ -64,23 +65,23 @@ public class CreativeWork extends Thing {
 
 	@Predicate("author")
 	@ObjectIRI
-	public Collection<String> authors = new HashSet<>(3);
+	public Collection<IRI> authors = new HashSet<>(3);
 
 	@Predicate("publisher")
 	@ObjectIRI
-	public Collection<String> publishers = new HashSet<>(1);// organization
+	public Collection<IRI> publishers = new HashSet<>(1);// organization
 
 	@Predicate("character")
 	@ObjectIRI
-	public Collection<String> characters = new HashSet<>();
+	public Collection<IRI> characters = new HashSet<>();
 
 	@Predicate("editor")
 	@ObjectIRI
-	public Collection<String> editors = new HashSet<>(3);
+	public Collection<IRI> editors = new HashSet<>(3);
 
 	@Predicate("exampleOfWork")
 	@ObjectIRI
-	public Collection<String> exampleOfWork = new HashSet<>();// CreativeWork
+	public Collection<IRI> exampleOfWork = new HashSet<>();// CreativeWork
 
 	@Predicate("locationCreated")
 	@ObjectIRI
@@ -93,7 +94,7 @@ public class CreativeWork extends Thing {
 	@Predicate("publisherImprints")
 	@ObjectIRI
 	@SchemaBib
-	public Collection<String> publisherImprints = new HashSet<>(2);//Organization
+	public Collection<IRI> publisherImprints = new HashSet<>(2);//Organization
 	
 	/**
 	 * Indicates whether this content is family friendly.

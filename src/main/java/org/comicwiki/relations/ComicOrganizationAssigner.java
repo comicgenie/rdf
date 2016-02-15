@@ -18,6 +18,7 @@ package org.comicwiki.relations;
 import java.util.Collection;
 import java.util.stream.Stream;
 
+import org.comicwiki.IRI;
 import org.comicwiki.model.ComicCharacter;
 import org.comicwiki.model.ComicOrganization;
 import org.comicwiki.model.Genre;
@@ -38,8 +39,8 @@ public final class ComicOrganizationAssigner {
 	 */
 	public void characters(Collection<ComicCharacter> characters) {
 		characters.forEach(cc -> {
-			cc.memberOf.add(organization.instanceId);
-			organization.members.add(cc.instanceId);
+			cc.memberOf.add(IRI.create(organization.instanceId));
+			organization.members.add(IRI.create(cc.instanceId));
 		});
 	}
 
@@ -53,18 +54,18 @@ public final class ComicOrganizationAssigner {
 		Stream<Person> creators = Stream.of(colors, inks, letters, pencils,
 				script, editors).flatMap(Collection::stream);
 
-		creators.forEach(c -> c.workedOn.add(organization.instanceId));
+		creators.forEach(c -> c.workedOn.add(IRI.create(organization.instanceId)));
 
 		colors.forEach(e -> organization.creativeWork.colorists
-				.add(e.instanceId));
-		inks.forEach(e -> organization.creativeWork.inkers.add(e.instanceId));
+				.add(IRI.create(e.instanceId)));
+		inks.forEach(e -> organization.creativeWork.inkers.add(IRI.create(e.instanceId)));
 		letters.forEach(e -> organization.creativeWork.letterers
-				.add(e.instanceId));
+				.add(IRI.create(e.instanceId)));
 		pencils.forEach(e -> organization.creativeWork.pencilers
-				.add(e.instanceId));
-		script.forEach(e -> organization.creativeWork.authors.add(e.instanceId));
+				.add(IRI.create(e.instanceId)));
+		script.forEach(e -> organization.creativeWork.authors.add(IRI.create(e.instanceId)));
 		editors.forEach(e -> organization.creativeWork.editors
-				.add(e.instanceId));
+				.add(IRI.create(e.instanceId)));
 
 	}
 
@@ -79,6 +80,6 @@ public final class ComicOrganizationAssigner {
 	 * ComicOrganization -> ComicStory
 	 */
 	public void story(ComicStory story) {
-		story.organizations.add(organization.instanceId);
+		story.organizations.add(IRI.create(organization.instanceId));
 	}
 }

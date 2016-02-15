@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 
+import org.comicwiki.IRI;
 import org.comicwiki.rdf.annotations.ObjectDate;
 import org.comicwiki.rdf.annotations.ObjectIRI;
 import org.comicwiki.rdf.annotations.ObjectString;
@@ -47,7 +48,7 @@ public class Organization extends Thing {
 	
 	@Predicate("location")//should this be collection???
 	@ObjectIRI
-	public String location;//Place
+	public IRI location;//Place
 	
 	@Predicate("legalName")
 	@ObjectString
@@ -56,21 +57,21 @@ public class Organization extends Thing {
 	//indicia [ point to master publisher]
 	@Predicate("parentOrganization")
 	@ObjectIRI
-	public String parentOrganization;
+	public IRI parentOrganization;
 	
 	//This doesn't come directly from gcdb (it is assigned per issue)
 	@Predicate("brand")
 	@ObjectIRI
-	public Collection<String> brands  = new HashSet<>();//Brand
+	public Collection<IRI> brands  = new HashSet<>();//Brand
 	
 	/**
 	 * ID of person (name:universe:era)
 	 */
 	@Predicate(CONTEXT + "member")
 	@ObjectIRI
-	public Collection<String> members = new HashSet<>();
+	public Collection<IRI> members = new HashSet<>();
 	
 	@Predicate(CONTEXT + "founder")
-	public Collection<String> founders = new HashSet<>();
+	public Collection<IRI> founders = new HashSet<>();
 
 }

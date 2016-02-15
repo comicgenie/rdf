@@ -18,9 +18,11 @@ package org.comicwiki.model.schema;
 import java.util.Collection;
 import java.util.HashSet;
 
+import org.comicwiki.IRI;
 import org.comicwiki.rdf.annotations.ObjectIRI;
 import org.comicwiki.rdf.annotations.ObjectString;
 import org.comicwiki.rdf.annotations.Predicate;
+import org.comicwiki.rdf.annotations.SchemaComicWiki;
 import org.comicwiki.rdf.annotations.Subject;
 
 @Subject(value = "http://schema.org/Person", key = "name")
@@ -46,7 +48,7 @@ public class Person extends Thing {
 	
 	@Predicate("colleague")
 	@ObjectIRI
-	public Collection<String> colleagues = new HashSet<>();
+	public Collection<IRI> colleagues = new HashSet<>();
 
 	@Predicate("gender")
 	@ObjectString
@@ -61,40 +63,42 @@ public class Person extends Thing {
 	 */
 	@Predicate("knows")
 	@ObjectIRI
-	public Collection<String> knows = new HashSet<>();
+	public Collection<IRI> knows = new HashSet<>();
 
 	@Predicate("memberOf")
 	@ObjectIRI
-	public Collection<String> memberOf = new HashSet<>(5);// Organization
+	public Collection<IRI> memberOf = new HashSet<>(5);// Organization
 
 	@Predicate("nationality")
 	@ObjectIRI
-	public Country nationality;
+	public IRI nationality;
 
 	@Predicate("parents")
 	@ObjectIRI
-	public Collection<String> parents = new HashSet<>(2);
+	public Collection<IRI> parents = new HashSet<>(2);
 
 	@Predicate("relatedTo")
 	@ObjectIRI
-	public Collection<String> relatedTo = new HashSet<>(3);
+	public Collection<IRI> relatedTo = new HashSet<>(3);
 
 	@Predicate("sibling")
 	@ObjectIRI
-	public Collection<String> sibling = new HashSet<>(3);
+	public Collection<IRI> sibling = new HashSet<>(3);
 
 	@Predicate("worksFor")
 	@ObjectIRI
-	public Collection<String> worksFor = new HashSet<>(3);// Organization
+	public Collection<IRI> worksFor = new HashSet<>(3);// Organization
 
 	// [non-standard]
 	@Predicate("areasWorkedIn")
+	@SchemaComicWiki
 	@ObjectIRI
-	public Collection<String> areasWorkedIn = new HashSet<>(3);// genres
+	public Collection<IRI> areasWorkedIn = new HashSet<>(3);// genres
 
 	@Predicate("workedOn")
+	@SchemaComicWiki
 	@ObjectIRI
-	public Collection<String> workedOn = new HashSet<>(3);// creativeWork,
+	public Collection<IRI> workedOn = new HashSet<>(3);// creativeWork,
 																// story,
 																// character,															// organization
 	public void makeMale() {

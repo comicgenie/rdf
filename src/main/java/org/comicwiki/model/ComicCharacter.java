@@ -18,6 +18,7 @@ package org.comicwiki.model;
 import java.util.Collection;
 import java.util.HashSet;
 
+import org.comicwiki.IRI;
 import org.comicwiki.model.schema.Person;
 import org.comicwiki.rdf.annotations.ObjectIRI;
 import org.comicwiki.rdf.annotations.ObjectString;
@@ -47,7 +48,7 @@ public class ComicCharacter extends Person  {
 
 	@Predicate("identity")
 	@ObjectIRI
-	public Collection<String> identities = new HashSet<>(5);
+	public Collection<IRI> identities = new HashSet<>(5);
 
 	@Predicate("identityType")
 	@ObjectString
@@ -55,7 +56,7 @@ public class ComicCharacter extends Person  {
 
 	@Predicate("ComicUniverse")
 	@ObjectIRI
-	public ComicUniverse universe;
+	public IRI universe;
 	
 	//TODO: Need a special ser/der for this
 	public CreativeWorkExtension creativeWork = new CreativeWorkExtension();

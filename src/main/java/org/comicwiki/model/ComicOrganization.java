@@ -18,6 +18,7 @@ package org.comicwiki.model;
 import java.util.Collection;
 import java.util.HashSet;
 
+import org.comicwiki.IRI;
 import org.comicwiki.model.schema.Organization;
 import org.comicwiki.rdf.annotations.ObjectIRI;
 import org.comicwiki.rdf.annotations.ObjectString;
@@ -40,7 +41,7 @@ public class ComicOrganization extends Organization /*[CreativeWork]*/{
 
 	@Predicate("ComicUniverse")
 	@ObjectIRI
-	public Collection<ComicUniverse> universes = new HashSet<>(1);
+	public Collection<IRI> universes = new HashSet<>(1);
 	
 	//TODO: Need a special ser/der for this
 	public CreativeWorkExtension creativeWork = new CreativeWorkExtension();

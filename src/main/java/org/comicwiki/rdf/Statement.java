@@ -18,6 +18,7 @@ package org.comicwiki.rdf;
 import java.net.URI;
 import java.net.URL;
 
+import org.comicwiki.IRI;
 import org.comicwiki.ResourceUtils;
 import org.comicwiki.rdf.annotations.ObjectInteger;
 import org.comicwiki.rdf.annotations.Predicate;
@@ -28,7 +29,7 @@ import org.comicwiki.rdf.values.RdfSubject;
 
 public class Statement implements Comparable<Statement> {
 
-	public static RdfObject createRdfObjectIRI(URI iri) {
+	public static RdfObject createRdfObjectIRI(IRI iri) {
 		return new RdfObject(ResourceUtils.expandIri(iri.toString()),
 				StatementItemType.IRI, null, null);
 	}
@@ -106,7 +107,7 @@ public class Statement implements Comparable<Statement> {
 		this.object = createRdfObjectLiteral(string);
 	}
 
-	public Statement(Subject subject, Predicate predicate, URI uri) {
+	public Statement(Subject subject, Predicate predicate, IRI uri) {
 		this(subject, predicate);
 		this.object = createRdfObjectIRI(uri);
 	}

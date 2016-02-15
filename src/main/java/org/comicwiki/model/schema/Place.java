@@ -18,6 +18,7 @@ package org.comicwiki.model.schema;
 import java.util.Collection;
 import java.util.HashSet;
 
+import org.comicwiki.IRI;
 import org.comicwiki.rdf.annotations.ObjectIRI;
 import org.comicwiki.rdf.annotations.Predicate;
 import org.comicwiki.rdf.annotations.Subject;
@@ -32,12 +33,12 @@ public class Place extends Thing {
 	 */
 	@Predicate("containedInPlace")
 	@ObjectIRI
-	public Collection<String> containedInPlaces = new HashSet<>(5);
+	public Collection<IRI> containedInPlaces = new HashSet<>(5);
 	
 	/**
 	 * The basic containment relation between a place and another that it contains.
 	 */
 	@Predicate("containsPlace")
 	@ObjectIRI
-	public Collection<String> containsPlaces = new HashSet<>(5);
+	public Collection<IRI> containsPlaces = new HashSet<>(5);
 }

@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 
+import org.comicwiki.IRI;
 import org.comicwiki.KeyUtils;
 import org.comicwiki.model.schema.Thing;
 import org.comicwiki.rdf.annotations.ObjectBoolean;
@@ -59,25 +60,23 @@ public final class StatementFactory {
 		for (Annotation annotation : field.getAnnotations()) {
 			if (annotation instanceof ObjectIRI) {
 				if (fieldInstance instanceof Collection) {
-					Collection<String> c = (Collection<String>) fieldInstance;
-					for (String value : c) {
-						RdfObject rdfObject = Statement.createRdfObjectIRI(URI
-								.create(value));
+					Collection<IRI> c = (Collection<IRI>) fieldInstance;
+					for (IRI value : c) {
+						RdfObject rdfObject = Statement
+								.createRdfObjectIRI(value);
 						statements.add(new Statement(rdfSubject, rdfPredicate,
 								rdfObject));
 					}
-				} else if (fieldInstance instanceof String) {
-					String value = (String) fieldInstance;
-					RdfObject rdfObject = Statement.createRdfObjectIRI(URI
-							.create(value));
+				} else if (fieldInstance instanceof IRI) {
+					IRI value = (IRI) fieldInstance;
+					RdfObject rdfObject = Statement.createRdfObjectIRI(value);
 					statements.add(new Statement(rdfSubject, rdfPredicate,
 							rdfObject));
 				} else if (Thing.class.isAssignableFrom(fieldInstance
 						.getClass())) {
-					String value = KeyUtils
-							.readCompositePropertyKey((Thing) fieldInstance);
-					RdfObject rdfObject = Statement.createRdfObjectIRI(URI
-							.create(value));
+					String value = ((Thing) fieldInstance).resourceId;
+					RdfObject rdfObject = Statement.createRdfObjectIRI(new IRI(
+							value));
 					statements.add(new Statement(rdfSubject, rdfPredicate,
 							rdfObject));
 				} else {
@@ -135,8 +134,9 @@ public final class StatementFactory {
 		RdfSubject rdfSubject = Statement.createRdfSubject(compositeId);
 		RdfPredicate rdfPredicate = Statement
 				.createRdfPredicate(DataTypeConstants.RDF_TYPE);
-		RdfObject rdfObject = Statement.createRdfObjectIRI(URI.create(subject
+		RdfObject rdfObject = Statement.createRdfObjectIRI(new IRI(subject
 				.value()));
+
 		Statement statement = new Statement(rdfSubject, rdfPredicate, rdfObject);
 
 		return statement;

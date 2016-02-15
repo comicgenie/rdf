@@ -90,6 +90,7 @@ public class CharacterCreator {
 				if (universe != null) {
 					identity = identity + ":" + universe;
 				}
+				//TODO: 
 			//	character.addIdentity(identity);
 			}		
 		}

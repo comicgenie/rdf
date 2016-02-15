@@ -18,6 +18,7 @@ package org.comicwiki.model;
 import java.util.Collection;
 import java.util.HashSet;
 
+import org.comicwiki.IRI;
 import org.comicwiki.model.schema.Thing;
 import org.comicwiki.rdf.annotations.ObjectIRI;
 import org.comicwiki.rdf.annotations.ObjectString;
@@ -54,35 +55,35 @@ public class CreativeWorkExtension  {
 	
 	@Predicate("author")
 	@ObjectIRI
-	public Collection<String> authors = new HashSet<>(3);
+	public Collection<IRI> authors = new HashSet<>(3);
 
 	@Predicate("publisher")
 	@ObjectIRI
-	public String publisher;
+	public IRI publisher;
 
 	@Predicate("editor")
 	@ObjectIRI
-	public Collection<String> editors = new HashSet<>(3);
+	public Collection<IRI> editors = new HashSet<>(3);
 	
 	@Predicate("artist")
 	@ObjectIRI
-	public Collection<String> artists  = new HashSet<>(3);
+	public Collection<IRI> artists  = new HashSet<>(3);
 	
 	@Predicate("colorist")
 	@ObjectIRI
-	public Collection<String> colorists  = new HashSet<>(3);
+	public Collection<IRI> colorists  = new HashSet<>(3);
 	
 	@Predicate("letterer")
 	@ObjectIRI
-	public Collection<String> letterers  = new HashSet<>(3);
+	public Collection<IRI> letterers  = new HashSet<>(3);
 	
 	@Predicate("penciler")
 	@ObjectIRI
-	public Collection<String> pencilers  = new HashSet<>(3);
+	public Collection<IRI> pencilers  = new HashSet<>(3);
 	
 	@Predicate("inker")
 	@ObjectIRI
-	public Collection<String> inkers  = new HashSet<>(3);
+	public Collection<IRI> inkers  = new HashSet<>(3);
 	
 	
 }

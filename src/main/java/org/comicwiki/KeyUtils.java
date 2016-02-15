@@ -27,7 +27,7 @@ public final class KeyUtils {
 		return ResourceUtils.expandIri(object.resourceId);
 	}
 
-	public static String readCompositePropertyKey(Thing object) {
+	protected static String readCompositePropertyKey(Thing object) {
 		Class<?> clazz = object.getClass();
 		Subject subject = clazz.getAnnotation(Subject.class);
 		try {

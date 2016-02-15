@@ -17,6 +17,7 @@ package org.comicwiki.relations;
 
 import java.util.Collection;
 
+import org.comicwiki.IRI;
 import org.comicwiki.model.ComicCharacter;
 import org.comicwiki.model.Genre;
 import org.comicwiki.model.schema.ComicStory;
@@ -32,7 +33,7 @@ public final class ComicCharactersAssigner {
 		comicCharacters.forEach(one -> {
 			comicCharacters.forEach(two -> {
 				if (!two.equals(one)) {
-					one.colleagues.add(two.instanceId);
+					one.colleagues.add(IRI.create(two.instanceId));
 				}
 			});
 		});
@@ -47,7 +48,7 @@ public final class ComicCharactersAssigner {
 	 * ComicCharacters -> ComicStory
 	 */
 	public void story(ComicStory story) {
-		comicCharacters.forEach(e -> story.characters.add(e.instanceId));
+		comicCharacters.forEach(e -> story.characters.add(IRI.create(e.instanceId)));
 	}
 
 	/**
@@ -55,6 +56,6 @@ public final class ComicCharactersAssigner {
 	 */
 	public void genres(Collection<Genre> genres) {
 		genres.forEach(g -> comicCharacters.forEach(c -> c.creativeWork.genres
-				.add(g.instanceId)));
+				.add(g.name)));
 	}
 }

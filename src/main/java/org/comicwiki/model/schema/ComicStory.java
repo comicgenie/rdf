@@ -18,6 +18,7 @@ package org.comicwiki.model.schema;
 import java.util.Collection;
 import java.util.HashSet;
 
+import org.comicwiki.IRI;
 import org.comicwiki.rdf.annotations.SchemaComicWiki;
 import org.comicwiki.rdf.annotations.ObjectBoolean;
 import org.comicwiki.rdf.annotations.ObjectIRI;
@@ -30,23 +31,23 @@ public class ComicStory extends CreativeWork {
 	
 	@Predicate("artist")
 	@ObjectIRI
-	public Collection<String> artists  = new HashSet<>(3);
+	public Collection<IRI> artists  = new HashSet<>(3);
 	
 	@Predicate("colorist")
 	@ObjectIRI
-	public Collection<String> colorists  = new HashSet<>(3);
+	public Collection<IRI> colorists  = new HashSet<>(3);
 	
 	@Predicate("letterer")
 	@ObjectIRI
-	public Collection<String> letterers  = new HashSet<>(3);
+	public Collection<IRI> letterers  = new HashSet<>(3);
 	
 	@Predicate("penciler")
 	@ObjectIRI
-	public Collection<String> pencilers  = new HashSet<>(3);
+	public Collection<IRI> pencilers  = new HashSet<>(3);
 	
 	@Predicate("inker")
 	@ObjectIRI
-	public Collection<String> inkers  = new HashSet<>(3);
+	public Collection<IRI> inkers  = new HashSet<>(3);
 	
 	@Predicate("pageEnd")
 	@ObjectInteger
@@ -61,7 +62,7 @@ public class ComicStory extends CreativeWork {
 	@Predicate("organizations")
 	@ObjectIRI
 	@SchemaComicWiki
-	public Collection<String> organizations = new HashSet<>();
+	public Collection<IRI> organizations = new HashSet<>();
 	
 	@Predicate("pageCountUncertain")
 	@ObjectBoolean

@@ -18,6 +18,7 @@ package org.comicwiki.model.schema;
 import java.util.Collection;
 import java.util.HashSet;
 
+import org.comicwiki.IRI;
 import org.comicwiki.rdf.annotations.ObjectIRI;
 import org.comicwiki.rdf.annotations.Predicate;
 import org.comicwiki.rdf.annotations.SchemaBib;
@@ -33,31 +34,31 @@ public class ComicIssue extends PublicationIssue {
 	@Predicate("artist")
 	@ObjectIRI
 	@SchemaBib
-	public Collection<String> artists  = new HashSet<>(1);//person
+	public Collection<IRI> artists  = new HashSet<>(1);//person
 	
 	@Predicate("colorist")
 	@ObjectIRI
 	@SchemaBib
-	public Collection<String> colorists  = new HashSet<>(1);
+	public Collection<IRI> colorists  = new HashSet<>(1);
 	
 	@Predicate("letterer")
 	@ObjectIRI
 	@SchemaBib
-	public Collection<String> letterers  = new HashSet<>(1);
+	public Collection<IRI> letterers  = new HashSet<>(1);
 	
 	@Predicate("penciler")
 	@ObjectIRI
 	@SchemaBib
-	public Collection<String> pencilers  = new HashSet<>(1);
+	public Collection<IRI> pencilers  = new HashSet<>(1);
 	
 	@Predicate("inker")
 	@ObjectIRI
 	@SchemaBib
-	public Collection<String> inkers  = new HashSet<>(1);
+	public Collection<IRI> inkers  = new HashSet<>(1);
 	
 	@Predicate("brand")
 	@ObjectIRI
 	@SchemaComicWiki
-	public Collection<String> brands  = new HashSet<>(1);//Brand
+	public Collection<IRI> brands  = new HashSet<>(1);//Brand
 	
 }

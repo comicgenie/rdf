@@ -25,6 +25,7 @@ public final class ThingCache {
 			1000000);
 
 	public static void add(Thing thing) {
+		//TODO: Do we add fields with instances?
 		assignInstanceId(thing);
 		INSTANCE_CACHE.put(thing.instanceId, thing);
 	}
