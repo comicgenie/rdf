@@ -23,11 +23,12 @@ import org.comicwiki.model.schema.Thing;
 public class TableRow<T extends Thing> {
 	public int id;
 
-	public T instance = create();
-
-	public T create() {
+	public T instance;
+	
+	public T create(ThingFactory thingFactory) {
 		Class<T> clazz = (Class<T>) ((ParameterizedType) getClass()
 				.getGenericSuperclass()).getActualTypeArguments()[0];
-		return ThingFactory.create(clazz);
+		instance = thingFactory.create(clazz);
+		return thingFactory.create(clazz);
 	}
 }

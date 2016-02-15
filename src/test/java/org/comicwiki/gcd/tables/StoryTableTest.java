@@ -17,39 +17,46 @@ package org.comicwiki.gcd.tables;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.File;
+
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
+import org.comicwiki.ThingCache;
+import org.comicwiki.ThingFactory;
+import org.comicwiki.gcd.CharacterCreator;
 import org.comicwiki.gcd.tables.StoryTable;
 import org.junit.Test;
 
 public class StoryTableTest {
 
-	/**
-	 * new Column("id"), new Column("title"), new Column("feature"), new
-	 * Column("sequence_number"), new Column("page_count"), new
-	 * Column("issue_id"), new Column("script"), new Column("pencils"), new
-	 * Column("inks"), new Column("colors"), new Column("letters"), new
-	 * Column("editing"), new Column("genre"), new Column("characters"), new
-	 * Column("synopsis"), new Column("reprint_notes"), new Column("modified"),
-	 * new Column("notes"), new Column("type_id"), new Column("job_number"), new
-	 * Column("page_count_uncertain") };
-	 */
+	private File resourceDir = new File("./src/main/resources/comics");
+
 	@Test
 	public void allNull() throws Exception {
+		ThingCache thingCache = new ThingCache();
+		ThingFactory thingFactory = new ThingFactory(thingCache);
+		CharacterCreator characterCreator = new CharacterCreator(thingFactory);
+
 		Row row = RowFactory.create(null, null, null, null, null, null, null,
 				null, null, null, null, null, null, null, null, null, null,
 				null, null, null, null);
-		StoryTable table = new StoryTable(null);
+		StoryTable table = new StoryTable(null, thingFactory, characterCreator,
+				resourceDir);
 		table.process(row);
 		assertEquals(0, table.cache.size());
 	}
 
 	@Test
 	public void character() throws Exception {
+		ThingCache thingCache = new ThingCache();
+		ThingFactory thingFactory = new ThingFactory(thingCache);
+		CharacterCreator characterCreator = new CharacterCreator(thingFactory);
+
 		Row row = RowFactory.create(1, null, null, null, null, null, null,
 				null, null, null, null, null, null, "Daredevil", null, null,
 				null, null, null, null, null);
-		StoryTable table = new StoryTable(null);
+		StoryTable table = new StoryTable(null, thingFactory, characterCreator,
+				resourceDir);
 		StoryTable.StoryRow tableRow = table.process(row);
 		assertEquals(1, tableRow.characters.size());
 		assertEquals("Daredevil", tableRow.characters.stream().findFirst()
@@ -58,10 +65,15 @@ public class StoryTableTest {
 
 	@Test
 	public void organization() throws Exception {
+		ThingCache thingCache = new ThingCache();
+		ThingFactory thingFactory = new ThingFactory(thingCache);
+		CharacterCreator characterCreator = new CharacterCreator(thingFactory);
+
 		Row row = RowFactory.create(1, null, null, null, null, null, null,
 				null, null, null, null, null, null, "X-Men[Wolverine]", null,
 				null, null, null, null, null, null);
-		StoryTable table = new StoryTable(null);
+		StoryTable table = new StoryTable(null, thingFactory, characterCreator,
+				resourceDir);
 		StoryTable.StoryRow tableRow = table.process(row);
 		assertEquals(1, tableRow.characters.size());
 		assertEquals("Wolverine", tableRow.characters.stream().findFirst()
@@ -72,10 +84,15 @@ public class StoryTableTest {
 
 	@Test
 	public void title() throws Exception {
+		ThingCache thingCache = new ThingCache();
+		ThingFactory thingFactory = new ThingFactory(thingCache);
+		CharacterCreator characterCreator = new CharacterCreator(thingFactory);
+
 		Row row = RowFactory.create(1, "Action Comics", null, null, null, null,
 				null, null, null, null, null, null, null, null, null, null,
 				null, null, null, null, null);
-		StoryTable table = new StoryTable(null);
+		StoryTable table = new StoryTable(null, thingFactory, characterCreator,
+				resourceDir);
 		StoryTable.StoryRow tableRow = table.process(row);
 		assertEquals("Action Comics", tableRow.title);
 	}

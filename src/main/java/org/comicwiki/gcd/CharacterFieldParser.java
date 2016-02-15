@@ -15,7 +15,6 @@
  *******************************************************************************/
 package org.comicwiki.gcd;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -36,30 +35,31 @@ public final class CharacterFieldParser implements
 	private boolean failOnParse;
 	private FileOutputStream fos;
 
-	public CharacterFieldParser(File resourceDirectory) {
-		characterWalker = new CharacterWalker(resourceDirectory);
+	public CharacterFieldParser(CharacterWalker characterWalker) {
+		this.characterWalker = characterWalker;
 	}
-	
-	public CharacterFieldParser(File resourceDirectory, boolean failOnParse, FileOutputStream fos) {
-		characterWalker = new CharacterWalker(resourceDirectory);
+
+	public CharacterFieldParser(CharacterWalker characterWalker,
+			boolean failOnParse, FileOutputStream fos) {
+		this(characterWalker);
 		this.failOnParse = failOnParse;
 		this.fos = fos;
 	}
 
 	public StoryTable.Fields.Character createCharacterField(int row, String text) {
-		if(text == null || text.isEmpty()) {
+		if (text == null || text.isEmpty()) {
 			return new StoryTable.Fields.Character();
 		}
-		
+
 		text = CharacterFieldCleaner.cleanSemicolonInParanthesis(text);
 		text = CharacterFieldCleaner.cleanCommaInBrackets(text);
-		
+
 		CharacterLexer lexer = new CharacterLexer(new ANTLRInputStream(text));
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
 		CharacterParser parser = new CharacterParser(tokens);
-		if(failOnParse) {
+		if (failOnParse) {
 			parser.setErrorHandler(new BailErrorStrategy());
-		}	
+		}
 		ParseTree tree = null;
 		try {
 			tree = parser.teams();
@@ -68,10 +68,10 @@ public final class CharacterFieldParser implements
 			try {
 				fos.write((row + ". " + text + "\r\n").getBytes());
 			} catch (IOException e) {
-			} 
+			}
 			return new StoryTable.Fields.Character();
 		}
-		
+
 		ParseTreeWalker walker = new ParseTreeWalker();
 		try {
 			walker.walk(characterWalker, tree);
@@ -94,11 +94,11 @@ public final class CharacterFieldParser implements
 
 	@Override
 	public StoryTable.Fields.Character parse(int field, Row row) {
-		if(row.isNullAt(field)) {
+		if (row.isNullAt(field)) {
 			return null;
 		}
 		String characters = clean(row.getString(field));
-		
+
 		return createCharacterField(row.getInt(0), characters);
 	}
 }

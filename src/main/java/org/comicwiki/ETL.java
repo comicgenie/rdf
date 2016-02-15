@@ -64,6 +64,12 @@ public class ETL {
 		}
 		return tables;	
 	}
+
+	private ThingCache thingCache;
+	
+	public ETL(ThingCache thingCache) {
+		this.thingCache = thingCache;
+	}
 	
 	public void fromRDB(SQLContext context, String jdbcUrl)
 			throws Exception {
@@ -86,8 +92,8 @@ public class ETL {
 			table.tranform();
 		}
 
-		ThingCache.assignResourceIDs();
-		ThingCache.load();
+		thingCache.assignResourceIDs();
+		thingCache.load();
 		for(Repository<?> repo : Repositories.getRepositories()) {
 			repo.transform();
 			String repoName = repo.getClass().getSimpleName();

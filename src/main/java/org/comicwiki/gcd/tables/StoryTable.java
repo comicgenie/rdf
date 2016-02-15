@@ -27,7 +27,10 @@ import java.util.stream.Stream;
 import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
+import org.comicwiki.ThingFactory;
+import org.comicwiki.gcd.CharacterCreator;
 import org.comicwiki.gcd.CharacterFieldParser;
+import org.comicwiki.gcd.CharacterWalker;
 import org.comicwiki.gcd.CreatorFieldParser;
 import org.comicwiki.model.ComicCharacter;
 import org.comicwiki.model.ComicOrganization;
@@ -90,6 +93,8 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 
 	public static final class StoryRow extends TableRow<ComicStory> {
 
+		public ComicStory instance = create(thingFactory);
+		
 		public Collection<ComicCharacter> characters;
 
 		public Collection<Person> colors;
@@ -152,8 +157,18 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 
 	private static final String sParquetName = sInputTable + ".parquet";
 
-	public StoryTable(SQLContext sqlContext) {
+	private static ThingFactory thingFactory;
+
+	private CharacterCreator characterCreator;
+
+	private File resourceDir;
+
+	public StoryTable(SQLContext sqlContext, ThingFactory thingFactory,
+			CharacterCreator characterCreator, File resourceDir) {
 		super(sqlContext, sParquetName);
+		StoryTable.thingFactory = thingFactory;
+		this.characterCreator = characterCreator;
+		this.resourceDir = resourceDir;
 	}
 
 	@Override
@@ -161,9 +176,8 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 		StoryRow storyRow = new StoryRow();
 
 		Fields.Character characterField = parseField(Columns.CHARACTERS, row,
-				new CharacterFieldParser(
-						new File("./src/main/resources/comics")));// TODO: pull
-																	// from jar
+				new CharacterFieldParser(new CharacterWalker(thingFactory,
+						characterCreator, resourceDir)));
 
 		if (characterField != null) {
 			storyRow.characters = characterField.comicCharacters;
@@ -259,7 +273,7 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 
 		for (BaseTable<?> table : orderedTables) {
 			join(table);
-		}		
+		}
 	}
 
 	@Override
@@ -328,13 +342,14 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 		super.transform(row);
 		ComicCharactersAssigner ccAssign = new ComicCharactersAssigner(
 				row.characters);
-		//TODO: add all key components first and then calculate KEY
+		// TODO: add all key components first and then calculate KEY
 		ccAssign.colleagues();
-	//	ccAssign.genres(row.genre);
+		// ccAssign.genres(row.genre);
 		ccAssign.story(row.instance);
 
-		ComicCreatorAssigner creatorAssigner = new ComicCreatorAssigner(row.colors,
-				row.inks, row.letters, row.pencils, row.script, row.editing);
+		ComicCreatorAssigner creatorAssigner = new ComicCreatorAssigner(
+				row.colors, row.inks, row.letters, row.pencils, row.script,
+				row.editing);
 		creatorAssigner.colleagues();
 		creatorAssigner.jobTitles();
 		creatorAssigner.characters(row.characters);

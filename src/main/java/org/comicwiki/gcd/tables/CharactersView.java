@@ -8,7 +8,10 @@ import java.io.IOException;
 import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
+import org.comicwiki.ThingFactory;
+import org.comicwiki.gcd.CharacterCreator;
 import org.comicwiki.gcd.CharacterFieldParser;
+import org.comicwiki.gcd.CharacterWalker;
 import org.comicwiki.gcd.tables.StoryTable.Fields;
 import org.comicwiki.gcd.tables.StoryTable.StoryRow;
 
@@ -29,6 +32,21 @@ public class CharactersView extends BaseTable<StoryTable.StoryRow> {
 
 	private FileOutputStream fos;
 
+	private ThingFactory thingFactory;
+
+	private CharacterCreator characterCreator;
+
+	private File resourceDir;
+
+	public CharactersView(SQLContext sqlContext, boolean failOnParse,
+			ThingFactory thingFactory, CharacterCreator characterCreator,
+			File resourceDir) {
+		super(sqlContext, sParquetName);
+		this.thingFactory = thingFactory;
+		this.characterCreator = characterCreator;
+		this.resourceDir = resourceDir;
+	}
+
 	public CharactersView(SQLContext sqlContext, boolean failOnParse) {
 		super(sqlContext, sParquetName);
 		this.failOnParse = failOnParse;
@@ -41,11 +59,10 @@ public class CharactersView extends BaseTable<StoryTable.StoryRow> {
 
 	@Override
 	public StoryRow process(Row row) throws IOException {
-		StoryRow storyRow = new StoryRow();
+		StoryRow storyRow = new StoryTable.StoryRow();
 		Fields.Character characterField = parseField(Columns.CHARACTERS, row,
-				new CharacterFieldParser(
-						new File("./src/main/resources/comics"), failOnParse,
-						fos));// TODO: jar file
+				new CharacterFieldParser(new CharacterWalker(thingFactory,
+						characterCreator, resourceDir)));
 
 		if (characterField != null) {
 			storyRow.characters = characterField.comicCharacters;

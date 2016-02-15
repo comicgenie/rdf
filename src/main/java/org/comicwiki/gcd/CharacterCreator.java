@@ -27,8 +27,14 @@ import org.comicwiki.model.ComicCharacter;
 public class CharacterCreator {
 
 	private static FileOutputStream fos;
+	
+	private ThingFactory thingFactory;
 
-	public static ComicCharacter createCharacter(CharacterContext ctx) {
+	public CharacterCreator(ThingFactory thingFactory) {
+		this.thingFactory = thingFactory;
+		
+	}
+	public ComicCharacter createCharacter(CharacterContext ctx) {
 
 		if(fos == null) {
 			try {
@@ -37,7 +43,7 @@ public class CharacterCreator {
 				e.printStackTrace();
 			}
 		}
-		ComicCharacter character = ThingFactory.create(ComicCharacter.class);
+		ComicCharacter character = thingFactory.create(ComicCharacter.class);
 
 		String printName = ctx.WORD().getText();
 		

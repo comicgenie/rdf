@@ -52,7 +52,13 @@ public final class CharacterWalker extends CharacterBaseListener {
 
 	private List<String> marvelOrganizationList;
 
-	public CharacterWalker(File resourceDir) {
+	private ThingFactory thingFactory;
+
+	private CharacterCreator characterCreator;
+
+	public CharacterWalker(ThingFactory thingFactory, CharacterCreator characterCreator, File resourceDir) {
+		this.thingFactory = thingFactory;
+		this.characterCreator = characterCreator;
 		try {
 			marvelOrganizationList = Files
 					.readAllLines(
@@ -101,7 +107,7 @@ public final class CharacterWalker extends CharacterBaseListener {
 
 	private void startOrganization(String organizationName) {
 		if (organizationName != null && !organizationName.isEmpty()) {
-			currentOrganization = ThingFactory.create(ComicOrganization.class);
+			currentOrganization = thingFactory.create(ComicOrganization.class);
 			currentOrganization.name = organizationName.trim();
 		}
 	}
@@ -119,7 +125,7 @@ public final class CharacterWalker extends CharacterBaseListener {
 		if(characterContext.aliases() != null) {
 			if(characterContext.aliases().WORD() != null) {
 				for (TerminalNode ac : characterContext.aliases().WORD()) {
-					ComicCharacter cc = ThingFactory.create(ComicCharacter.class);
+					ComicCharacter cc = thingFactory.create(ComicCharacter.class);
 					cc.name = ac.getText().trim();
 					addCharacter(cc);
 				}			
@@ -148,7 +154,7 @@ public final class CharacterWalker extends CharacterBaseListener {
 					|| isOrganization(organizationOrCharacterText)) {
 				addCharactersFromOrganization(characterContext);
 			} else {
-				ComicCharacter character = CharacterCreator
+				ComicCharacter character = characterCreator
 						.createCharacter(characterContext);
 				if (hasOrganization) {
 					addOrganizationMember(IRI.create(character.instanceId));

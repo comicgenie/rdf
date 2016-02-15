@@ -10,7 +10,8 @@ public class ThingFactoryTest {
 
 	@Test
 	public void testCreateHasInstanceId() {
-		ComicCharacter thing = ThingFactory.create(ComicCharacter.class);
+		ThingCache thingCache = new ThingCache();
+		ComicCharacter thing = new ThingFactory(thingCache).create(ComicCharacter.class);
 		assertNotNull(thing.instanceId);
 	}
 }

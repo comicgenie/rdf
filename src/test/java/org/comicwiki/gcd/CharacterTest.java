@@ -26,6 +26,8 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.antlr.v4.test.runtime.java.BaseTest;
+import org.comicwiki.ThingCache;
+import org.comicwiki.ThingFactory;
 import org.comicwiki.gcd.CharacterFieldCleaner;
 import org.comicwiki.gcd.CharacterWalker;
 import org.comicwiki.gcd.parser.CharacterLexer;
@@ -37,7 +39,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class CharacterTest extends BaseTest {
 
 	private File resourceDir = new File("./src/main/resources/comics");
-	
+
 	private CharacterParser createParser(String text) {
 		text = CharacterFieldCleaner.cleanSemicolonInParanthesis(text);
 		System.out.println(text);
@@ -49,10 +51,15 @@ public class CharacterTest extends BaseTest {
 		parser.setErrorHandler(new BailErrorStrategy());
 		return parser;
 	}
-	
-	private CharacterWalker walk(CharacterParser parser ) {
+
+	private CharacterWalker walk(CharacterParser parser) {
+		ThingCache thingCache = new ThingCache();
+		ThingFactory thingFactory = new ThingFactory(thingCache);
+		CharacterCreator characterCreator = new CharacterCreator(thingFactory);
+
 		ParseTreeWalker walker = new ParseTreeWalker();
-		CharacterWalker cWalker = new CharacterWalker(resourceDir);
+		CharacterWalker cWalker = new CharacterWalker(thingFactory,
+				characterCreator, resourceDir);
 		walker.walk(cWalker, parser.characters());
 		return cWalker;
 	}
@@ -61,35 +68,32 @@ public class CharacterTest extends BaseTest {
 	 * This is not according to spec. Only Parenthesis
 	 */
 	/*
-	@Test
-	public void testOnlyParenthesis() throws IOException {
-		String text = "(woman on ice skates)";	
-		CharacterParser parser = createParser(text);
-		walk(parser);
-	}
-	*/
+	 * @Test public void testOnlyParenthesis() throws IOException { String text
+	 * = "(woman on ice skates)"; CharacterParser parser = createParser(text);
+	 * walk(parser); }
+	 */
 	@Test
 	public void testMismatch() throws IOException {
 		String text = "Batman [Bruce Wayne]; Robin [Dick Grayson]; John Barham (mention only;death); James Barham (millionaire;death); Adam Barham (Jame's cousin); John Gorley; Sheriff Martin; Robert Cray (villain;introduction); Vance Sonderson [as Jay Sonderson] (villain,gun smuggler,introduction)";
 		CharacterParser parser = createParser(text);
 		CharacterWalker cw = walk(parser);
 		ObjectMapper mapper = new ObjectMapper();
-		mapper.writeValue(System.out,cw.characters);
-		mapper.writeValue(System.out,cw.organizations);
+		mapper.writeValue(System.out, cw.characters);
+		mapper.writeValue(System.out, cw.organizations);
 
-		System.out.println(cw.errors);	
+		System.out.println(cw.errors);
 	}
-		
+
 	/**
 	 * This is not according to spec. Semicolon instead of comma
 	 */
 	@Test
 	public void testSemicolonInParenthesis() throws IOException {
-		String text = "Wilfred of Ivanhoe (introduction; not named,referred to as \"a stranger\")";	
+		String text = "Wilfred of Ivanhoe (introduction; not named,referred to as \"a stranger\")";
 		CharacterParser parser = createParser(text);
 		walk(parser);
 	}
-	
+
 	@Test
 	public void testB() throws IOException {
 		String text = "Batman; Robin; The Thing";
@@ -97,9 +101,14 @@ public class CharacterTest extends BaseTest {
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
 		CharacterParser parser = new CharacterParser(tokens);
 		parser.setErrorHandler(new BailErrorStrategy());
-		
+
+		ThingCache thingCache = new ThingCache();
+		ThingFactory thingFactory = new ThingFactory(thingCache);
+		CharacterCreator characterCreator = new CharacterCreator(thingFactory);
+
 		ParseTreeWalker walker = new ParseTreeWalker();
-		walker.walk(new CharacterWalker(resourceDir), parser.characters());
+		walker.walk(new CharacterWalker(thingFactory,
+				characterCreator, resourceDir), parser.characters());
 	}
 
 	//
@@ -112,9 +121,14 @@ public class CharacterTest extends BaseTest {
 		CharacterParser parser = new CharacterParser(tokens);
 		parser.setErrorHandler(new BailErrorStrategy());
 
+		ThingCache thingCache = new ThingCache();
+		ThingFactory thingFactory = new ThingFactory(thingCache);
+		CharacterCreator characterCreator = new CharacterCreator(thingFactory);
+
 		ParseTree tree = parser.team();
 		ParseTreeWalker walker = new ParseTreeWalker();
-		walker.walk(new CharacterWalker(resourceDir), tree);
+		walker.walk(new CharacterWalker(thingFactory,
+				characterCreator, resourceDir), tree);
 	}
 
 	@Test
@@ -126,10 +140,15 @@ public class CharacterTest extends BaseTest {
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
 		CharacterParser parser = new CharacterParser(tokens);
 		parser.setErrorHandler(new BailErrorStrategy());
-		
+
+		ThingCache thingCache = new ThingCache();
+		ThingFactory thingFactory = new ThingFactory(thingCache);
+		CharacterCreator characterCreator = new CharacterCreator(thingFactory);
+
 		ParseTree tree = parser.team();
 		ParseTreeWalker walker = new ParseTreeWalker();
-		walker.walk(new CharacterWalker(resourceDir), tree);
+		walker.walk(new CharacterWalker(thingFactory,
+				characterCreator, resourceDir), tree);
 	}
 
 	@Test
@@ -142,10 +161,15 @@ public class CharacterTest extends BaseTest {
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
 		CharacterParser parser = new CharacterParser(tokens);
 		parser.setErrorHandler(new BailErrorStrategy());
-		
+
+		ThingCache thingCache = new ThingCache();
+		ThingFactory thingFactory = new ThingFactory(thingCache);
+		CharacterCreator characterCreator = new CharacterCreator(thingFactory);
+
 		ParseTree tree = parser.team();
 		ParseTreeWalker walker = new ParseTreeWalker();
-		walker.walk(new CharacterWalker(resourceDir), tree);
+		walker.walk(new CharacterWalker(thingFactory,
+				characterCreator, resourceDir), tree);
 	}
 
 	@Test

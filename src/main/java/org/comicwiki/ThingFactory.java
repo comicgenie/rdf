@@ -19,10 +19,16 @@ import org.comicwiki.model.schema.Thing;
 
 public class ThingFactory {
 
-	public static <T extends Thing> T create(Class<T> clazz) {
+	private ThingCache thingCache;
+
+	public ThingFactory(ThingCache thingCache) {
+		this.thingCache = thingCache;
+	}
+	
+	public <T extends Thing> T create(Class<T> clazz) {
 		try {
 			Thing thing = (Thing) clazz.newInstance();
-			ThingCache.add(thing);
+			thingCache.add(thing);
 			return (T) thing;
 		} catch (InstantiationException | IllegalAccessException e) {
 			return null;

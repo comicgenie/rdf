@@ -20,6 +20,7 @@ import java.io.IOException;
 import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
+import org.comicwiki.ThingFactory;
 
 public class StoryTypeTable extends BaseTable<StoryTypeTable.StoryTypeRow> {
 
@@ -33,6 +34,7 @@ public class StoryTypeTable extends BaseTable<StoryTypeTable.StoryTypeRow> {
 	}
 
 	public static class StoryTypeRow extends TableRow {
+		
 		public String name;
 	}
 

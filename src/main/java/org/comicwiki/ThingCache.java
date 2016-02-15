@@ -30,19 +30,19 @@ import com.google.common.collect.HashBiMap;
 
 public final class ThingCache {
 
-	private static final HashBiMap<String, String> cpkResourceMap = HashBiMap
+	private final HashBiMap<String, String> cpkResourceMap = HashBiMap
 			.create();
 
 	private static final KeyIDGenerator instanceIDGen = new KeyIDGenerator(0);
 
 	private static final KeyIDGenerator resourceIDGen = new KeyIDGenerator(0);
 
-	protected static final HashMap<String, Thing> sInstanceCache = new HashMap<>(
+	protected final HashMap<String, Thing> instanceCache = new HashMap<>(
 			1000000);
 
-	public static void add(Thing thing) {
+	public void add(Thing thing) {
 		assignInstanceId(thing);
-		sInstanceCache.put(thing.instanceId, thing);
+		instanceCache.put(thing.instanceId, thing);
 	}
 
 	private static String assignInstanceId(Thing thing) {
@@ -52,18 +52,18 @@ public final class ThingCache {
 		return thing.instanceId;
 	}
 
-	public static void load() {
-		for (Thing thing : sInstanceCache.values()) {
+	public void load() {
+		for (Thing thing : instanceCache.values()) {
 			Repository<Thing> repo = Repositories.getRepository(thing
 					.getClass());
 			repo.add(thing);
 		}
 	}
 
-	public static synchronized void assignResourceIDs() {
+	public synchronized void assignResourceIDs() {
 		HashMap<String, String> instanceCpkMap = new HashMap<>(1000000);
 		HashMap<String, String> instanceResourceMap = new HashMap<>(1000000);
-		for (Thing thing : sInstanceCache.values()) {
+		for (Thing thing : instanceCache.values()) {
 			thing.compositePropertyKey = readCompositePropertyKey(thing);
 			instanceCpkMap.put(thing.instanceId, thing.compositePropertyKey);
 
