@@ -55,8 +55,11 @@ public final class ComicCharacterTransform implements RepositoryTransform {
 
 	private final PersonNameMatcher personMatcher;
 
-	public ComicCharacterTransform(PersonNameMatcher personMatcher) {
+	private final Repositories repositories;
+
+	public ComicCharacterTransform(PersonNameMatcher personMatcher, Repositories repositories) {
 		this.personMatcher = personMatcher;
+		this.repositories = repositories;
 	}
 
 	protected String removePrefixAndSuffix(String name) {
@@ -86,7 +89,7 @@ public final class ComicCharacterTransform implements RepositoryTransform {
 	@Override
 	public void transform() throws IOException {
 
-		for (ComicCharacter cc : Repositories.COMIC_CHARACTERS.cache.values()) {
+		for (ComicCharacter cc : repositories.COMIC_CHARACTERS.cache.values()) {
 			Matcher prefixMaleMatcher = prefixMale.matcher(cc.name);
 			Matcher suffixMaleMatcher = suffixMale.matcher(cc.name);
 			Matcher prefixFemaleMatcher = prefixFemale.matcher(cc.name);

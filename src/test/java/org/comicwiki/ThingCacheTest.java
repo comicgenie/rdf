@@ -9,7 +9,7 @@ public class ThingCacheTest {
 
 	@Test
 	public void add() throws Exception {
-		ThingCache thingCache = new ThingCache();
+		ThingCache thingCache = new ThingCache(new Repositories());
 		Thing thing = new Thing();
 		thingCache.add(thing);
 		

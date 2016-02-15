@@ -26,6 +26,7 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.antlr.v4.test.runtime.java.BaseTest;
+import org.comicwiki.Repositories;
 import org.comicwiki.ThingCache;
 import org.comicwiki.ThingFactory;
 import org.comicwiki.gcd.CharacterFieldCleaner;
@@ -53,7 +54,7 @@ public class CharacterTest extends BaseTest {
 	}
 
 	private CharacterWalker walk(CharacterParser parser) {
-		ThingCache thingCache = new ThingCache();
+		ThingCache thingCache = new ThingCache(new Repositories());
 		ThingFactory thingFactory = new ThingFactory(thingCache);
 		CharacterCreator characterCreator = new CharacterCreator(thingFactory);
 
@@ -102,7 +103,7 @@ public class CharacterTest extends BaseTest {
 		CharacterParser parser = new CharacterParser(tokens);
 		parser.setErrorHandler(new BailErrorStrategy());
 
-		ThingCache thingCache = new ThingCache();
+		ThingCache thingCache = new ThingCache(new Repositories());
 		ThingFactory thingFactory = new ThingFactory(thingCache);
 		CharacterCreator characterCreator = new CharacterCreator(thingFactory);
 
@@ -121,7 +122,7 @@ public class CharacterTest extends BaseTest {
 		CharacterParser parser = new CharacterParser(tokens);
 		parser.setErrorHandler(new BailErrorStrategy());
 
-		ThingCache thingCache = new ThingCache();
+		ThingCache thingCache = new ThingCache(new Repositories());
 		ThingFactory thingFactory = new ThingFactory(thingCache);
 		CharacterCreator characterCreator = new CharacterCreator(thingFactory);
 
@@ -141,7 +142,7 @@ public class CharacterTest extends BaseTest {
 		CharacterParser parser = new CharacterParser(tokens);
 		parser.setErrorHandler(new BailErrorStrategy());
 
-		ThingCache thingCache = new ThingCache();
+		ThingCache thingCache = new ThingCache(new Repositories());
 		ThingFactory thingFactory = new ThingFactory(thingCache);
 		CharacterCreator characterCreator = new CharacterCreator(thingFactory);
 
@@ -162,7 +163,7 @@ public class CharacterTest extends BaseTest {
 		CharacterParser parser = new CharacterParser(tokens);
 		parser.setErrorHandler(new BailErrorStrategy());
 
-		ThingCache thingCache = new ThingCache();
+		ThingCache thingCache = new ThingCache(new Repositories());
 		ThingFactory thingFactory = new ThingFactory(thingCache);
 		CharacterCreator characterCreator = new CharacterCreator(thingFactory);
 

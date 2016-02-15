@@ -20,32 +20,31 @@ public class Repositories {
 
 	private static final HashMap<Class<? extends Thing>, Repository<? extends Thing>> sThingRepoMap = new HashMap<>();
 
-	public static final Repository<ComicCharacter> COMIC_CHARACTERS = new Repository<>();
+	public final Repository<ComicCharacter> COMIC_CHARACTERS = new Repository<>();
 
-	public static final Repository<Person> COMIC_CREATOR = new Repository<>();
+	public final Repository<Person> COMIC_CREATOR = new Repository<>();
 
-	public static final Repository<ComicIssue> COMIC_ISSUE = new Repository<>();
+	public final Repository<ComicIssue> COMIC_ISSUE = new Repository<>();
 
-	public static final Repository<ComicOrganization> COMIC_ORGANIZATIONS = new Repository<>();
+	public final Repository<ComicOrganization> COMIC_ORGANIZATIONS = new Repository<>();
 
-	public static final Repository<ComicSeries> COMIC_SERIES = new Repository<>();
+	public final Repository<ComicSeries> COMIC_SERIES = new Repository<>();
 
-	public static final Repository<ComicStory> COMIC_STORIES = new Repository<>();
+	public final Repository<ComicStory> COMIC_STORIES = new Repository<>();
 
-	public static final Repository<ComicUniverse> COMIC_UNIVERSE = new Repository<>();
+	public final Repository<ComicUniverse> COMIC_UNIVERSE = new Repository<>();
 
-	public static final Repository<Country> COUNTRY = new Repository<>();
+	public final Repository<Country> COUNTRY = new Repository<>();
 
-	public static Collection<Repository<? extends Thing>> getRepositories() {
+	public Collection<Repository<? extends Thing>> getRepositories() {
 		return sThingRepoMap.values();
 	}
-	
-	public static <T extends Thing> Repository<Thing> getRepository(
-			Class<T> clazz) {
+
+	public <T extends Thing> Repository<Thing> getRepository(Class<T> clazz) {
 		return (Repository<Thing>) sThingRepoMap.get(clazz);
 	}
 
-	static {
+	public Repositories() {
 		sThingRepoMap.put(Person.class, COMIC_CREATOR);
 		sThingRepoMap.put(ComicIssue.class, COMIC_ISSUE);
 		sThingRepoMap.put(ComicOrganization.class, COMIC_ORGANIZATIONS);
@@ -53,9 +52,7 @@ public class Repositories {
 		sThingRepoMap.put(Country.class, COUNTRY);
 		sThingRepoMap.put(ComicCharacter.class, COMIC_CHARACTERS);
 		sThingRepoMap.put(ComicStory.class, COMIC_STORIES);
-	}
 
-	static {
 		PersonNameMatcher namesImporter = new PersonNameMatcher();
 		try {
 			namesImporter.load(new File(
@@ -66,7 +63,7 @@ public class Repositories {
 			e.printStackTrace();
 		}
 		COMIC_CHARACTERS
-				.addTransform(new ComicCharacterTransform(namesImporter));
+				.addTransform(new ComicCharacterTransform(namesImporter, this));
 	}
 
 }

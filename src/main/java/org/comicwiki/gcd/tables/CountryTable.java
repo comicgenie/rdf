@@ -44,10 +44,11 @@ public class CountryTable extends BaseTable<CountryTable.CountryRow> {
 
 	private static final String sParquetName = sInputTable + ".parquet";
 
-	private Repository<Country> countryRepository = Repositories.COUNTRY;
+	private final Repository<Country> countryRepository;
 
-	public CountryTable(SQLContext sqlContext) {
+	public CountryTable(SQLContext sqlContext, Repositories repositories) {
 		super(sqlContext, sParquetName);
+		countryRepository = repositories.COUNTRY;
 	}
 
 	@Override

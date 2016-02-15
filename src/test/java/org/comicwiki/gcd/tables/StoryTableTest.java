@@ -21,6 +21,7 @@ import java.io.File;
 
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
+import org.comicwiki.Repositories;
 import org.comicwiki.ThingCache;
 import org.comicwiki.ThingFactory;
 import org.comicwiki.gcd.CharacterCreator;
@@ -33,7 +34,7 @@ public class StoryTableTest {
 
 	@Test
 	public void allNull() throws Exception {
-		ThingCache thingCache = new ThingCache();
+		ThingCache thingCache = new ThingCache(new Repositories());
 		ThingFactory thingFactory = new ThingFactory(thingCache);
 		CharacterCreator characterCreator = new CharacterCreator(thingFactory);
 
@@ -48,7 +49,7 @@ public class StoryTableTest {
 
 	@Test
 	public void character() throws Exception {
-		ThingCache thingCache = new ThingCache();
+		ThingCache thingCache = new ThingCache(new Repositories());
 		ThingFactory thingFactory = new ThingFactory(thingCache);
 		CharacterCreator characterCreator = new CharacterCreator(thingFactory);
 
@@ -65,7 +66,7 @@ public class StoryTableTest {
 
 	@Test
 	public void organization() throws Exception {
-		ThingCache thingCache = new ThingCache();
+		ThingCache thingCache = new ThingCache(new Repositories());
 		ThingFactory thingFactory = new ThingFactory(thingCache);
 		CharacterCreator characterCreator = new CharacterCreator(thingFactory);
 
@@ -84,7 +85,7 @@ public class StoryTableTest {
 
 	@Test
 	public void title() throws Exception {
-		ThingCache thingCache = new ThingCache();
+		ThingCache thingCache = new ThingCache(new Repositories());
 		ThingFactory thingFactory = new ThingFactory(thingCache);
 		CharacterCreator characterCreator = new CharacterCreator(thingFactory);
 

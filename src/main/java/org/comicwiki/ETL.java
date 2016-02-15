@@ -66,9 +66,11 @@ public class ETL {
 	}
 
 	private ThingCache thingCache;
+	private Repositories repositories;
 	
-	public ETL(ThingCache thingCache) {
+	public ETL(ThingCache thingCache, Repositories repositories) {
 		this.thingCache = thingCache;
+		this.repositories = repositories;
 	}
 	
 	public void fromRDB(SQLContext context, String jdbcUrl)
@@ -94,7 +96,7 @@ public class ETL {
 
 		thingCache.assignResourceIDs();
 		thingCache.load();
-		for(Repository<?> repo : Repositories.getRepositories()) {
+		for(Repository<?> repo : repositories.getRepositories()) {
 			repo.transform();
 			String repoName = repo.getClass().getSimpleName();
 			repo.load(new File(outputDir,  repoName +".json"), DataFormat.JSON);

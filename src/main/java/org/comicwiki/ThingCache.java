@@ -30,59 +30,15 @@ import com.google.common.collect.HashBiMap;
 
 public final class ThingCache {
 
-	private final HashBiMap<String, String> cpkResourceMap = HashBiMap
-			.create();
-
 	private static final KeyIDGenerator instanceIDGen = new KeyIDGenerator(0);
 
 	private static final KeyIDGenerator resourceIDGen = new KeyIDGenerator(0);
-
-	protected final HashMap<String, Thing> instanceCache = new HashMap<>(
-			1000000);
-
-	public void add(Thing thing) {
-		assignInstanceId(thing);
-		instanceCache.put(thing.instanceId, thing);
-	}
 
 	private static String assignInstanceId(Thing thing) {
 		if (Strings.isNullOrEmpty(thing.instanceId)) {
 			thing.instanceId = "-" + instanceIDGen.createInstanceId();
 		}
 		return thing.instanceId;
-	}
-
-	public void load() {
-		for (Thing thing : instanceCache.values()) {
-			Repository<Thing> repo = Repositories.getRepository(thing
-					.getClass());
-			repo.add(thing);
-		}
-	}
-
-	public synchronized void assignResourceIDs() {
-		HashMap<String, String> instanceCpkMap = new HashMap<>(1000000);
-		HashMap<String, String> instanceResourceMap = new HashMap<>(1000000);
-		for (Thing thing : instanceCache.values()) {
-			thing.compositePropertyKey = readCompositePropertyKey(thing);
-			instanceCpkMap.put(thing.instanceId, thing.compositePropertyKey);
-
-			if (!cpkResourceMap.containsKey(thing.compositePropertyKey)) {
-				thing.resourceId = generateResourceId();
-				cpkResourceMap
-						.put(thing.compositePropertyKey, thing.resourceId);
-			} else {
-				thing.resourceId = cpkResourceMap
-						.get(thing.compositePropertyKey);
-			}
-
-			instanceResourceMap.put(thing.instanceId, thing.resourceId);
-		}
-		instanceCpkMap.clear();
-
-		for (IRI iri : IRICache.values()) {
-			iri.value = instanceResourceMap.get(iri.value);
-		}
 	}
 
 	public static void exportResourceIDs(File file) throws IOException {
@@ -144,5 +100,54 @@ public final class ThingCache {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	private final HashBiMap<String, String> cpkResourceMap = HashBiMap.create();
+
+	protected final HashMap<String, Thing> instanceCache = new HashMap<>(
+			1000000);
+
+	private Repositories repositories;
+
+	public ThingCache(Repositories repositories) {
+		this.repositories = repositories;
+	}
+
+	public void add(Thing thing) {
+		assignInstanceId(thing);
+		instanceCache.put(thing.instanceId, thing);
+	}
+
+	public synchronized void assignResourceIDs() {
+		HashMap<String, String> instanceCpkMap = new HashMap<>(1000000);
+		HashMap<String, String> instanceResourceMap = new HashMap<>(1000000);
+		for (Thing thing : instanceCache.values()) {
+			thing.compositePropertyKey = readCompositePropertyKey(thing);
+			instanceCpkMap.put(thing.instanceId, thing.compositePropertyKey);
+
+			if (!cpkResourceMap.containsKey(thing.compositePropertyKey)) {
+				thing.resourceId = generateResourceId();
+				cpkResourceMap
+						.put(thing.compositePropertyKey, thing.resourceId);
+			} else {
+				thing.resourceId = cpkResourceMap
+						.get(thing.compositePropertyKey);
+			}
+
+			instanceResourceMap.put(thing.instanceId, thing.resourceId);
+		}
+		instanceCpkMap.clear();
+
+		for (IRI iri : IRICache.values()) {
+			iri.value = instanceResourceMap.get(iri.value);
+		}
+	}
+
+	public void load() {
+		for (Thing thing : instanceCache.values()) {
+			Repository<Thing> repo = repositories.getRepository(thing
+					.getClass());
+			repo.add(thing);
+		}
 	}
 }

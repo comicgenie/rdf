@@ -8,7 +8,7 @@ public class RepositoriesTest {
 
 	@Test
 	public void getRepoAndAdd() throws Exception {
-		Repository<Thing> repo = Repositories.getRepository(ComicCharacter.class);
+		Repository<Thing> repo = new Repositories().getRepository(ComicCharacter.class);
 		ComicCharacter cc = new ComicCharacter();
 		repo.add(cc);
 	}
