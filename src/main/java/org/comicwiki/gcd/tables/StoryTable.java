@@ -27,6 +27,7 @@ import java.util.stream.Stream;
 import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
+import org.comicwiki.IRICache;
 import org.comicwiki.ThingFactory;
 import org.comicwiki.gcd.CharacterCreator;
 import org.comicwiki.gcd.CharacterFieldParser;
@@ -94,7 +95,7 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 	public static final class StoryRow extends TableRow<ComicStory> {
 
 		public ComicStory instance = create(thingFactory);
-		
+
 		public Collection<ComicCharacter> characters;
 
 		public Collection<Person> colors;
@@ -163,10 +164,14 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 
 	private File resourceDir;
 
+	private final IRICache iriCache;
+
 	public StoryTable(SQLContext sqlContext, ThingFactory thingFactory,
-			CharacterCreator characterCreator, File resourceDir) {
+			IRICache iriCache, CharacterCreator characterCreator,
+			File resourceDir) {
 		super(sqlContext, sParquetName);
 		StoryTable.thingFactory = thingFactory;
+		this.iriCache = iriCache;
 		this.characterCreator = characterCreator;
 		this.resourceDir = resourceDir;
 	}
@@ -177,7 +182,7 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 
 		Fields.Character characterField = parseField(Columns.CHARACTERS, row,
 				new CharacterFieldParser(new CharacterWalker(thingFactory,
-						characterCreator, resourceDir)));
+						iriCache, characterCreator, resourceDir)));
 
 		if (characterField != null) {
 			storyRow.characters = characterField.comicCharacters;
@@ -341,7 +346,7 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 	public void transform(StoryRow row) {
 		super.transform(row);
 		ComicCharactersAssigner ccAssign = new ComicCharactersAssigner(
-				row.characters);
+				row.characters, iriCache);
 		// TODO: add all key components first and then calculate KEY
 		ccAssign.colleagues();
 		// ccAssign.genres(row.genre);
@@ -349,7 +354,7 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 
 		ComicCreatorAssigner creatorAssigner = new ComicCreatorAssigner(
 				row.colors, row.inks, row.letters, row.pencils, row.script,
-				row.editing);
+				row.editing, iriCache);
 		creatorAssigner.colleagues();
 		creatorAssigner.jobTitles();
 		creatorAssigner.characters(row.characters);

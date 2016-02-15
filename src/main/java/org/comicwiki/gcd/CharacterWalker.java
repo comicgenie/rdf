@@ -26,6 +26,7 @@ import java.util.List;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.comicwiki.IRI;
+import org.comicwiki.IRICache;
 import org.comicwiki.ThingFactory;
 import org.comicwiki.gcd.parser.CharacterBaseListener;
 import org.comicwiki.gcd.parser.CharacterParser.CharacterContext;
@@ -45,26 +46,28 @@ public final class CharacterWalker extends CharacterBaseListener {
 	public HashMap<String, ComicCharacter> characters = new HashMap<>(5);
 
 	public HashMap<String, ComicOrganization> organizations = new HashMap<>(2);
-	
+
 	private ComicOrganization currentOrganization;
 
 	private boolean hasOrganization = false;
 
 	private List<String> marvelOrganizationList;
 
-	private ThingFactory thingFactory;
+	private final ThingFactory thingFactory;
 
-	private CharacterCreator characterCreator;
+	private final CharacterCreator characterCreator;
 
-	public CharacterWalker(ThingFactory thingFactory, CharacterCreator characterCreator, File resourceDir) {
+	private final IRICache iriCache;
+
+	public CharacterWalker(ThingFactory thingFactory, IRICache iriCache,
+			CharacterCreator characterCreator, File resourceDir) {
 		this.thingFactory = thingFactory;
+		this.iriCache = iriCache;
 		this.characterCreator = characterCreator;
 		try {
-			marvelOrganizationList = Files
-					.readAllLines(
-							new File(resourceDir, 
-									"MarvelOrganizations.txt")
-									.toPath(), Charset.defaultCharset());
+			marvelOrganizationList = Files.readAllLines(new File(resourceDir,
+					"MarvelOrganizations.txt").toPath(), Charset
+					.defaultCharset());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -122,14 +125,15 @@ public final class CharacterWalker extends CharacterBaseListener {
 	}
 
 	private void addCharactersFromOrganization(CharacterContext characterContext) {
-		if(characterContext.aliases() != null) {
-			if(characterContext.aliases().WORD() != null) {
+		if (characterContext.aliases() != null) {
+			if (characterContext.aliases().WORD() != null) {
 				for (TerminalNode ac : characterContext.aliases().WORD()) {
-					ComicCharacter cc = thingFactory.create(ComicCharacter.class);
+					ComicCharacter cc = thingFactory
+							.create(ComicCharacter.class);
 					cc.name = ac.getText().trim();
 					addCharacter(cc);
-				}			
-			}			
+				}
+			}
 		}
 	}
 
@@ -157,7 +161,8 @@ public final class CharacterWalker extends CharacterBaseListener {
 				ComicCharacter character = characterCreator
 						.createCharacter(characterContext);
 				if (hasOrganization) {
-					addOrganizationMember(IRI.create(character.instanceId));
+					addOrganizationMember(IRI.create(character.instanceId,
+							iriCache));
 				}
 				addCharacter(character);
 			}

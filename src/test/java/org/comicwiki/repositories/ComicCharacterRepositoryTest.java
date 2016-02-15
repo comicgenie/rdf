@@ -9,6 +9,7 @@ import java.io.IOException;
 
 import org.comicwiki.DataFormat;
 import org.comicwiki.IRI;
+import org.comicwiki.IRICache;
 import org.comicwiki.PersonNameMatcher;
 import org.comicwiki.Repositories;
 import org.comicwiki.model.ComicCharacter;
@@ -73,11 +74,12 @@ public class ComicCharacterRepositoryTest {
 
 		ComicCharacter c1 = new ComicCharacter();
 		c1.creativeWork = new CreativeWorkExtension();
-		c1.creativeWork.publisher = IRI.create("pub1");
+		c1.creativeWork.publisher = IRI.create("pub1", new IRICache());
 		ComicCharacter c2 = new ComicCharacter();
 
 		new Repositories().COMIC_CHARACTERS.merge(c1, c2);
-		assertEquals(IRI.create("pub1"), c2.creativeWork.publisher);
+		assertEquals(IRI.create("pub1", new IRICache()),
+				c2.creativeWork.publisher);
 	}
 
 	@Test
@@ -85,14 +87,15 @@ public class ComicCharacterRepositoryTest {
 
 		ComicCharacter c1 = new ComicCharacter();
 		c1.creativeWork = new CreativeWorkExtension();
-		c1.creativeWork.artists.add(IRI.create("ART1"));
+		c1.creativeWork.artists.add(IRI.create("ART1", new IRICache()));
 
 		ComicCharacter c2 = new ComicCharacter();
-		c2.creativeWork.artists.add(IRI.create("ART2"));
+		c2.creativeWork.artists.add(IRI.create("ART2", new IRICache()));
 
 		new Repositories().COMIC_CHARACTERS.merge(c1, c2);
 		assertEquals(2, c2.creativeWork.artists.size());
-		assertTrue(c2.creativeWork.artists.contains(IRI.create("ART2")));
+		assertTrue(c2.creativeWork.artists.contains(IRI.create("ART2",
+				new IRICache())));
 	}
 
 	@Test
@@ -100,12 +103,13 @@ public class ComicCharacterRepositoryTest {
 
 		ComicCharacter c1 = new ComicCharacter();
 		c1.creativeWork = new CreativeWorkExtension();
-		c1.creativeWork.publisher = IRI.create("pub1");
+		c1.creativeWork.publisher = IRI.create("pub1", new IRICache());
 		ComicCharacter c2 = new ComicCharacter();
-		c2.creativeWork.publisher = IRI.create("pub2");
+		c2.creativeWork.publisher = IRI.create("pub2", new IRICache());
 
 		new Repositories().COMIC_CHARACTERS.merge(c1, c2);
-		assertEquals(IRI.create("pub2"), c2.creativeWork.publisher);
+		assertEquals(IRI.create("pub2", new IRICache()),
+				c2.creativeWork.publisher);
 		System.out.println(JsonUtils.toPrettyString(c2));
 	}
 

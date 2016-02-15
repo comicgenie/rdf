@@ -18,7 +18,7 @@ import org.comicwiki.transforms.ComicCharacterTransform;
 
 public class Repositories {
 
-	private static final HashMap<Class<? extends Thing>, Repository<? extends Thing>> sThingRepoMap = new HashMap<>();
+	private final HashMap<Class<? extends Thing>, Repository<? extends Thing>> sThingRepoMap = new HashMap<>();
 
 	public final Repository<ComicCharacter> COMIC_CHARACTERS = new Repository<>();
 

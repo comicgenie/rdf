@@ -18,6 +18,7 @@ package org.comicwiki.relations;
 import java.util.Collection;
 
 import org.comicwiki.IRI;
+import org.comicwiki.IRICache;
 import org.comicwiki.model.ComicCharacter;
 import org.comicwiki.model.Genre;
 import org.comicwiki.model.schema.ComicStory;
@@ -25,6 +26,7 @@ import org.comicwiki.model.schema.ComicStory;
 public final class ComicCharactersAssigner {
 
 	private final Collection<ComicCharacter> comicCharacters;
+	private final IRICache iriCache;
 
 	/**
 	 * ComicCharacters -> ComicCharacters
@@ -33,22 +35,23 @@ public final class ComicCharactersAssigner {
 		comicCharacters.forEach(one -> {
 			comicCharacters.forEach(two -> {
 				if (!two.equals(one)) {
-					one.colleagues.add(IRI.create(two.instanceId));
+					one.colleagues.add(IRI.create(two.instanceId, iriCache));
 				}
 			});
 		});
 	}
 
 	// Just put in characters in one team
-	public ComicCharactersAssigner(Collection<ComicCharacter> comicCharacters) {
+	public ComicCharactersAssigner(Collection<ComicCharacter> comicCharacters, IRICache iriCache) {
 		this.comicCharacters = comicCharacters;
+		this.iriCache = iriCache;
 	}
 
 	/**
 	 * ComicCharacters -> ComicStory
 	 */
 	public void story(ComicStory story) {
-		comicCharacters.forEach(e -> story.characters.add(IRI.create(e.instanceId)));
+		comicCharacters.forEach(e -> story.characters.add(IRI.create(e.instanceId, iriCache)));
 	}
 
 	/**

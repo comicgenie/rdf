@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.stream.Stream;
 
 import org.comicwiki.IRI;
+import org.comicwiki.IRICache;
 import org.comicwiki.model.ComicCharacter;
 import org.comicwiki.model.ComicOrganization;
 import org.comicwiki.model.Genre;
@@ -29,8 +30,12 @@ public final class ComicOrganizationAssigner {
 
 	private final ComicOrganization organization;
 
-	public ComicOrganizationAssigner(ComicOrganization organization) {
+	private final IRICache iriCache;
+
+	public ComicOrganizationAssigner(ComicOrganization organization,
+			IRICache iriCache) {
 		this.organization = organization;
+		this.iriCache = iriCache;
 	}
 
 	/**
@@ -39,8 +44,8 @@ public final class ComicOrganizationAssigner {
 	 */
 	public void characters(Collection<ComicCharacter> characters) {
 		characters.forEach(cc -> {
-			cc.memberOf.add(IRI.create(organization.instanceId));
-			organization.members.add(IRI.create(cc.instanceId));
+			cc.memberOf.add(IRI.create(organization.instanceId, iriCache));
+			organization.members.add(IRI.create(cc.instanceId, iriCache));
 		});
 	}
 
@@ -54,18 +59,20 @@ public final class ComicOrganizationAssigner {
 		Stream<Person> creators = Stream.of(colors, inks, letters, pencils,
 				script, editors).flatMap(Collection::stream);
 
-		creators.forEach(c -> c.workedOn.add(IRI.create(organization.instanceId)));
-
-		colors.forEach(e -> organization.creativeWork.colorists
-				.add(IRI.create(e.instanceId)));
-		inks.forEach(e -> organization.creativeWork.inkers.add(IRI.create(e.instanceId)));
-		letters.forEach(e -> organization.creativeWork.letterers
-				.add(IRI.create(e.instanceId)));
-		pencils.forEach(e -> organization.creativeWork.pencilers
-				.add(IRI.create(e.instanceId)));
-		script.forEach(e -> organization.creativeWork.authors.add(IRI.create(e.instanceId)));
-		editors.forEach(e -> organization.creativeWork.editors
-				.add(IRI.create(e.instanceId)));
+		creators.forEach(c -> c.workedOn.add(IRI.create(
+				organization.instanceId, iriCache)));
+		colors.forEach(e -> organization.creativeWork.colorists.add(IRI.create(
+				e.instanceId, iriCache)));
+		inks.forEach(e -> organization.creativeWork.inkers.add(IRI.create(
+				e.instanceId, iriCache)));
+		letters.forEach(e -> organization.creativeWork.letterers.add(IRI
+				.create(e.instanceId, iriCache)));
+		pencils.forEach(e -> organization.creativeWork.pencilers.add(IRI
+				.create(e.instanceId, iriCache)));
+		script.forEach(e -> organization.creativeWork.authors.add(IRI.create(
+				e.instanceId, iriCache)));
+		editors.forEach(e -> organization.creativeWork.editors.add(IRI.create(
+				e.instanceId, iriCache)));
 
 	}
 
@@ -80,6 +87,6 @@ public final class ComicOrganizationAssigner {
 	 * ComicOrganization -> ComicStory
 	 */
 	public void story(ComicStory story) {
-		story.organizations.add(IRI.create(organization.instanceId));
+		story.organizations.add(IRI.create(organization.instanceId, iriCache));
 	}
 }

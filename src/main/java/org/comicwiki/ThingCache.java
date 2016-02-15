@@ -107,10 +107,13 @@ public final class ThingCache {
 	protected final HashMap<String, Thing> instanceCache = new HashMap<>(
 			1000000);
 
-	private Repositories repositories;
+	private final Repositories repositories;
 
-	public ThingCache(Repositories repositories) {
+	private final IRICache iriCache;
+
+	public ThingCache(Repositories repositories, IRICache iriCache) {
 		this.repositories = repositories;
+		this.iriCache = iriCache;
 	}
 
 	public void add(Thing thing) {
@@ -138,7 +141,7 @@ public final class ThingCache {
 		}
 		instanceCpkMap.clear();
 
-		for (IRI iri : IRICache.values()) {
+		for (IRI iri : iriCache.values()) {
 			iri.value = instanceResourceMap.get(iri.value);
 		}
 	}

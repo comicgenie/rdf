@@ -4,13 +4,13 @@ public class IRI {
 
 	public String value;
 	
-	public static IRI create(String value) {		
-		if(!IRICache.contains(value)) {
+	public static IRI create(String value, IRICache cache) {		
+		if(!cache.contains(value)) {
 			IRI iri = new IRI(value);
-			IRICache.add(iri);
+			cache.add(iri);
 			return iri;
 		} else {
-			return IRICache.get(value);
+			return cache.get(value);
 		}
 	}
 	

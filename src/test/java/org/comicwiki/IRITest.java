@@ -8,8 +8,9 @@ public class IRITest {
 
 	@Test
 	public void create() throws Exception {
-		IRI iri = IRI.create("1");
-		IRI iri2 = IRI.create("1");
+		IRICache iriCache = new IRICache();
+		IRI iri = IRI.create("1", iriCache);
+		IRI iri2 = IRI.create("1", iriCache);
 		assertEquals(System.identityHashCode(iri), System.identityHashCode(iri2));
 	}
 }

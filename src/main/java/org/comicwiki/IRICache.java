@@ -5,21 +5,21 @@ import java.util.HashMap;
 
 public class IRICache {
 
-	private static final HashMap<String, IRI> sIriMap = new HashMap<>(1000000);
+	private final HashMap<String, IRI> sIriMap = new HashMap<>(1000000);
 	
-	public static Collection<IRI> values() {
+	public Collection<IRI> values() {
 		return sIriMap.values();
 	}
 	
-	public static boolean contains(String iri) {
+	public boolean contains(String iri) {
 		return sIriMap.containsKey(iri);
 	}
 	
-	public static IRI get(String iri) {
+	public IRI get(String iri) {
 		return sIriMap.get(iri);
 	}
 	
-	public static void add(IRI iri) {
+	public void add(IRI iri) {
 		sIriMap.put(iri.value, iri);
 	}
 }

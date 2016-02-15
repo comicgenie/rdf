@@ -1,6 +1,5 @@
 package org.comicwiki;
 
-
 import static org.junit.Assert.*;
 
 import org.comicwiki.model.ComicCharacter;
@@ -10,8 +9,10 @@ public class ThingFactoryTest {
 
 	@Test
 	public void testCreateHasInstanceId() {
-		ThingCache thingCache = new ThingCache(new Repositories());
-		ComicCharacter thing = new ThingFactory(thingCache).create(ComicCharacter.class);
+		ThingCache thingCache = new ThingCache(new Repositories(),
+				new IRICache());
+		ComicCharacter thing = new ThingFactory(thingCache)
+				.create(ComicCharacter.class);
 		assertNotNull(thing.instanceId);
 	}
 }

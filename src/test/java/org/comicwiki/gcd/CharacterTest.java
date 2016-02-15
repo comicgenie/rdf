@@ -26,6 +26,7 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.antlr.v4.test.runtime.java.BaseTest;
+import org.comicwiki.IRICache;
 import org.comicwiki.Repositories;
 import org.comicwiki.ThingCache;
 import org.comicwiki.ThingFactory;
@@ -54,13 +55,14 @@ public class CharacterTest extends BaseTest {
 	}
 
 	private CharacterWalker walk(CharacterParser parser) {
-		ThingCache thingCache = new ThingCache(new Repositories());
+		ThingCache thingCache = new ThingCache(new Repositories(),
+				new IRICache());
 		ThingFactory thingFactory = new ThingFactory(thingCache);
 		CharacterCreator characterCreator = new CharacterCreator(thingFactory);
 
 		ParseTreeWalker walker = new ParseTreeWalker();
 		CharacterWalker cWalker = new CharacterWalker(thingFactory,
-				characterCreator, resourceDir);
+				new IRICache(), characterCreator, resourceDir);
 		walker.walk(cWalker, parser.characters());
 		return cWalker;
 	}
@@ -103,12 +105,13 @@ public class CharacterTest extends BaseTest {
 		CharacterParser parser = new CharacterParser(tokens);
 		parser.setErrorHandler(new BailErrorStrategy());
 
-		ThingCache thingCache = new ThingCache(new Repositories());
+		ThingCache thingCache = new ThingCache(new Repositories(),
+				new IRICache());
 		ThingFactory thingFactory = new ThingFactory(thingCache);
 		CharacterCreator characterCreator = new CharacterCreator(thingFactory);
 
 		ParseTreeWalker walker = new ParseTreeWalker();
-		walker.walk(new CharacterWalker(thingFactory,
+		walker.walk(new CharacterWalker(thingFactory, new IRICache(),
 				characterCreator, resourceDir), parser.characters());
 	}
 
@@ -122,13 +125,14 @@ public class CharacterTest extends BaseTest {
 		CharacterParser parser = new CharacterParser(tokens);
 		parser.setErrorHandler(new BailErrorStrategy());
 
-		ThingCache thingCache = new ThingCache(new Repositories());
+		ThingCache thingCache = new ThingCache(new Repositories(),
+				new IRICache());
 		ThingFactory thingFactory = new ThingFactory(thingCache);
 		CharacterCreator characterCreator = new CharacterCreator(thingFactory);
 
 		ParseTree tree = parser.team();
 		ParseTreeWalker walker = new ParseTreeWalker();
-		walker.walk(new CharacterWalker(thingFactory,
+		walker.walk(new CharacterWalker(thingFactory, new IRICache(),
 				characterCreator, resourceDir), tree);
 	}
 
@@ -142,13 +146,14 @@ public class CharacterTest extends BaseTest {
 		CharacterParser parser = new CharacterParser(tokens);
 		parser.setErrorHandler(new BailErrorStrategy());
 
-		ThingCache thingCache = new ThingCache(new Repositories());
+		ThingCache thingCache = new ThingCache(new Repositories(),
+				new IRICache());
 		ThingFactory thingFactory = new ThingFactory(thingCache);
 		CharacterCreator characterCreator = new CharacterCreator(thingFactory);
 
 		ParseTree tree = parser.team();
 		ParseTreeWalker walker = new ParseTreeWalker();
-		walker.walk(new CharacterWalker(thingFactory,
+		walker.walk(new CharacterWalker(thingFactory, new IRICache(),
 				characterCreator, resourceDir), tree);
 	}
 
@@ -163,13 +168,14 @@ public class CharacterTest extends BaseTest {
 		CharacterParser parser = new CharacterParser(tokens);
 		parser.setErrorHandler(new BailErrorStrategy());
 
-		ThingCache thingCache = new ThingCache(new Repositories());
+		ThingCache thingCache = new ThingCache(new Repositories(),
+				new IRICache());
 		ThingFactory thingFactory = new ThingFactory(thingCache);
 		CharacterCreator characterCreator = new CharacterCreator(thingFactory);
 
 		ParseTree tree = parser.team();
 		ParseTreeWalker walker = new ParseTreeWalker();
-		walker.walk(new CharacterWalker(thingFactory,
+		walker.walk(new CharacterWalker(thingFactory, new IRICache(),
 				characterCreator, resourceDir), tree);
 	}
 

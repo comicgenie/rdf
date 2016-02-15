@@ -8,6 +8,7 @@ import java.io.IOException;
 import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
+import org.comicwiki.IRICache;
 import org.comicwiki.ThingFactory;
 import org.comicwiki.gcd.CharacterCreator;
 import org.comicwiki.gcd.CharacterFieldParser;
@@ -38,17 +39,22 @@ public class CharactersView extends BaseTable<StoryTable.StoryRow> {
 
 	private File resourceDir;
 
+	private final IRICache iriCache;
+
 	public CharactersView(SQLContext sqlContext, boolean failOnParse,
-			ThingFactory thingFactory, CharacterCreator characterCreator,
-			File resourceDir) {
+			ThingFactory thingFactory, IRICache iriCache,
+			CharacterCreator characterCreator, File resourceDir) {
 		super(sqlContext, sParquetName);
+		this.iriCache = iriCache;
 		this.thingFactory = thingFactory;
 		this.characterCreator = characterCreator;
 		this.resourceDir = resourceDir;
 	}
 
-	public CharactersView(SQLContext sqlContext, boolean failOnParse) {
+	public CharactersView(SQLContext sqlContext, IRICache iriCache,
+			boolean failOnParse) {
 		super(sqlContext, sParquetName);
+		this.iriCache = iriCache;
 		this.failOnParse = failOnParse;
 		try {
 			fos = new FileOutputStream(new File("characters.error.txt"));
@@ -62,7 +68,7 @@ public class CharactersView extends BaseTable<StoryTable.StoryRow> {
 		StoryRow storyRow = new StoryTable.StoryRow();
 		Fields.Character characterField = parseField(Columns.CHARACTERS, row,
 				new CharacterFieldParser(new CharacterWalker(thingFactory,
-						characterCreator, resourceDir)));
+						iriCache, characterCreator, resourceDir)));
 
 		if (characterField != null) {
 			storyRow.characters = characterField.comicCharacters;

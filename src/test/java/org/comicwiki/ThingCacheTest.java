@@ -9,10 +9,11 @@ public class ThingCacheTest {
 
 	@Test
 	public void add() throws Exception {
-		ThingCache thingCache = new ThingCache(new Repositories());
+		ThingCache thingCache = new ThingCache(new Repositories(),
+				new IRICache());
 		Thing thing = new Thing();
 		thingCache.add(thing);
-		
+
 		assertEquals(1, thingCache.instanceCache.size());
 	}
 }
