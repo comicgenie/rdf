@@ -19,11 +19,10 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.HashSet;
 
-import org.comicwiki.KeyUtils;
-import org.comicwiki.rdf.annotations.SchemaComicWiki;
 import org.comicwiki.rdf.annotations.ObjectString;
 import org.comicwiki.rdf.annotations.ObjectURL;
 import org.comicwiki.rdf.annotations.Predicate;
+import org.comicwiki.rdf.annotations.SchemaComicWiki;
 import org.comicwiki.rdf.annotations.Subject;
 
 import com.fasterxml.jackson.annotation.JsonInclude;

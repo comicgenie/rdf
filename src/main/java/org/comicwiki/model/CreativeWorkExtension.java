@@ -19,7 +19,6 @@ import java.util.Collection;
 import java.util.HashSet;
 
 import org.comicwiki.IRI;
-import org.comicwiki.model.schema.Thing;
 import org.comicwiki.rdf.annotations.ObjectIRI;
 import org.comicwiki.rdf.annotations.ObjectString;
 import org.comicwiki.rdf.annotations.Predicate;

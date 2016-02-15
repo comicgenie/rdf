@@ -18,8 +18,6 @@ package org.comicwiki.rdf.annotations;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-import org.comicwiki.rdf.StatementItemType;
-
 @Retention(RetentionPolicy.RUNTIME)
 public @interface CreativeWork {
 	

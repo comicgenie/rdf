@@ -17,14 +17,12 @@ package org.comicwiki.rdf;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 
 import org.comicwiki.IRI;
-import org.comicwiki.KeyUtils;
 import org.comicwiki.model.schema.Thing;
 import org.comicwiki.rdf.annotations.ObjectBoolean;
 import org.comicwiki.rdf.annotations.ObjectDate;

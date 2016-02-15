@@ -15,7 +15,6 @@
  *******************************************************************************/
 package org.comicwiki.rdf;
 
-import java.net.URI;
 import java.net.URL;
 
 import org.comicwiki.IRI;

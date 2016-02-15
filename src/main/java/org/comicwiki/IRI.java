@@ -4,9 +4,14 @@ public class IRI {
 
 	public String value;
 	
-	public static IRI create(String value) {
-		//Place in CACHE
-		return new IRI(value);
+	public static IRI create(String value) {		
+		if(!IRICache.contains(value)) {
+			IRI iri = new IRI(value);
+			IRICache.add(iri);
+			return iri;
+		} else {
+			return IRICache.get(value);
+		}
 	}
 	
 	public IRI() { }

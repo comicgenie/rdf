@@ -18,10 +18,15 @@ package org.comicwiki;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
+import org.comicwiki.model.schema.Thing;
+
 public class ResourceUtils {
 	
 	public final static String BASE_URI = "http://comicwiki.org/resources/";
 
+	public static String readResouceIDWithExpandedIri(Thing object) {
+		return expandIri(object.resourceId);
+	}
 	
 	public static String expandIri(String iri) {
 		try {

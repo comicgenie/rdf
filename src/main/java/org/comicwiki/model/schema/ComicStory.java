@@ -19,11 +19,11 @@ import java.util.Collection;
 import java.util.HashSet;
 
 import org.comicwiki.IRI;
-import org.comicwiki.rdf.annotations.SchemaComicWiki;
 import org.comicwiki.rdf.annotations.ObjectBoolean;
 import org.comicwiki.rdf.annotations.ObjectIRI;
 import org.comicwiki.rdf.annotations.ObjectInteger;
 import org.comicwiki.rdf.annotations.Predicate;
+import org.comicwiki.rdf.annotations.SchemaComicWiki;
 import org.comicwiki.rdf.annotations.Subject;
 
 @Subject(value = "http://schema.org/ComicStory", key= "name")
