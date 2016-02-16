@@ -16,6 +16,8 @@ import org.comicwiki.gcd.CharacterWalker;
 import org.comicwiki.gcd.tables.StoryTable.Fields;
 import org.comicwiki.gcd.tables.StoryTable.StoryRow;
 
+import com.google.inject.Inject;
+
 public class CharactersView extends BaseTable<StoryTable.StoryRow> {
 
 	private static final class Columns {
@@ -41,16 +43,18 @@ public class CharactersView extends BaseTable<StoryTable.StoryRow> {
 
 	private final IRICache iriCache;
 
+	@Inject
 	public CharactersView(SQLContext sqlContext, boolean failOnParse,
 			ThingFactory thingFactory, IRICache iriCache,
-			CharacterCreator characterCreator, File resourceDir) {
+			CharacterCreator characterCreator) {
 		super(sqlContext, sParquetName);
 		this.iriCache = iriCache;
 		this.thingFactory = thingFactory;
 		this.characterCreator = characterCreator;
-		this.resourceDir = resourceDir;
+		this.resourceDir = new File(".");
 	}
 
+	@Inject
 	public CharactersView(SQLContext sqlContext, IRICache iriCache,
 			boolean failOnParse) {
 		super(sqlContext, sParquetName);

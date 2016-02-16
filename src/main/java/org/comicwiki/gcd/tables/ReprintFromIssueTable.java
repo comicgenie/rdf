@@ -20,6 +20,8 @@ import java.io.IOException;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 
+import com.google.inject.Inject;
+
 public class ReprintFromIssueTable extends
 		BaseTable<ReprintFromIssueTable.ReprintFromIssueRow> {
 
@@ -31,6 +33,7 @@ public class ReprintFromIssueTable extends
 
 	private static final String sParquetName = sInputTable + ".parquet";
 
+	@Inject
 	public ReprintFromIssueTable(SQLContext sqlContext) {
 		super(sqlContext, sParquetName);
 	}

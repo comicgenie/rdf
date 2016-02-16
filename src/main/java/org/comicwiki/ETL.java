@@ -41,6 +41,9 @@ import org.comicwiki.gcd.tables.SeriesTable;
 import org.comicwiki.gcd.tables.StoryTable;
 import org.comicwiki.gcd.tables.StoryTypeTable;
 
+import com.google.inject.Inject;
+import com.google.inject.Injector;
+
 public class ETL {
 
 	@SuppressWarnings("unchecked")
@@ -55,38 +58,41 @@ public class ETL {
 			SeriesPublicationTypeTable.class, SeriesTable.class,
 			StoryTable.class, StoryTypeTable.class };
 
-	private static BaseTable<?>[] createTables(SQLContext context) throws Exception {
-		BaseTable<?>[] tables = new BaseTable<?>[tableClasses.length];
-		for (int i = 0; i < tableClasses.length; i++) {
-			Constructor<?> constructor = tableClasses[i]
-					.getConstructor(SQLContext.class);
-			tables[i]  = (BaseTable<?>) constructor.newInstance(context);
-		}
-		return tables;	
-	}
 
 	private ThingCache thingCache;
 	private Repositories repositories;
-	
+	private Injector injector;
+
+	@Inject
 	public ETL(ThingCache thingCache, Repositories repositories) {
 		this.thingCache = thingCache;
 		this.repositories = repositories;
 	}
 	
-	public void fromRDB(SQLContext context, String jdbcUrl)
-			throws Exception {
-		for(BaseTable<?> table : createTables(context)) {
+	private static BaseTable<?>[] getTables(Injector injector) throws Exception {
+		BaseTable<?>[] tables = new BaseTable<?>[tableClasses.length];
+		for (int i = 0; i < tableClasses.length; i++) {
+			tables[i]  = injector.getInstance(tableClasses[i]);
+		}
+		return tables;	
+	}
+	
+	public void setInjector(Injector injector) {
+		this.injector = injector;
+	}
+
+	public void fromRDB(String jdbcUrl) throws Exception {
+		for (BaseTable<?> table : getTables(injector)) {
 			table.saveToParquetFormat(jdbcUrl);
 		}
 	}
 
-	public void process(SQLContext context, File resourceIds, File outputDir)
-			throws Exception {
+	public void process(File resourceIds, File outputDir) throws Exception {
 		if (resourceIds.exists()) {
-			ThingCache.loadResourceIDs(resourceIds);
+			thingCache.loadResourceIDs(resourceIds);
 		}
 
-		BaseTable<?>[] tables = createTables(context);
+		BaseTable<?>[] tables = getTables(injector);
 
 		for (BaseTable<?> table : tables) {
 			table.extract();
@@ -96,12 +102,12 @@ public class ETL {
 
 		thingCache.assignResourceIDs();
 		thingCache.load();
-		for(Repository<?> repo : repositories.getRepositories()) {
+		for (Repository<?> repo : repositories.getRepositories()) {
 			repo.transform();
 			String repoName = repo.getClass().getSimpleName();
-			repo.load(new File(outputDir,  repoName +".json"), DataFormat.JSON);
-			repo.load(new File(outputDir,  repoName +".ttl"), DataFormat.TURTLE);
+			repo.load(new File(outputDir, repoName + ".json"), DataFormat.JSON);
+			repo.load(new File(outputDir, repoName + ".ttl"), DataFormat.TURTLE);
 		}
-		ThingCache.exportResourceIDs(resourceIds);
+		thingCache.exportResourceIDs(resourceIds);
 	}
 }

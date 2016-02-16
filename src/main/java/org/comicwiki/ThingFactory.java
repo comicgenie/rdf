@@ -17,10 +17,15 @@ package org.comicwiki;
 
 import org.comicwiki.model.schema.Thing;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+
+@Singleton
 public class ThingFactory {
 
 	private ThingCache thingCache;
 
+	@Inject
 	public ThingFactory(ThingCache thingCache) {
 		this.thingCache = thingCache;
 	}

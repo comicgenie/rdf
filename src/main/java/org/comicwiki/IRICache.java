@@ -3,6 +3,9 @@ package org.comicwiki;
 import java.util.Collection;
 import java.util.HashMap;
 
+import com.google.inject.Singleton;
+
+@Singleton
 public class IRICache {
 
 	private final HashMap<String, IRI> sIriMap = new HashMap<>(1000000);

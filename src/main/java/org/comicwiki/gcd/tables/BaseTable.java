@@ -27,6 +27,9 @@ import org.apache.spark.storage.StorageLevel;
 import org.comicwiki.gcd.FieldParser;
 import org.comicwiki.model.schema.Thing;
 
+import com.google.inject.Singleton;
+
+@Singleton
 public abstract class BaseTable<R extends TableRow> {
 
 	protected HashMap<Integer, R> cache = new HashMap<>();

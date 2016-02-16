@@ -22,6 +22,8 @@ import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 import org.comicwiki.ThingFactory;
 
+import com.google.inject.Inject;
+
 public class StoryTypeTable extends BaseTable<StoryTypeTable.StoryTypeRow> {
 
 	public static class Columns {
@@ -42,6 +44,7 @@ public class StoryTypeTable extends BaseTable<StoryTypeTable.StoryTypeRow> {
 
 	private static final String sParquetName = sInputTable + ".parquet";
 
+	@Inject
 	public StoryTypeTable(SQLContext sqlContext) {
 		super(sqlContext, sParquetName);
 	}

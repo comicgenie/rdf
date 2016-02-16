@@ -24,12 +24,15 @@ import org.comicwiki.ThingFactory;
 import org.comicwiki.gcd.parser.CharacterParser.CharacterContext;
 import org.comicwiki.model.ComicCharacter;
 
+import com.google.inject.Inject;
+
 public class CharacterCreator {
 
 	private static FileOutputStream fos;
 	
 	private ThingFactory thingFactory;
 
+	@Inject
 	public CharacterCreator(ThingFactory thingFactory) {
 		this.thingFactory = thingFactory;
 		

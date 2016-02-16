@@ -43,6 +43,7 @@ import org.comicwiki.relations.ComicCreatorAssigner;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Sets;
+import com.google.inject.Inject;
 
 public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 
@@ -165,15 +166,15 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 	private File resourceDir;
 
 	private final IRICache iriCache;
-
+	
+	@Inject
 	public StoryTable(SQLContext sqlContext, ThingFactory thingFactory,
-			IRICache iriCache, CharacterCreator characterCreator,
-			File resourceDir) {
+			IRICache iriCache, CharacterCreator characterCreator) {
 		super(sqlContext, sParquetName);
 		StoryTable.thingFactory = thingFactory;
 		this.iriCache = iriCache;
 		this.characterCreator = characterCreator;
-		this.resourceDir = resourceDir;
+		this.resourceDir =  new File(".");
 	}
 
 	@Override

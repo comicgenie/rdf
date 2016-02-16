@@ -16,6 +16,10 @@ import org.comicwiki.model.schema.Person;
 import org.comicwiki.model.schema.Thing;
 import org.comicwiki.transforms.ComicCharacterTransform;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+
+@Singleton
 public class Repositories {
 
 	private final HashMap<Class<? extends Thing>, Repository<? extends Thing>> sThingRepoMap = new HashMap<>();
@@ -44,6 +48,7 @@ public class Repositories {
 		return (Repository<Thing>) sThingRepoMap.get(clazz);
 	}
 
+	@Inject
 	public Repositories() {
 		sThingRepoMap.put(Person.class, COMIC_CREATOR);
 		sThingRepoMap.put(ComicIssue.class, COMIC_ISSUE);

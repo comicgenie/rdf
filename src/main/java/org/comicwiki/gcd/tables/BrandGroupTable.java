@@ -17,11 +17,35 @@ package org.comicwiki.gcd.tables;
 
 import java.io.IOException;
 
+import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
-import org.comicwiki.gcd.tables.StoryTypeTable.Columns;
+
+import com.google.inject.Inject;
 
 public class BrandGroupTable extends BaseTable<BrandGroupTable.BrandGroupRow> {
+
+	private static final class Columns {
+		public static final Column[] ALL_COLUMNS = new Column[] {
+				new Column("id"), new Column("name"), new Column("year_began"),
+				new Column("year_ended"), new Column("notes"),
+				new Column("url"), new Column("modified"),
+				new Column("parent_id") };
+
+		public static final int ID = 0;
+
+		public static final int MODIFIED = 6;
+
+		public static final int NAME = 1;
+
+		public static final int NOTES = 4;
+
+		public static final int PARENT_ID = 7;
+		public static final int URL = 5;
+		public static final int YEAR_BEGAN = 2;
+
+		public static final int YEAR_ENDED = 3;
+	}
 
 	public static class BrandGroupRow extends TableRow {
 
@@ -31,6 +55,7 @@ public class BrandGroupTable extends BaseTable<BrandGroupTable.BrandGroupRow> {
 
 	private static final String sParquetName = sInputTable + ".parquet";
 
+	@Inject
 	public BrandGroupTable(SQLContext sqlContext) {
 		super(sqlContext, sParquetName);
 	}

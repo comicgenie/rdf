@@ -23,6 +23,8 @@ import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 import org.comicwiki.model.schema.Organization;
 
+import com.google.inject.Inject;
+
 public class IndiciaPublisherTable extends
 		BaseTable<IndiciaPublisherTable.IndiciaPublisherRow> {
 
@@ -73,6 +75,7 @@ public class IndiciaPublisherTable extends
 
 	private static final String sParquetName = sInputTable + ".parquet";
 
+	@Inject
 	public IndiciaPublisherTable(SQLContext sqlContext) {
 		super(sqlContext, sParquetName);
 	}

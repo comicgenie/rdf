@@ -23,6 +23,8 @@ import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 import org.comicwiki.model.schema.Organization;
 
+import com.google.inject.Inject;
+
 public class PublisherTable extends BaseTable<PublisherTable.PublisherRow> {
 	private static final class Columns {
 		public static final Column[] ALL_COLUMNS = new Column[] {
@@ -66,6 +68,7 @@ public class PublisherTable extends BaseTable<PublisherTable.PublisherRow> {
 
 	private static final String sParquetName = sInputTable + ".parquet";
 
+	@Inject
 	public PublisherTable(SQLContext sqlContext) {
 		super(sqlContext, sParquetName);
 	}

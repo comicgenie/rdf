@@ -44,7 +44,7 @@ public class StoryTableTest {
 				null, null, null, null, null, null, null, null, null, null,
 				null, null, null, null);
 		StoryTable table = new StoryTable(null, thingFactory, new IRICache(),
-				characterCreator, resourceDir);
+				characterCreator);
 		table.process(row);
 		assertEquals(0, table.cache.size());
 	}
@@ -60,7 +60,7 @@ public class StoryTableTest {
 				null, null, null, null, null, null, "Daredevil", null, null,
 				null, null, null, null, null);
 		StoryTable table = new StoryTable(null, thingFactory, new IRICache(),
-				characterCreator, resourceDir);
+				characterCreator);
 		StoryTable.StoryRow tableRow = table.process(row);
 		assertEquals(1, tableRow.characters.size());
 		assertEquals("Daredevil", tableRow.characters.stream().findFirst()
@@ -78,7 +78,7 @@ public class StoryTableTest {
 				null, null, null, null, null, null, "X-Men[Wolverine]", null,
 				null, null, null, null, null, null);
 		StoryTable table = new StoryTable(null, thingFactory, new IRICache(),
-				characterCreator, resourceDir);
+				characterCreator);
 		StoryTable.StoryRow tableRow = table.process(row);
 		assertEquals(1, tableRow.characters.size());
 		assertEquals("Wolverine", tableRow.characters.stream().findFirst()
@@ -98,7 +98,7 @@ public class StoryTableTest {
 				null, null, null, null, null, null, null, null, null, null,
 				null, null, null, null, null);
 		StoryTable table = new StoryTable(null, thingFactory, new IRICache(),
-				characterCreator, resourceDir);
+				characterCreator);
 		StoryTable.StoryRow tableRow = table.process(row);
 		assertEquals("Action Comics", tableRow.title);
 	}

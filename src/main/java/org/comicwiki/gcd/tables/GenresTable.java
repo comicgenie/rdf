@@ -28,6 +28,7 @@ import org.apache.spark.sql.SQLContext;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Sets;
+import com.google.inject.Inject;
 
 public class GenresTable extends BaseTable<GenresTable.GenreRow> {
 
@@ -51,6 +52,7 @@ public class GenresTable extends BaseTable<GenresTable.GenreRow> {
 
 	HashMap<String, Integer> g2 = new HashMap<>();
 
+	@Inject
 	public GenresTable(SQLContext sqlContext) {
 		super(sqlContext, sParquetName);
 	}

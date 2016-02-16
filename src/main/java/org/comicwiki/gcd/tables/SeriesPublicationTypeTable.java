@@ -21,6 +21,8 @@ import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 
+import com.google.inject.Inject;
+
 public class SeriesPublicationTypeTable extends
 		BaseTable<SeriesPublicationTypeTable.SeriesPublicationTypeRow> {
 
@@ -39,8 +41,8 @@ public class SeriesPublicationTypeTable extends
 
 	private static final String sParquetName = sInputTable + ".parquet";
 
-	public SeriesPublicationTypeTable(SQLContext sqlContext,
-			String datasourceName) {
+	@Inject
+	public SeriesPublicationTypeTable(SQLContext sqlContext) {
 		super(sqlContext, sParquetName);
 	}
 

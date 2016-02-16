@@ -21,6 +21,8 @@ import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 
+import com.google.inject.Inject;
+
 public class SeriesBondTable extends BaseTable<SeriesBondTable.SeriesBondRow> {
 	public static class Columns {
 
@@ -57,9 +59,9 @@ public class SeriesBondTable extends BaseTable<SeriesBondTable.SeriesBondRow> {
 
 	private static final String sParquetName = sInputTable + ".parquet";
 
+	@Inject
 	public SeriesBondTable(SQLContext sqlContext) {
 		super(sqlContext, sParquetName);
-
 	}
 
 	@Override

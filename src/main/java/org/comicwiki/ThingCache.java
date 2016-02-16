@@ -21,13 +21,15 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 
 import org.apache.commons.codec.digest.DigestUtils;
-
 import org.comicwiki.model.schema.Thing;
 import org.comicwiki.rdf.annotations.Subject;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.HashBiMap;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
+@Singleton
 public final class ThingCache {
 
 	private static final KeyIDGenerator instanceIDGen = new KeyIDGenerator(0);
@@ -41,7 +43,7 @@ public final class ThingCache {
 		return thing.instanceId;
 	}
 
-	public static void exportResourceIDs(File file) throws IOException {
+	public void exportResourceIDs(File file) throws IOException {
 		// CPK_RESOURCE_MAP
 	}
 
@@ -49,7 +51,7 @@ public final class ThingCache {
 		return "@" + resourceIDGen.createID();
 	}
 
-	public static void loadResourceIDs(File file) throws IOException {
+	public void loadResourceIDs(File file) throws IOException {
 		// CPK_RESOURCE_MAP
 	}
 
@@ -111,6 +113,7 @@ public final class ThingCache {
 
 	private final IRICache iriCache;
 
+	@Inject
 	public ThingCache(Repositories repositories, IRICache iriCache) {
 		this.repositories = repositories;
 		this.iriCache = iriCache;

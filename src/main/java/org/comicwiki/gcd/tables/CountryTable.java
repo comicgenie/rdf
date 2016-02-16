@@ -24,6 +24,8 @@ import org.comicwiki.Repositories;
 import org.comicwiki.Repository;
 import org.comicwiki.model.schema.Country;
 
+import com.google.inject.Inject;
+
 public class CountryTable extends BaseTable<CountryTable.CountryRow> {
 
 	public static class Columns {
@@ -46,6 +48,7 @@ public class CountryTable extends BaseTable<CountryTable.CountryRow> {
 
 	private final Repository<Country> countryRepository;
 
+	@Inject
 	public CountryTable(SQLContext sqlContext, Repositories repositories) {
 		super(sqlContext, sParquetName);
 		countryRepository = repositories.COUNTRY;

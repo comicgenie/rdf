@@ -21,6 +21,8 @@ import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 
+import com.google.inject.Inject;
+
 public class BrandEmblemGroupTable extends
 		BaseTable<BrandEmblemGroupTable.BrandEmblemGroupRow> {
 
@@ -35,7 +37,7 @@ public class BrandEmblemGroupTable extends
 
 		public static final Column[] ALL_COLUMNS = new Column[] {
 				new Column("id"), new Column("brand_id"),
-				new Column("brand_group_id") };
+				new Column("brandgroup_id") };
 		public static final int BRAND_ID = 1;
 
 		public static final int ID = 0;
@@ -48,6 +50,7 @@ public class BrandEmblemGroupTable extends
 
 	private static final String sParquetName = sInputTable + ".parquet";
 
+	@Inject
 	public BrandEmblemGroupTable(SQLContext sqlContext) {
 		super(sqlContext, sParquetName);
 	}

@@ -27,6 +27,7 @@ import org.comicwiki.model.schema.ComicSeries;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Sets;
+import com.google.inject.Inject;
 
 public class SeriesTable extends BaseTable<SeriesTable.SeriesRow> {
 
@@ -111,6 +112,7 @@ public class SeriesTable extends BaseTable<SeriesTable.SeriesRow> {
 
 	private static final String sParquetName = sInputTable + ".parquet";
 
+	@Inject
 	public SeriesTable(SQLContext sqlContext) {
 		super(sqlContext, sParquetName);
 	}

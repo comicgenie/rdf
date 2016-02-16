@@ -17,12 +17,29 @@ package org.comicwiki.gcd.tables;
 
 import java.io.IOException;
 
+import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
-import org.comicwiki.gcd.tables.StoryTypeTable.Columns;
+
+import com.google.inject.Inject;
 
 public class IssueReprintTable extends
 		BaseTable<IssueReprintTable.IssueReprintRow> {
+	public static class Columns {
+
+		public static final Column[] ALL_COLUMNS = new Column[] {
+				new Column("id"), new Column("origin_issue_id"),
+				new Column("target_issue_id"), new Column("notes") };
+		public static final int ID = 0;
+
+		public static final int NOTES = 3;
+
+		public static final int ORIGIN_ISSUE_ID = 1;
+
+		public static final int TARGET_ISSUE_ID = 2;
+
+	}
+
 	public static class IssueReprintRow extends TableRow {
 
 	}
@@ -31,6 +48,7 @@ public class IssueReprintTable extends
 
 	private static final String sParquetName = sInputTable + ".parquet";
 
+	@Inject
 	public IssueReprintTable(SQLContext sqlContext) {
 		super(sqlContext, sParquetName);
 	}
@@ -44,6 +62,5 @@ public class IssueReprintTable extends
 	@Override
 	public void saveToParquetFormat(String jdbcUrl) {
 		super.saveToParquetFormat(sInputTable, Columns.ALL_COLUMNS, jdbcUrl);
-
 	}
 }
