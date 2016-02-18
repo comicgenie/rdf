@@ -1,4 +1,21 @@
+/*******************************************************************************
+ * See the NOTICE file distributed with this work for additional 
+ * information regarding copyright ownership. ComicGenie licenses this 
+ * file to you under the Apache License, Version 2.0 (the "License"); 
+ * you may not use this file except in compliance with the License.  
+ * You may obtain a copy of the License at
+ *  
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *******************************************************************************/
 package org.comicwiki.transforms;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.io.IOException;
 import java.util.regex.Matcher;
@@ -8,7 +25,7 @@ import org.comicwiki.HonorificExpander;
 import org.comicwiki.PersonNameMatcher;
 import org.comicwiki.Repositories;
 import org.comicwiki.RepositoryTransform;
-import org.comicwiki.model.ComicCharacter;
+import org.comicwiki.model.schema.Person;
 
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
@@ -38,7 +55,16 @@ public final class ComicCharacterTransform implements RepositoryTransform {
 					Pattern.CASE_INSENSITIVE);
 
 	private static Pattern suffixMale = Pattern.compile(
-			".*(esq|esquire|caesar)\\.*$", Pattern.CASE_INSENSITIVE);
+			"(.*){1}(esq|esquire|caesar)\\.*$", Pattern.CASE_INSENSITIVE);
+
+	private static void extractNames(Person person, String[] nameTokens) {
+		if (firstAndLastName(nameTokens)) {
+			person.familyName = nameTokens[1];
+		} else if (nameTokens.length == 3
+				&& middleInitial.matcher(nameTokens[1]).matches()) {
+			person.familyName = nameTokens[2];
+		}
+	}
 
 	private static boolean firstAndLastName(String[] tokens) {
 		return tokens.length == 2;
@@ -46,6 +72,17 @@ public final class ComicCharacterTransform implements RepositoryTransform {
 
 	private static boolean oneName(String[] tokens) {
 		return tokens.length == 1;
+	}
+
+	private static void oneNameWithGender(Person person, String[] nameTokens,
+			boolean hasGender) {
+		if (oneName(nameTokens)) {
+			if (hasGender) {
+				person.givenName = nameTokens[0];
+			} else {
+				person.familyName = nameTokens[0];
+			}
+		}
 	}
 
 	private static String[] tokenize(String text) {
@@ -57,12 +94,14 @@ public final class ComicCharacterTransform implements RepositoryTransform {
 
 	private final Repositories repositories;
 
-	public ComicCharacterTransform(PersonNameMatcher personMatcher, Repositories repositories) {
+	public ComicCharacterTransform(PersonNameMatcher personMatcher,
+			Repositories repositories) {
 		this.personMatcher = personMatcher;
 		this.repositories = repositories;
 	}
 
 	protected String removePrefixAndSuffix(String name) {
+		checkNotNull(name, "name");
 		String s = name;
 		Matcher m = prefixNeutral.matcher(s);
 		if (m.matches()) {
@@ -71,7 +110,7 @@ public final class ComicCharacterTransform implements RepositoryTransform {
 
 		m = suffixMale.matcher(s);
 		if (m.matches()) {
-			s = m.group(m.groupCount());
+			s = m.group(m.groupCount() - 1);
 		}
 
 		m = prefixMale.matcher(s);
@@ -83,117 +122,105 @@ public final class ComicCharacterTransform implements RepositoryTransform {
 		if (m.matches()) {
 			s = m.group(m.groupCount());
 		}
-		return s;
+		return s.trim();
 	}
 
 	@Override
 	public void transform() throws IOException {
+		for (Person person : repositories.COMIC_CHARACTERS.cache.values()) {
+			if (Strings.isNullOrEmpty(person.name)) {
+				continue;
+			}
 
-		for (ComicCharacter cc : repositories.COMIC_CHARACTERS.cache.values()) {
-			Matcher prefixMaleMatcher = prefixMale.matcher(cc.name);
-			Matcher suffixMaleMatcher = suffixMale.matcher(cc.name);
-			Matcher prefixFemaleMatcher = prefixFemale.matcher(cc.name);
-
-			String[] nameTokens = tokenize(removePrefixAndSuffix(cc.name));
-
+			String[] nameTokens = tokenize(removePrefixAndSuffix(person.name));
 			if (nameTokens.length == 0) {
 				continue;
 			}
-			boolean isImpliedMale = impliedMale.matcher(cc.name).matches();
-			boolean isImpliedFemale = impliedFemale.matcher(cc.name).matches();
+
+			Matcher prefixMaleMatcher = prefixMale.matcher(person.name);
+			Matcher suffixMaleMatcher = suffixMale.matcher(person.name);
+			Matcher prefixFemaleMatcher = prefixFemale.matcher(person.name);
+			Matcher prefixNeutralMatcher = prefixNeutral.matcher(person.name);
+
+			boolean isImpliedMale = impliedMale.matcher(person.name).matches();
+			boolean isImpliedFemale = impliedFemale.matcher(person.name)
+					.matches();
 
 			boolean isMale = personMatcher.isMaleName(nameTokens[0]);
 			boolean isFemale = isMale ? false : (personMatcher
 					.isFemaleName(nameTokens[0]));
 
 			if (prefixMaleMatcher.matches()) {
-				cc.honorificPrefix = prefixMaleMatcher.group(1).trim();
-				cc.makeMale();
-				if (oneName(nameTokens)) {
-					if (isMale) {
-						cc.givenName = nameTokens[0];
-					} else {
-						cc.familyName = nameTokens[0];
-					}
-				}
+				person.honorificPrefix = prefixMaleMatcher.group(1).trim();
+				person.makeMale();
+				oneNameWithGender(person, nameTokens, isMale);
 			} else if (suffixMaleMatcher.matches()) {
-				cc.honorificSuffix = suffixMaleMatcher.group(1).trim();
-				cc.makeMale();
+				person.honorificSuffix = suffixMaleMatcher.group(1).trim();
+				person.makeMale();
+				oneNameWithGender(person, nameTokens, isMale);
 			} else if (prefixFemaleMatcher.matches()) {
-				cc.honorificPrefix = prefixFemaleMatcher.group(1).trim();
-				cc.makeFemale();
+				person.honorificPrefix = prefixFemaleMatcher.group(1).trim();
+				person.makeFemale();
+				oneNameWithGender(person, nameTokens, isFemale);
+			} else if (prefixNeutralMatcher.matches()) {
+				person.honorificPrefix = HonorificExpander
+						.expand(prefixNeutralMatcher.group(1).trim());
 				if (oneName(nameTokens)) {
-					if (isFemale) {
-						cc.givenName = nameTokens[0];
-					} else {
-						cc.familyName = nameTokens[0];
+					if (isFemale || isMale) {
+						person.givenName = nameTokens[0];
+					} else if (personMatcher.isLastName(nameTokens[0])) {
+						person.familyName = nameTokens[0];
 					}
 				}
 			} else if (isFemale || isImpliedFemale) {
-				cc.makeFemale();
+				person.makeFemale();
+				if (oneName(nameTokens)) {
+					person.givenName = nameTokens[0];
+				}
 			} else if (isMale || isImpliedMale) {
-				cc.makeMale();
+				person.makeMale();
+				if (oneName(nameTokens)) {
+					person.givenName = nameTokens[0];
+				}
+			} else if (oneName(nameTokens)) {// one name, no gender
+				Matcher lastNamesMatcher = personMatcher
+						.lastNames(nameTokens[0]);
+				if (lastNamesMatcher.matches()) {
+					person.familyName = nameTokens[0];
+				}
 			}
 
 			if (nameTokens.length > 1) {
 				Matcher isMaleName = personMatcher.maleNames(nameTokens[0]);
-				if (isMaleName.matches()) {
-					cc.makeMale();
-					cc.givenName = isMaleName.group(1);
-					if (firstAndLastName(nameTokens)) {
-						cc.familyName = nameTokens[1];
-					} else if (nameTokens.length == 3
-							&& middleInitial.matcher(nameTokens[1]).matches()) {
-						cc.familyName = nameTokens[2];
-						if (Strings.isNullOrEmpty(cc.givenName)) {
-							cc.givenName = nameTokens[0];
-						}
-					}
+				if ("M".equals(person.gender) && isMaleName.matches()) {
+					person.givenName = isMaleName.group(1);
+					extractNames(person, nameTokens);
 				}
 
 				Matcher isFemaleName = personMatcher.femaleNames(nameTokens[0]);
-				if (isFemaleName.matches()) {
-					cc.makeFemale();
-					cc.givenName = isFemaleName.group(1);
-					if (firstAndLastName(nameTokens)) {
-						cc.familyName = nameTokens[1];
-					} else if (nameTokens.length == 3
-							&& middleInitial.matcher(nameTokens[1]).matches()) {
-						cc.familyName = nameTokens[2];
-						if (Strings.isNullOrEmpty(cc.givenName)) {
-							cc.givenName = nameTokens[0];
-						}
-					}
+				if ("F".equals(person.gender) && isFemaleName.matches()) {
+					person.givenName = isFemaleName.group(1);
+					extractNames(person, nameTokens);
 				}
 
 				Matcher lastNamesMatcher = personMatcher
 						.lastNames(nameTokens[nameTokens.length - 1]);
 				if (lastNamesMatcher.matches()) {
-					cc.familyName = lastNamesMatcher.group(1);
-					if (nameTokens.length == 3
-							&& middleInitial.matcher(nameTokens[1]).matches()
-							&& Strings.isNullOrEmpty(cc.givenName)) {
-						cc.givenName = nameTokens[0];
-					}
-				}
-			}
-
-			Matcher isPrefixNeutral = prefixNeutral.matcher(cc.name);
-			if (isPrefixNeutral.matches()) {
-				cc.honorificPrefix = HonorificExpander.expand(isPrefixNeutral
-						.group(1).trim());
-				if (oneName(nameTokens)) {
-					if (isFemale || isMale) {
-						if (Strings.isNullOrEmpty(cc.givenName)) {
-							cc.givenName = nameTokens[0];
-						}
-					} else if (personMatcher.isLastName(nameTokens[0])) {
-						if (Strings.isNullOrEmpty(cc.familyName)) {
-							cc.familyName = nameTokens[0];
+					person.familyName = lastNamesMatcher.group(1);
+					if (nameTokens.length == 3 && Strings.isNullOrEmpty(person.givenName)) {
+						if (middleInitial.matcher(nameTokens[1]).matches()) {
+							person.givenName = nameTokens[0];
+						} else {
+							person.givenName = nameTokens[1];
+							isMaleName = personMatcher.maleNames(nameTokens[1]);
+							isFemaleName = personMatcher.femaleNames(nameTokens[1]);
+							if(isMaleName.matches()) {
+								person.makeMale();
+							} else if(isFemaleName.matches()) {
+								person.makeFemale();
+							}
 						}
 					}
-				} else {
-
 				}
 			}
 		}

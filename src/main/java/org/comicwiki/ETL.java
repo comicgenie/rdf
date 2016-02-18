@@ -19,7 +19,6 @@ import java.io.File;
 import java.lang.reflect.Constructor;
 
 import org.apache.spark.sql.SQLContext;
-import org.comicwiki.gcd.tables.BaseTable;
 import org.comicwiki.gcd.tables.BrandEmblemGroupTable;
 import org.comicwiki.gcd.tables.BrandGroupTable;
 import org.comicwiki.gcd.tables.BrandTable;
@@ -58,25 +57,27 @@ public class ETL {
 			SeriesPublicationTypeTable.class, SeriesTable.class,
 			StoryTable.class, StoryTypeTable.class };
 
-
 	private ThingCache thingCache;
 	private Repositories repositories;
 	private Injector injector;
+	private ResourceIDCache resourceIDCache;
 
 	@Inject
-	public ETL(ThingCache thingCache, Repositories repositories) {
+	public ETL(ThingCache thingCache, Repositories repositories,
+			ResourceIDCache resourceIDCache) {
 		this.thingCache = thingCache;
 		this.repositories = repositories;
+		this.resourceIDCache = resourceIDCache;
 	}
-	
+
 	private static BaseTable<?>[] getTables(Injector injector) throws Exception {
 		BaseTable<?>[] tables = new BaseTable<?>[tableClasses.length];
 		for (int i = 0; i < tableClasses.length; i++) {
-			tables[i]  = injector.getInstance(tableClasses[i]);
+			tables[i] = injector.getInstance(tableClasses[i]);
 		}
-		return tables;	
+		return tables;
 	}
-	
+
 	public void setInjector(Injector injector) {
 		this.injector = injector;
 	}
@@ -89,7 +90,7 @@ public class ETL {
 
 	public void process(File resourceIds, File outputDir) throws Exception {
 		if (resourceIds.exists()) {
-			thingCache.loadResourceIDs(resourceIds);
+			resourceIDCache.loadResourceIDs(resourceIds);
 		}
 
 		BaseTable<?>[] tables = getTables(injector);
@@ -101,13 +102,13 @@ public class ETL {
 		}
 
 		thingCache.assignResourceIDs();
-		thingCache.load();
+		thingCache.exportToRepositories();
 		for (Repository<?> repo : repositories.getRepositories()) {
 			repo.transform();
 			String repoName = repo.getClass().getSimpleName();
 			repo.load(new File(outputDir, repoName + ".json"), DataFormat.JSON);
 			repo.load(new File(outputDir, repoName + ".ttl"), DataFormat.TURTLE);
 		}
-		thingCache.exportResourceIDs(resourceIds);
+		resourceIDCache.exportResourceIDs(resourceIds);
 	}
 }

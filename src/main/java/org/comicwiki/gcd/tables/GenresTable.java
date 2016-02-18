@@ -25,6 +25,7 @@ import java.util.TreeSet;
 import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
+import org.comicwiki.BaseTable;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Sets;

@@ -27,6 +27,7 @@ import org.comicwiki.rdf.annotations.ObjectInteger;
 import org.comicwiki.rdf.annotations.ObjectString;
 import org.comicwiki.rdf.annotations.Predicate;
 import org.comicwiki.rdf.annotations.SchemaBib;
+import org.comicwiki.rdf.annotations.SchemaComicWiki;
 import org.comicwiki.rdf.annotations.Subject;
 
 @Subject(value = "http://schema.org/CreativeWork", key = "name")
@@ -143,5 +144,10 @@ public class CreativeWork extends Thing {
 	@Predicate("contentRating")
 	@ObjectString
 	public String contentRating;// this will map to issue.rating
+	
+	@Predicate("creatorAlias")
+	@ObjectIRI
+	@SchemaComicWiki
+	public Collection<IRI> creatorAlias = new HashSet<>(1);
 	
 }

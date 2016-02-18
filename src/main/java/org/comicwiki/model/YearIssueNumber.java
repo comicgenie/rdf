@@ -15,6 +15,9 @@
  *******************************************************************************/
 package org.comicwiki.model;
 
+import org.comicwiki.rdf.annotations.SchemaComicWiki;
+
+@SchemaComicWiki
 public class YearIssueNumber extends ComicIssueNumber {
 
 	public int year;

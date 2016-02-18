@@ -23,8 +23,8 @@ import org.comicwiki.IRICache;
 import org.comicwiki.model.ComicCharacter;
 import org.comicwiki.model.ComicOrganization;
 import org.comicwiki.model.Genre;
-import org.comicwiki.model.schema.ComicStory;
 import org.comicwiki.model.schema.Person;
+import org.comicwiki.model.schema.bib.ComicStory;
 
 public final class ComicOrganizationAssigner {
 

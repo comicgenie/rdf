@@ -21,7 +21,7 @@ import org.comicwiki.IRI;
 import org.comicwiki.IRICache;
 import org.comicwiki.model.ComicCharacter;
 import org.comicwiki.model.Genre;
-import org.comicwiki.model.schema.ComicStory;
+import org.comicwiki.model.schema.bib.ComicStory;
 
 public final class ComicCharactersAssigner {
 

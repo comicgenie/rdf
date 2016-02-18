@@ -13,20 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package org.comicwiki.model.schema;
+package org.comicwiki.model.schema.bib;
 
 import java.util.Collection;
 import java.util.HashSet;
 
 import org.comicwiki.IRI;
+import org.comicwiki.model.schema.CreativeWork;
 import org.comicwiki.rdf.annotations.ObjectBoolean;
 import org.comicwiki.rdf.annotations.ObjectIRI;
 import org.comicwiki.rdf.annotations.ObjectInteger;
 import org.comicwiki.rdf.annotations.Predicate;
+import org.comicwiki.rdf.annotations.SchemaBib;
 import org.comicwiki.rdf.annotations.SchemaComicWiki;
 import org.comicwiki.rdf.annotations.Subject;
 
 @Subject(value = "http://schema.org/ComicStory", key= "name")
+@SchemaBib
 public class ComicStory extends CreativeWork {
 	
 	@Predicate("artist")
@@ -62,7 +65,7 @@ public class ComicStory extends CreativeWork {
 	@Predicate("organizations")
 	@ObjectIRI
 	@SchemaComicWiki
-	public Collection<IRI> organizations = new HashSet<>();
+	public Collection<IRI> organizations = new HashSet<>(1);
 	
 	@Predicate("pageCountUncertain")
 	@ObjectBoolean

@@ -27,6 +27,7 @@ import java.util.stream.Stream;
 import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
+import org.comicwiki.BaseTable;
 import org.comicwiki.IRICache;
 import org.comicwiki.ThingFactory;
 import org.comicwiki.gcd.CharacterCreator;
@@ -35,9 +36,9 @@ import org.comicwiki.gcd.CharacterWalker;
 import org.comicwiki.gcd.CreatorFieldParser;
 import org.comicwiki.model.ComicCharacter;
 import org.comicwiki.model.ComicOrganization;
-import org.comicwiki.model.schema.ComicStory;
 import org.comicwiki.model.schema.Organization;
 import org.comicwiki.model.schema.Person;
+import org.comicwiki.model.schema.bib.ComicStory;
 import org.comicwiki.relations.ComicCharactersAssigner;
 import org.comicwiki.relations.ComicCreatorAssigner;
 
@@ -166,7 +167,7 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 	private File resourceDir;
 
 	private final IRICache iriCache;
-	
+
 	@Inject
 	public StoryTable(SQLContext sqlContext, ThingFactory thingFactory,
 			IRICache iriCache, CharacterCreator characterCreator) {
@@ -174,7 +175,7 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 		StoryTable.thingFactory = thingFactory;
 		this.iriCache = iriCache;
 		this.characterCreator = characterCreator;
-		this.resourceDir =  new File(".");
+		this.resourceDir = new File(".");
 	}
 
 	@Override
@@ -194,16 +195,17 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 		storyRow.feature = row.getString(Columns.FEATURE);
 
 		storyRow.colors = parseField(Columns.COLORS, row,
-				new CreatorFieldParser());
+				new CreatorFieldParser(thingFactory, iriCache));
 		storyRow.editing = parseField(Columns.EDITING, row,
-				new CreatorFieldParser());
-		storyRow.inks = parseField(Columns.INKS, row, new CreatorFieldParser());
+				new CreatorFieldParser(thingFactory, iriCache));
+		storyRow.inks = parseField(Columns.INKS, row, new CreatorFieldParser(
+				thingFactory, iriCache));
 		storyRow.letters = parseField(Columns.LETTERS, row,
-				new CreatorFieldParser());
+				new CreatorFieldParser(thingFactory, iriCache));
 		storyRow.pencils = parseField(Columns.PENCILS, row,
-				new CreatorFieldParser());
+				new CreatorFieldParser(thingFactory, iriCache));
 		storyRow.script = parseField(Columns.SCRIPT, row,
-				new CreatorFieldParser());
+				new CreatorFieldParser(thingFactory, iriCache));
 
 		storyRow.jobNumber = row.getString(Columns.JOB_NUMBER);
 		storyRow.modified = row.getTimestamp(Columns.MODIFIED);

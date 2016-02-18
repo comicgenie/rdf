@@ -8,12 +8,12 @@ import java.util.HashMap;
 import org.comicwiki.model.ComicCharacter;
 import org.comicwiki.model.ComicOrganization;
 import org.comicwiki.model.ComicUniverse;
-import org.comicwiki.model.schema.ComicIssue;
-import org.comicwiki.model.schema.ComicSeries;
-import org.comicwiki.model.schema.ComicStory;
 import org.comicwiki.model.schema.Country;
 import org.comicwiki.model.schema.Person;
 import org.comicwiki.model.schema.Thing;
+import org.comicwiki.model.schema.bib.ComicIssue;
+import org.comicwiki.model.schema.bib.ComicSeries;
+import org.comicwiki.model.schema.bib.ComicStory;
 import org.comicwiki.transforms.ComicCharacterTransform;
 
 import com.google.inject.Inject;

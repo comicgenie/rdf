@@ -23,8 +23,10 @@ import org.comicwiki.model.schema.Organization;
 import org.comicwiki.rdf.annotations.ObjectIRI;
 import org.comicwiki.rdf.annotations.ObjectString;
 import org.comicwiki.rdf.annotations.Predicate;
+import org.comicwiki.rdf.annotations.SchemaComicWiki;
 import org.comicwiki.rdf.annotations.Subject;
 
+@SchemaComicWiki
 @Subject(value = "ComicOrganization", key = "name")
 //TODO: probably need to add universe/publisher
 public class ComicOrganization extends Organization /*[CreativeWork]*/{
@@ -39,7 +41,7 @@ public class ComicOrganization extends Organization /*[CreativeWork]*/{
 	@ObjectString
 	public OrganizationType organizationType;
 
-	@Predicate("ComicUniverse")
+	@Predicate("comicUniverse")
 	@ObjectIRI
 	public Collection<IRI> universes = new HashSet<>(1);
 	

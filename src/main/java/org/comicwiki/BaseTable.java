@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package org.comicwiki.gcd.tables;
+package org.comicwiki;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -25,6 +25,7 @@ import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 import org.apache.spark.storage.StorageLevel;
 import org.comicwiki.gcd.FieldParser;
+import org.comicwiki.gcd.tables.TableRow;
 import org.comicwiki.model.schema.Thing;
 
 import com.google.inject.Singleton;
@@ -32,7 +33,7 @@ import com.google.inject.Singleton;
 @Singleton
 public abstract class BaseTable<R extends TableRow> {
 
-	protected HashMap<Integer, R> cache = new HashMap<>();
+	public HashMap<Integer, R> cache = new HashMap<>();
 
 	protected final String datasourceName;
 
@@ -42,11 +43,19 @@ public abstract class BaseTable<R extends TableRow> {
 
 	protected final SQLContext sqlContext;
 
-	public BaseTable(SQLContext sqlContext, String datasourceName) {
+	private final TableFormat tableFormat;
+
+	public BaseTable(SQLContext sqlContext, String datasourceName,
+			TableFormat tableFormat) {
 		this.sqlContext = sqlContext;
 		this.datasourceName = datasourceName;
+		this.tableFormat = tableFormat;
 	}
-	
+
+	public BaseTable(SQLContext sqlContext, String datasourceName) {
+		this(sqlContext, datasourceName, TableFormat.RDB);
+	}
+
 	protected final void add(R row) {
 		cache.put(row.id, row);
 	}
@@ -57,6 +66,14 @@ public abstract class BaseTable<R extends TableRow> {
 	}
 
 	public final void extract() throws IOException {
+		if (TableFormat.RDB.equals(tableFormat)) {
+			frame = sqlContext.read().load(datasourceName);
+		} else if (TableFormat.JSON.equals(tableFormat)) {
+			frame = sqlContext.read().json(datasourceName);
+		} else {
+			throw new IOException("Unable to read dataframe: " + datasourceName);
+		}
+
 		frame = sqlContext.read().load(datasourceName);
 		frame.persist(StorageLevel.MEMORY_AND_DISK_SER());
 

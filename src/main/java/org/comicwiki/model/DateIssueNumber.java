@@ -15,8 +15,11 @@
  *******************************************************************************/
 package org.comicwiki.model;
 
+import org.comicwiki.rdf.annotations.SchemaComicWiki;
+
 //26 February 1977 [50]
 //'25 februari 2009'
+@SchemaComicWiki
 public class DateIssueNumber extends ComicIssueNumber {
 	
 	public int month;

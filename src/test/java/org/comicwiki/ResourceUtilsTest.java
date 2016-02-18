@@ -10,15 +10,15 @@ public class ResourceUtilsTest {
 	@Test
 	public void readResourceId() throws Exception {
 		Thing thing = new Thing();
-		thing.resourceId = "@1";
+		thing.resourceId = "@I1";
 		String uri = ResourceUtils.readResourceIDWithExpandedIri(thing);
-		assertEquals("http://comicwiki.org/resources/1", uri);
+		assertEquals("http://comicwiki.org/resources/I1", uri);
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
 	public void readResourceIdWithNoAtSign() throws Exception {
 		Thing thing = new Thing();
-		thing.resourceId = "1";
+		thing.resourceId = "I1";
 		ResourceUtils.readResourceIDWithExpandedIri(thing);
 	}
 	

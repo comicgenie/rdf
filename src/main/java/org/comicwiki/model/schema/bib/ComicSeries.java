@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package org.comicwiki.model.schema;
+package org.comicwiki.model.schema.bib;
 
 import java.util.Collection;
 import java.util.HashSet;
 
+import org.comicwiki.model.schema.Periodical;
 import org.comicwiki.rdf.annotations.ObjectString;
 import org.comicwiki.rdf.annotations.Predicate;
 import org.comicwiki.rdf.annotations.SchemaBib;

@@ -15,8 +15,6 @@
  *******************************************************************************/
 package org.comicwiki;
 
-import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 
@@ -25,7 +23,6 @@ import org.comicwiki.model.schema.Thing;
 import org.comicwiki.rdf.annotations.Subject;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.HashBiMap;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -34,25 +31,11 @@ public final class ThingCache {
 
 	private static final KeyIDGenerator instanceIDGen = new KeyIDGenerator(0);
 
-	private static final KeyIDGenerator resourceIDGen = new KeyIDGenerator(0);
-
 	private static String assignInstanceId(Thing thing) {
 		if (Strings.isNullOrEmpty(thing.instanceId)) {
 			thing.instanceId = "-" + instanceIDGen.createInstanceId();
 		}
 		return thing.instanceId;
-	}
-
-	public void exportResourceIDs(File file) throws IOException {
-		// CPK_RESOURCE_MAP
-	}
-
-	private static String generateResourceId() {
-		return "@" + resourceIDGen.createID();
-	}
-
-	public void loadResourceIDs(File file) throws IOException {
-		// CPK_RESOURCE_MAP
 	}
 
 	protected final static String readCompositePropertyKey(Subject subject,
@@ -104,7 +87,8 @@ public final class ThingCache {
 		return null;
 	}
 
-	private final HashBiMap<String, String> cpkResourceMap = HashBiMap.create();
+	// private final HashBiMap<String, String> cpkResourceMap =
+	// HashBiMap.create();
 
 	protected final HashMap<String, Thing> instanceCache = new HashMap<>(
 			1000000);
@@ -113,10 +97,14 @@ public final class ThingCache {
 
 	private final IRICache iriCache;
 
+	private final ResourceIDCache resourceIDCache;
+
 	@Inject
-	public ThingCache(Repositories repositories, IRICache iriCache) {
+	public ThingCache(Repositories repositories, IRICache iriCache,
+			ResourceIDCache resourceIDCache) {
 		this.repositories = repositories;
 		this.iriCache = iriCache;
+		this.resourceIDCache = resourceIDCache;
 	}
 
 	public void add(Thing thing) {
@@ -129,14 +117,17 @@ public final class ThingCache {
 		HashMap<String, String> instanceResourceMap = new HashMap<>(1000000);
 		for (Thing thing : instanceCache.values()) {
 			thing.compositePropertyKey = readCompositePropertyKey(thing);
+			if(Strings.isNullOrEmpty(thing.compositePropertyKey)) {
+				throw new IllegalArgumentException("thing.compositePropertyKey is empty");
+			}
 			instanceCpkMap.put(thing.instanceId, thing.compositePropertyKey);
 
-			if (!cpkResourceMap.containsKey(thing.compositePropertyKey)) {
-				thing.resourceId = generateResourceId();
-				cpkResourceMap
-						.put(thing.compositePropertyKey, thing.resourceId);
+			if (!resourceIDCache.containsKey(thing.compositePropertyKey)) {
+				thing.resourceId = resourceIDCache.generateResourceId();
+				resourceIDCache.put(thing.compositePropertyKey,
+						thing.resourceId);
 			} else {
-				thing.resourceId = cpkResourceMap
+				thing.resourceId = resourceIDCache
 						.get(thing.compositePropertyKey);
 			}
 
@@ -149,7 +140,7 @@ public final class ThingCache {
 		}
 	}
 
-	public void load() {
+	public void exportToRepositories() {
 		for (Thing thing : instanceCache.values()) {
 			Repository<Thing> repo = repositories.getRepository(thing
 					.getClass());

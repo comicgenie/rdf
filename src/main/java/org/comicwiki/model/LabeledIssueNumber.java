@@ -15,6 +15,9 @@
  *******************************************************************************/
 package org.comicwiki.model;
 
+import org.comicwiki.rdf.annotations.SchemaComicWiki;
+
+@SchemaComicWiki
 public class LabeledIssueNumber extends ComicIssueNumber {
 
 	public String label;

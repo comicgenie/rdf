@@ -19,6 +19,7 @@ import java.io.IOException;
 
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
+import org.comicwiki.BaseTable;
 
 import com.google.inject.Inject;
 
