@@ -184,7 +184,7 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 
 		Fields.Character characterField = parseField(Columns.CHARACTERS, row,
 				new CharacterFieldParser(new CharacterWalker(thingFactory,
-						iriCache, characterCreator, resourceDir)));
+						characterCreator, resourceDir)));
 
 		if (characterField != null) {
 			storyRow.characters = characterField.comicCharacters;

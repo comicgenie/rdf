@@ -57,12 +57,9 @@ public final class CharacterWalker extends CharacterBaseListener {
 
 	private final CharacterCreator characterCreator;
 
-	private final IRICache iriCache;
-
-	public CharacterWalker(ThingFactory thingFactory, IRICache iriCache,
+	public CharacterWalker(ThingFactory thingFactory,
 			CharacterCreator characterCreator, File resourceDir) {
 		this.thingFactory = thingFactory;
-		this.iriCache = iriCache;
 		this.characterCreator = characterCreator;
 		try {
 			marvelOrganizationList = Files.readAllLines(new File(resourceDir,
@@ -161,8 +158,7 @@ public final class CharacterWalker extends CharacterBaseListener {
 				ComicCharacter character = characterCreator
 						.createCharacter(characterContext);
 				if (hasOrganization) {
-					addOrganizationMember(IRI.create(character.instanceId,
-							iriCache));
+					addOrganizationMember(character.instanceId);
 				}
 				addCharacter(character);
 			}

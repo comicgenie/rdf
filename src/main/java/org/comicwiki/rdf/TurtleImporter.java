@@ -20,12 +20,15 @@ import com.github.jsonldjava.utils.JsonUtils;
 public class TurtleImporter {
 
 	public static <T extends Thing> Collection<T> importTurtle(String data,
-			Collection<T> output) throws JsonLdError, JsonParseException, JsonMappingException, JsonGenerationException, IOException {
+			Collection<T> output) throws JsonLdError, JsonParseException,
+			JsonMappingException, JsonGenerationException, IOException {
 		return importFromDataset(new TurtleRDFParser().parse(data), output);
 	}
 
 	private static <T extends Thing> Collection<T> importFromDataset(
-			RDFDataset dataset, Collection<T> output) throws JsonParseException, JsonMappingException, JsonGenerationException, IOException {
+			RDFDataset dataset, Collection<T> output)
+			throws JsonParseException, JsonMappingException,
+			JsonGenerationException, IOException {
 		ObjectMapper mapper = new ObjectMapper();
 		ArrayList<Statement> statements = new ArrayList<>();
 		for (Entry<String, Object> entry : dataset.entrySet()) {
@@ -44,7 +47,8 @@ public class TurtleImporter {
 	}
 
 	public static <T extends Thing> Collection<T> importNTriples(String data,
-			Collection<T> output) throws JsonLdError, JsonParseException, JsonMappingException, JsonGenerationException, IOException {
+			Collection<T> output) throws JsonLdError, JsonParseException,
+			JsonMappingException, JsonGenerationException, IOException {
 		return importFromDataset(new NQuadRDFParser().parse(data), output);
 	}
 }

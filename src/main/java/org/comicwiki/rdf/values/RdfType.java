@@ -26,4 +26,11 @@ public class RdfType {
 	public String getValue() {
 		return value;
 	}
+
+	@Override
+	public String toString() {
+		return "RdfType [value=" + value + "]";
+	}
+	
+	
 }

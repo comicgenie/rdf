@@ -63,7 +63,7 @@ public class CharacterTest extends BaseTest {
 
 		ParseTreeWalker walker = new ParseTreeWalker();
 		CharacterWalker cWalker = new CharacterWalker(thingFactory,
-				new IRICache(), characterCreator, resourceDir);
+				characterCreator, resourceDir);
 		walker.walk(cWalker, parser.characters());
 		return cWalker;
 	}
@@ -112,7 +112,7 @@ public class CharacterTest extends BaseTest {
 		CharacterCreator characterCreator = new CharacterCreator(thingFactory);
 
 		ParseTreeWalker walker = new ParseTreeWalker();
-		walker.walk(new CharacterWalker(thingFactory, new IRICache(),
+		walker.walk(new CharacterWalker(thingFactory,
 				characterCreator, resourceDir), parser.characters());
 	}
 
@@ -133,7 +133,7 @@ public class CharacterTest extends BaseTest {
 
 		ParseTree tree = parser.team();
 		ParseTreeWalker walker = new ParseTreeWalker();
-		walker.walk(new CharacterWalker(thingFactory, new IRICache(),
+		walker.walk(new CharacterWalker(thingFactory,
 				characterCreator, resourceDir), tree);
 	}
 
@@ -154,7 +154,7 @@ public class CharacterTest extends BaseTest {
 
 		ParseTree tree = parser.team();
 		ParseTreeWalker walker = new ParseTreeWalker();
-		walker.walk(new CharacterWalker(thingFactory, new IRICache(),
+		walker.walk(new CharacterWalker(thingFactory, 
 				characterCreator, resourceDir), tree);
 	}
 
@@ -176,7 +176,7 @@ public class CharacterTest extends BaseTest {
 
 		ParseTree tree = parser.team();
 		ParseTreeWalker walker = new ParseTreeWalker();
-		walker.walk(new CharacterWalker(thingFactory, new IRICache(),
+		walker.walk(new CharacterWalker(thingFactory,
 				characterCreator, resourceDir), tree);
 	}
 

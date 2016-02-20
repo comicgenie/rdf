@@ -13,13 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package org.comicwiki.rdf.values;
+package org.comicwiki.rdf.annotations;
 
-public class RdfLiteral<T> {
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
-	public RdfLiteral(Object obj, T value) {
-		
-	}
+import org.comicwiki.rdf.NodeType;
+
+@Retention(RetentionPolicy.RUNTIME)
+public @interface ObjectNumber  {
 	
-	
+	NodeType type() default NodeType.literal;
 }

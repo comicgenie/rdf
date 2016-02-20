@@ -31,9 +31,9 @@ public final class ThingCache {
 
 	private static final KeyIDGenerator instanceIDGen = new KeyIDGenerator(0);
 
-	private static String assignInstanceId(Thing thing) {
-		if (Strings.isNullOrEmpty(thing.instanceId)) {
-			thing.instanceId = "-" + instanceIDGen.createInstanceId();
+	private IRI assignInstanceId(Thing thing) {
+		if (thing.instanceId == null) {
+			thing.instanceId = IRI.create("-" + instanceIDGen.createInstanceId(), iriCache);
 		}
 		return thing.instanceId;
 	}
@@ -87,10 +87,7 @@ public final class ThingCache {
 		return null;
 	}
 
-	// private final HashBiMap<String, String> cpkResourceMap =
-	// HashBiMap.create();
-
-	protected final HashMap<String, Thing> instanceCache = new HashMap<>(
+	protected final HashMap<IRI, Thing> instanceCache = new HashMap<>(
 			1000000);
 
 	private final Repositories repositories;
@@ -113,8 +110,8 @@ public final class ThingCache {
 	}
 
 	public synchronized void assignResourceIDs() {
-		HashMap<String, String> instanceCpkMap = new HashMap<>(1000000);
-		HashMap<String, String> instanceResourceMap = new HashMap<>(1000000);
+		HashMap<IRI, String> instanceCpkMap = new HashMap<>(1000000);
+		HashMap<IRI, IRI> instanceResourceMap = new HashMap<>(1000000);
 		for (Thing thing : instanceCache.values()) {
 			thing.compositePropertyKey = readCompositePropertyKey(thing);
 			if(Strings.isNullOrEmpty(thing.compositePropertyKey)) {
@@ -123,7 +120,7 @@ public final class ThingCache {
 			instanceCpkMap.put(thing.instanceId, thing.compositePropertyKey);
 
 			if (!resourceIDCache.containsKey(thing.compositePropertyKey)) {
-				thing.resourceId = resourceIDCache.generateResourceId();
+				thing.resourceId = new IRI(resourceIDCache.generateResourceId());
 				resourceIDCache.put(thing.compositePropertyKey,
 						thing.resourceId);
 			} else {
@@ -136,7 +133,7 @@ public final class ThingCache {
 		instanceCpkMap.clear();
 
 		for (IRI iri : iriCache.values()) {
-			iri.value = instanceResourceMap.get(iri.value);
+			iri.value = instanceResourceMap.get(iri).value;
 		}
 	}
 

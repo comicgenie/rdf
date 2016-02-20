@@ -18,12 +18,12 @@ package org.comicwiki.rdf.annotations;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-import org.comicwiki.rdf.StatementItemType;
+import org.comicwiki.rdf.NodeType;
 
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Predicate {
 
 	String value();
 	
-	StatementItemType type() default StatementItemType.IRI;
+	NodeType type() default NodeType.IRI;
 }

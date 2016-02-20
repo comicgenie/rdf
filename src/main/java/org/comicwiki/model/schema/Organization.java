@@ -16,11 +16,9 @@
 package org.comicwiki.model.schema;
 
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashSet;
 
 import org.comicwiki.IRI;
-import org.comicwiki.rdf.annotations.ObjectDate;
 import org.comicwiki.rdf.annotations.ObjectIRI;
 import org.comicwiki.rdf.annotations.ObjectString;
 import org.comicwiki.rdf.annotations.Predicate;
@@ -37,14 +35,14 @@ public class Organization extends Thing {
 	@JsonSerialize(using=YearSerializer.class)
 	@JsonDeserialize(using=YearDeserializer.class)
 	@Predicate("foundingDate")
-	@ObjectDate
-	public Date foundingDate;
+	@ObjectIRI
+	public IRI foundingDate;
 	
 	@JsonSerialize(using=YearSerializer.class)
 	@JsonDeserialize(using=YearDeserializer.class)
 	@Predicate("dissolutionDate")
-	@ObjectDate
-	public Date dissolutionDate;
+	@ObjectIRI
+	public IRI dissolutionDate;
 	
 	@Predicate("location")//should this be collection???
 	@ObjectIRI

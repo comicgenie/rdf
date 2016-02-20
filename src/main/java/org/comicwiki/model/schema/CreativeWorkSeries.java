@@ -15,9 +15,10 @@
  *******************************************************************************/
 package org.comicwiki.model.schema;
 
-import java.util.Date;
+import java.time.Instant;
 
-import org.comicwiki.rdf.annotations.ObjectDate;
+import org.comicwiki.IRI;
+import org.comicwiki.rdf.annotations.ObjectIRI;
 import org.comicwiki.rdf.annotations.Predicate;
 import org.comicwiki.rdf.annotations.Subject;
 
@@ -25,11 +26,11 @@ import org.comicwiki.rdf.annotations.Subject;
 public class CreativeWorkSeries extends CreativeWork {
 
 	@Predicate("startDate")
-	@ObjectDate
-	public Date startDate;
+	@ObjectIRI
+	public IRI startDate;
 	
 	@Predicate("endDate")
-	@ObjectDate
-	public Date endDate;
+	@ObjectIRI
+	public Instant endDate;
 	
 }

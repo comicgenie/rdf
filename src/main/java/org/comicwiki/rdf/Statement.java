@@ -17,29 +17,15 @@ package org.comicwiki.rdf;
 
 import java.net.URL;
 
-import org.comicwiki.IRI;
-import org.comicwiki.ResourceUtils;
-import org.comicwiki.rdf.annotations.ObjectInteger;
-import org.comicwiki.rdf.annotations.Predicate;
-import org.comicwiki.rdf.annotations.Subject;
+import org.comicwiki.rdf.annotations.ObjectNonNegativeInteger;
+import org.comicwiki.rdf.annotations.ObjectXSD;
 import org.comicwiki.rdf.values.RdfObject;
 import org.comicwiki.rdf.values.RdfPredicate;
 import org.comicwiki.rdf.values.RdfSubject;
 
-public class Statement implements Comparable<Statement> {
+import static org.comicwiki.rdf.RdfFactory.*;
 
-	public static RdfObject createRdfObjectIRI(IRI iri) {
-		return new RdfObject(ResourceUtils.expandIri(iri.toString()),
-				StatementItemType.IRI, null, null);
-	}
-
-	public static RdfPredicate createRdfPredicate(String iri) {
-		return new RdfPredicate(ResourceUtils.expandIri(iri));
-	}
-
-	public static RdfSubject createRdfSubject(String iri) {
-		return new RdfSubject(ResourceUtils.expandIri(iri));
-	}
+public final class Statement {
 
 	private RdfObject object;
 
@@ -50,6 +36,14 @@ public class Statement implements Comparable<Statement> {
 	public Statement() {
 	}
 
+	public Statement(RdfSubject subject, RdfPredicate predicate, Boolean value) {
+		this(subject, predicate, createRdfObject(value));
+	}
+
+	public Statement(RdfSubject subject, RdfPredicate predicate, Number value) {
+		this(subject, predicate, createRdfObject(value));
+	}
+
 	public Statement(RdfSubject subject, RdfPredicate predicate,
 			RdfObject rdfObject) {
 		this.subject = subject;
@@ -57,97 +51,22 @@ public class Statement implements Comparable<Statement> {
 		this.object = rdfObject;
 	}
 
-	private Statement(Subject subject, Predicate predicate) {
-		this.subject = createRdfSubject(subject.value());
-		this.predicate = createRdfPredicate(predicate.value());
+	public Statement(RdfSubject subject, RdfPredicate predicate, String value) {
+		this(subject, predicate, createRdfObject(value));
 	}
 
-	public Statement(Subject subject, Predicate predicate, Boolean value) {
-		this(subject, predicate);
-		this.object = createRdfObjectLiteral(value);
-	}
-
-	public Statement(Subject subject, Predicate predicate, Number value) {
-		this(subject, predicate);
-		this.object = createRdfObjectLiteral(value);
-	}
-
-	public Statement(Subject subject, Predicate predicate, ObjectInteger value) {
-		this(subject, predicate);
-		// this.object = createRdfObjectLiteral(value);
-	}
-
-	public Statement(RdfSubject subject, RdfPredicate predicate, String string) {
-		this.subject = subject;
-		this.predicate = predicate;
-		this.object = createRdfObjectLiteral(string);
-	}
-	
-	public Statement(RdfSubject subject, RdfPredicate predicate, Boolean value) {
-		this.subject = subject;
-		this.predicate = predicate;
-		this.object = createRdfObjectLiteral(value);
-	}
-	
-	public Statement(RdfSubject subject, RdfPredicate predicate, Integer value) {
-		this.subject = subject;
-		this.predicate = predicate;
-		this.object = createRdfObjectLiteral(value);
-	}
-	
 	public Statement(RdfSubject subject, RdfPredicate predicate, URL value) {
-		this.subject = subject;
-		this.predicate = predicate;
-		this.object = createRdfObjectLiteral(value);
+		this(subject, predicate, createRdfObject(value));
 	}
 
-	public Statement(Subject subject, Predicate predicate, String string) {
-		this(subject, predicate);
-		this.object = createRdfObjectLiteral(string);
+	public Statement(RdfSubject subject, RdfPredicate predicate, ObjectXSD xsd,
+			Object value) {
+		this(subject, predicate, createRdfObject(xsd, value));
 	}
 
-	public Statement(Subject subject, Predicate predicate, IRI uri) {
-		this(subject, predicate);
-		this.object = createRdfObjectIRI(uri);
-	}
-
-	public Statement(Subject subject, Predicate predicate, URL value) {
-		this(subject, predicate);
-		this.object = createRdfObjectLiteral(value);
-	}
-
-	@Override
-	public int compareTo(Statement o) {
-		if (o == null || o.getPredicate() == null) {
-			return -1;
-		} else if (o.getPredicate().equals(
-				"http://www.w3.org/2000/01/rdf-schema#label")) {
-			return 1;
-		}
-		return 0;
-	}
-
-	private RdfObject createRdfObjectLiteral(boolean value) {
-		String datatype = "http://www.w3.org/2001/XMLSchema#boolean";
-		return new RdfObject(String.valueOf(value), StatementItemType.literal,
-				datatype, null);
-	}
-
-	private RdfObject createRdfObjectLiteral(Number value) {
-		String datatype = "http://www.w3.org/2001/XMLSchema#integer";
-		return new RdfObject(value.toString(), StatementItemType.literal,
-				datatype, null);
-	}
-
-	private RdfObject createRdfObjectLiteral(String value) {
-		String datatype = "http://www.w3.org/2001/XMLSchema#string";
-		return new RdfObject(value, StatementItemType.literal, datatype, null);
-	}
-
-	private RdfObject createRdfObjectLiteral(URL value) {
-		String datatype = "http://www.w3.org/2001/XMLSchema#anyURI";
-		return new RdfObject(value.toString(), StatementItemType.literal,
-				datatype, null);
+	public Statement(RdfSubject subject, RdfPredicate predicate,
+			ObjectNonNegativeInteger nonNegInt, Integer value) {
+		this(subject, predicate, createRdfObject(nonNegInt, value));
 	}
 
 	@Override
@@ -200,15 +119,10 @@ public class Statement implements Comparable<Statement> {
 		return result;
 	}
 
-	public void setObject(RdfObject object) {
-		this.object = object;
+	@Override
+	public String toString() {
+		return "Statement [object=" + object + ", predicate=" + predicate
+				+ ", subject=" + subject + "]";
 	}
 
-	public void setPredicate(RdfPredicate predicate) {
-		this.predicate = predicate;
-	}
-
-	public void setSubject(RdfSubject subject) {
-		this.subject = subject;
-	}
 }

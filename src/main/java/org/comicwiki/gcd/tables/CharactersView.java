@@ -73,7 +73,7 @@ public class CharactersView extends BaseTable<StoryTable.StoryRow> {
 		StoryRow storyRow = new StoryTable.StoryRow();
 		Fields.Character characterField = parseField(Columns.CHARACTERS, row,
 				new CharacterFieldParser(new CharacterWalker(thingFactory,
-						iriCache, characterCreator, resourceDir)));
+						characterCreator, resourceDir)));
 
 		if (characterField != null) {
 			storyRow.characters = characterField.comicCharacters;

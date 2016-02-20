@@ -106,8 +106,8 @@ public class ETL {
 		for (Repository<?> repo : repositories.getRepositories()) {
 			repo.transform();
 			String repoName = repo.getClass().getSimpleName();
-			repo.load(new File(outputDir, repoName + ".json"), DataFormat.JSON);
-			repo.load(new File(outputDir, repoName + ".ttl"), DataFormat.TURTLE);
+			repo.save(new File(outputDir, repoName + ".json"), DataFormat.JSON);
+			repo.save(new File(outputDir, repoName + ".ttl"), DataFormat.TURTLE);
 		}
 		resourceIDCache.exportResourceIDs(resourceIds);
 	}

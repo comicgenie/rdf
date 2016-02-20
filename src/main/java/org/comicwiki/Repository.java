@@ -31,7 +31,7 @@ import java.util.TreeSet;
 import org.comicwiki.model.CreativeWorkExtension;
 import org.comicwiki.model.schema.Thing;
 import org.comicwiki.rdf.Statement;
-import org.comicwiki.rdf.StatementFactory;
+import org.comicwiki.rdf.ThingToStatementsTransformer;
 import org.comicwiki.rdf.TurtleImporter;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -83,7 +83,7 @@ public class Repository<T extends Thing> {
 	}
 
 	//resourceId->Thing
-	public final HashMap<String, T> cache = new HashMap<>();
+	public final HashMap<IRI, T> cache = new HashMap<>();
 
 	protected ObjectMapper mapper = new ObjectMapper();
 
@@ -94,7 +94,7 @@ public class Repository<T extends Thing> {
 	}
 
 	public final void add(T item) {
-		String key = item.resourceId;		
+		IRI key = item.resourceId;		
 		if (contains(key)) {
 			merge(item, getByKey(key));
 		} else {
@@ -107,11 +107,11 @@ public class Repository<T extends Thing> {
 		transforms.clear();
 	}
 
-	private boolean contains(String key) {
+	private boolean contains(IRI key) {
 		return cache.containsKey(key);
 	}
 
-	private T getByKey(String key) {
+	private T getByKey(IRI key) {
 		return cache.get(key);
 	}
 
@@ -167,7 +167,7 @@ public class Repository<T extends Thing> {
 		} else if (DataFormat.N_TRIPLES.equals(format)) {
 			RDFDataset dataset = new RDFDataset();
 			for (T t : cache.values()) {
-				Collection<Statement> statements = StatementFactory
+				Collection<Statement> statements = ThingToStatementsTransformer
 						.transform(t);
 
 				for (Statement statement : statements) {
@@ -180,7 +180,7 @@ public class Repository<T extends Thing> {
 		} else if (DataFormat.TURTLE.equals(format)) {
 			RDFDataset dataset = new RDFDataset();
 			for (T t : cache.values()) {
-				Collection<Statement> statements = StatementFactory
+				Collection<Statement> statements = ThingToStatementsTransformer
 						.transform(t);
 
 				for (Statement statement : statements) {

@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.comicwiki.rdf.values;
 
-import org.comicwiki.rdf.StatementItemType;
+import org.comicwiki.rdf.NodeType;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -23,7 +23,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 @JsonInclude(Include.NON_EMPTY)
 public class RdfObject {
 	
-	private StatementItemType type = StatementItemType.IRI;
+	private NodeType type = NodeType.IRI;
 	
 	private String language ="en";
 	
@@ -51,7 +51,11 @@ date ->timeValue
 	
 	public RdfObject() { }
 	
-	public RdfObject(String value, StatementItemType type, String datatype, String language) {
+	public RdfObject(String value, NodeType type, String datatype) {
+		this(value, type, datatype, null);
+	}
+	
+	public RdfObject(String value, NodeType type, String datatype, String language) {
 		this.value = value;
 		this.type = type;
 		this.datatype = datatype;
@@ -70,11 +74,11 @@ date ->timeValue
 		return datatype;
 	}
 
-	public StatementItemType getType() {
+	public NodeType getType() {
 		return type;
 	}
 
-	public void setType(StatementItemType type) {
+	public void setType(NodeType type) {
 		this.type = type;
 	}
 
@@ -131,4 +135,12 @@ date ->timeValue
 			return false;
 		return true;
 	}
+
+	@Override
+	public String toString() {
+		return "RdfObject [type=" + type + ", language=" + language
+				+ ", value=" + value + ", datatype=" + datatype + "]";
+	}
+	
+	
 }

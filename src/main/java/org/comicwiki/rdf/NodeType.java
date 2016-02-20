@@ -15,21 +15,6 @@
  *******************************************************************************/
 package org.comicwiki.rdf;
 
-public class DataTypeConstants {
-	
-	private static final String xsd = "http://www.w3.org/2001/XMLSchema#";
-	
-	public static final String STRING = xsd + "string";
-	
-	public static final String INTEGER = xsd + "integer";
-	
-	public static final String BOOLEAN = xsd + "boolean";
-	
-	public static final String URI = xsd + "uri";
-	
-	public static final String DATE = xsd + "date";
-	
-	public static final String LANGUAGE_STRING  = "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString";
-	
-	public static final String RDF_TYPE  = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
+public enum NodeType {
+	IRI, literal
 }

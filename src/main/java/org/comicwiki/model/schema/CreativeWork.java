@@ -16,14 +16,12 @@
 package org.comicwiki.model.schema;
 
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashSet;
 
 import org.comicwiki.IRI;
 import org.comicwiki.rdf.annotations.ObjectBoolean;
-import org.comicwiki.rdf.annotations.ObjectDate;
 import org.comicwiki.rdf.annotations.ObjectIRI;
-import org.comicwiki.rdf.annotations.ObjectInteger;
+import org.comicwiki.rdf.annotations.ObjectNumber;
 import org.comicwiki.rdf.annotations.ObjectString;
 import org.comicwiki.rdf.annotations.Predicate;
 import org.comicwiki.rdf.annotations.SchemaBib;
@@ -41,7 +39,7 @@ public class CreativeWork extends Thing {
 	 * The position of an item in a series or sequence of items.
 	 */
 	@Predicate("position")
-	@ObjectInteger
+	@ObjectNumber
 	public int position;
 
 	@Predicate("headline")
@@ -120,8 +118,8 @@ public class CreativeWork extends Thing {
 	public String inLanguage;
 
 	@Predicate("datePublished")
-	@ObjectDate
-	public Date datePublished;
+	@ObjectIRI
+	public IRI datePublished;
 
 	/**
 	 * The typical expected age range, e.g. '7-9', '11-'.

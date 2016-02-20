@@ -15,43 +15,27 @@
  *******************************************************************************/
 package org.comicwiki.rdf.values;
 
-import org.comicwiki.rdf.StatementItemType;
+import org.comicwiki.IRI;
+import org.comicwiki.rdf.NodeType;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 @JsonInclude(Include.NON_EMPTY)
-public class RdfPredicate {
+public final class RdfPredicate {
 
-	private StatementItemType type = StatementItemType.IRI;
+	private NodeType type = NodeType.IRI;
 	
 	private String value;
 	
 	public RdfPredicate() { }
 	
-	public RdfPredicate(String value) {
-		this.value = value;
-	}
-	
-	public RdfPredicate(String value, StatementItemType type) {
-		this.value = value;
-		this.type = type;
-	}
-
-	public StatementItemType getType() {
-		return type;
-	}
-
-	public void setType(StatementItemType type) {
-		this.type = type;
+	public RdfPredicate(IRI iri) {
+		this.value = iri.value;
 	}
 
 	public String getValue() {
 		return value;
-	}
-
-	public void setValue(String value) {
-		this.value = value;
 	}
 
 	@Override
@@ -78,4 +62,11 @@ public class RdfPredicate {
 			return false;
 		return true;
 	}
+
+	@Override
+	public String toString() {
+		return "RdfPredicate [value=" + value + "]";
+	}
+	
+	
 }

@@ -19,6 +19,8 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.HashSet;
 
+import org.comicwiki.IRI;
+import org.comicwiki.rdf.annotations.ObjectIRI;
 import org.comicwiki.rdf.annotations.ObjectString;
 import org.comicwiki.rdf.annotations.ObjectURL;
 import org.comicwiki.rdf.annotations.Predicate;
@@ -51,9 +53,9 @@ public class Thing {
 	public final Collection<String> alternateNames = new HashSet<>(5);
 	
 	@Predicate( "http://comicwiki.org/resources/resourceId")
-	@ObjectString
+	@ObjectIRI
 	@SchemaComicWiki
-	public String resourceId;
+	public IRI resourceId;
 	
 	@Predicate( "http://comicwiki.org/resources/compositePropertyKey")
 	@ObjectString
@@ -61,7 +63,8 @@ public class Thing {
 	public String compositePropertyKey;
 	
 	@SchemaComicWiki
-	public String instanceId;
+	@ObjectIRI
+	public IRI instanceId;
 
 	@Override
 	public String toString() {

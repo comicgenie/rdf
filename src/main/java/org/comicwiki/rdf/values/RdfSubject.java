@@ -15,7 +15,8 @@
  *******************************************************************************/
 package org.comicwiki.rdf.values;
 
-import org.comicwiki.rdf.StatementItemType;
+import org.comicwiki.IRI;
+import org.comicwiki.rdf.NodeType;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -23,23 +24,14 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 @JsonInclude(Include.NON_EMPTY)
 public final class RdfSubject {
 
-	private StatementItemType type = StatementItemType.IRI;
+	private NodeType type = NodeType.IRI;
 	
 	private String value;
 	
 	public RdfSubject() { }
 	
-	public RdfSubject(String value) {
-		this.value = value;
-	}
-	
-	public RdfSubject(String value, StatementItemType type) {
-		this.value = value;
-		this.type = type;
-	}
-
-	public StatementItemType getType() {
-		return type;
+	public RdfSubject(IRI iri) {
+		this.value = iri.value;
 	}
 
 	public String getValue() {
@@ -69,5 +61,10 @@ public final class RdfSubject {
 		} else if (!value.equals(other.value))
 			return false;
 		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "RdfSubject [value=" + value + "]";
 	}
 }

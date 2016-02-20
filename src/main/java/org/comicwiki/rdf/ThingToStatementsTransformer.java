@@ -15,6 +15,8 @@
  *******************************************************************************/
 package org.comicwiki.rdf;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.net.URL;
@@ -27,9 +29,11 @@ import org.comicwiki.model.schema.Thing;
 import org.comicwiki.rdf.annotations.ObjectBoolean;
 import org.comicwiki.rdf.annotations.ObjectDate;
 import org.comicwiki.rdf.annotations.ObjectIRI;
-import org.comicwiki.rdf.annotations.ObjectInteger;
+import org.comicwiki.rdf.annotations.ObjectNonNegativeInteger;
+import org.comicwiki.rdf.annotations.ObjectNumber;
 import org.comicwiki.rdf.annotations.ObjectString;
 import org.comicwiki.rdf.annotations.ObjectURL;
+import org.comicwiki.rdf.annotations.ObjectXSD;
 import org.comicwiki.rdf.annotations.Predicate;
 import org.comicwiki.rdf.annotations.Subject;
 import org.comicwiki.rdf.values.RdfObject;
@@ -38,10 +42,16 @@ import org.comicwiki.rdf.values.RdfSubject;
 
 import com.google.common.collect.Lists;
 
-public final class StatementFactory {
+import static org.comicwiki.rdf.RdfFactory.*;
 
-	private static Collection<Statement> objects(RdfSubject rdfSubject,
-			Field field, Object instance) throws Exception {
+/**
+ * Transforms a Thing into a collection of Statements.
+ */
+public final class ThingToStatementsTransformer {
+
+	private static Collection<Statement> createStatements(
+			RdfSubject rdfSubject, Field field, Object instance)
+			throws Exception {
 		Collection<Statement> statements = Lists.newArrayList();
 
 		Annotation predicateAnnotation = field.getAnnotation(Predicate.class);
@@ -49,7 +59,7 @@ public final class StatementFactory {
 			return statements;
 		}
 		String predicateIRI = ((Predicate) predicateAnnotation).value();
-		RdfPredicate rdfPredicate = Statement.createRdfPredicate(predicateIRI);
+		RdfPredicate rdfPredicate = createRdfPredicate(new IRI(predicateIRI));
 
 		Object fieldInstance = field.get(instance);
 		if (fieldInstance == null) {
@@ -60,21 +70,19 @@ public final class StatementFactory {
 				if (fieldInstance instanceof Collection) {
 					Collection<IRI> c = (Collection<IRI>) fieldInstance;
 					for (IRI value : c) {
-						RdfObject rdfObject = Statement
-								.createRdfObjectIRI(value);
+						RdfObject rdfObject = createRdfObject(value);
 						statements.add(new Statement(rdfSubject, rdfPredicate,
 								rdfObject));
 					}
 				} else if (fieldInstance instanceof IRI) {
 					IRI value = (IRI) fieldInstance;
-					RdfObject rdfObject = Statement.createRdfObjectIRI(value);
+					RdfObject rdfObject = createRdfObject(value);
 					statements.add(new Statement(rdfSubject, rdfPredicate,
 							rdfObject));
 				} else if (Thing.class.isAssignableFrom(fieldInstance
 						.getClass())) {
-					String value = ((Thing) fieldInstance).resourceId;
-					RdfObject rdfObject = Statement.createRdfObjectIRI(new IRI(
-							value));
+					IRI value = ((Thing) fieldInstance).resourceId;
+					RdfObject rdfObject = createRdfObject(value);
 					statements.add(new Statement(rdfSubject, rdfPredicate,
 							rdfObject));
 				} else {
@@ -110,11 +118,11 @@ public final class StatementFactory {
 					throwMismatchException(field);
 				}
 				// TODO: implement date (formatter)
-			} else if (annotation instanceof ObjectInteger) {
-				if (!(fieldInstance instanceof Integer)) {
+			} else if (annotation instanceof ObjectNumber) {
+				if (!(fieldInstance instanceof Number)) {
 					throwMismatchException(field);
 				}
-				Integer value = (Integer) fieldInstance;
+				Number value = (Number) fieldInstance;
 				statements.add(new Statement(rdfSubject, rdfPredicate, value));
 
 			} else if (annotation instanceof ObjectURL) {
@@ -123,21 +131,27 @@ public final class StatementFactory {
 				}
 				URL value = (URL) fieldInstance;
 				statements.add(new Statement(rdfSubject, rdfPredicate, value));
+			} else if (annotation instanceof ObjectXSD) {
+				statements.add(new Statement(rdfSubject, rdfPredicate,
+						(ObjectXSD) annotation, fieldInstance));
+			} else if (annotation instanceof ObjectNonNegativeInteger) {
+				if (!(fieldInstance instanceof Integer)) {
+					throwMismatchException(field);
+				}
+				statements.add(new Statement(rdfSubject, rdfPredicate,
+						(ObjectNonNegativeInteger) annotation, (Integer) fieldInstance));
 			}
 		}
 		return statements;
 	}
 
-	public static Statement subject(Subject subject, String compositeId) {
-		RdfSubject rdfSubject = Statement.createRdfSubject(compositeId);
-		RdfPredicate rdfPredicate = Statement
-				.createRdfPredicate(DataTypeConstants.RDF_TYPE);
-		RdfObject rdfObject = Statement.createRdfObjectIRI(new IRI(subject
-				.value()));
+	private static Statement subject(Subject subject, IRI resourceId) {
+		RdfSubject rdfSubject = createRdfSubject(resourceId);
+		RdfPredicate rdfPredicate = createRdfPredicate(new IRI(
+				DataType.RDF_TYPE));
+		RdfObject rdfObject = createRdfObject(new IRI(subject.value()));
 
-		Statement statement = new Statement(rdfSubject, rdfPredicate, rdfObject);
-
-		return statement;
+		return new Statement(rdfSubject, rdfPredicate, rdfObject);
 	}
 
 	private static void throwMismatchException(Field field) {
@@ -146,19 +160,23 @@ public final class StatementFactory {
 						+ field.getName());
 	}
 
-	public static Collection<Statement> transform(Object object)
-			throws Exception {
+	public static Collection<Statement> transform(Thing thing) throws Exception {
+		checkNotNull(thing, "thing");
 		Collection<Statement> statements = new ArrayList<>();
-		Class<?> clazz = object.getClass();
+		Class<?> clazz = thing.getClass();
 		Subject subject = clazz.getAnnotation(Subject.class);
-		String id = ((Thing) object).resourceId;
+
+		IRI id = thing.resourceId;
+		if (id == null) {
+			throw new IllegalArgumentException("thing.resourceId is empty");
+		}
 
 		statements.add(subject(subject, id));
 
-		RdfSubject rdfSubject = Statement.createRdfSubject(id);
-		for (Field field : object.getClass().getFields()) {
+		RdfSubject rdfSubject = createRdfSubject(id);
+		for (Field field : thing.getClass().getFields()) {
 			field.setAccessible(true);
-			statements.addAll(objects(rdfSubject, field, object));
+			statements.addAll(createStatements(rdfSubject, field, thing));
 		}
 		return statements;
 

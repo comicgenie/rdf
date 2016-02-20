@@ -35,7 +35,7 @@ public final class ComicCharactersAssigner {
 		comicCharacters.forEach(one -> {
 			comicCharacters.forEach(two -> {
 				if (!two.equals(one)) {
-					one.colleagues.add(IRI.create(two.instanceId, iriCache));
+					one.colleagues.add(two.instanceId);
 				}
 			});
 		});
@@ -51,7 +51,7 @@ public final class ComicCharactersAssigner {
 	 * ComicCharacters -> ComicStory
 	 */
 	public void story(ComicStory story) {
-		comicCharacters.forEach(e -> story.characters.add(IRI.create(e.instanceId, iriCache)));
+		comicCharacters.forEach(e -> story.characters.add(e.instanceId));
 	}
 
 	/**

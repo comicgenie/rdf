@@ -13,18 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package org.comicwiki.model;
+package org.comicwiki.rdf.annotations;
 
-import org.comicwiki.rdf.annotations.SchemaComicWiki;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
-//26 February 1977 [50]
-//'25 februari 2009'
-@SchemaComicWiki
-public class DateIssueNumber extends ComicIssueNumber {
+import org.comicwiki.rdf.DataType;
+import org.comicwiki.rdf.NodeType;
+
+@Retention(RetentionPolicy.RUNTIME)
+public @interface ObjectNonNegativeInteger {
+	String datatype() default DataType.XSD_DECIMAL;
 	
-	public int month;
-	
-	public int day;
-	
-	public int year;
+	NodeType type() default NodeType.literal;
 }

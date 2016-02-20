@@ -22,7 +22,7 @@ import org.comicwiki.IRI;
 import org.comicwiki.model.schema.CreativeWork;
 import org.comicwiki.rdf.annotations.ObjectBoolean;
 import org.comicwiki.rdf.annotations.ObjectIRI;
-import org.comicwiki.rdf.annotations.ObjectInteger;
+import org.comicwiki.rdf.annotations.ObjectNumber;
 import org.comicwiki.rdf.annotations.Predicate;
 import org.comicwiki.rdf.annotations.SchemaBib;
 import org.comicwiki.rdf.annotations.SchemaComicWiki;
@@ -53,12 +53,12 @@ public class ComicStory extends CreativeWork {
 	public Collection<IRI> inkers  = new HashSet<>(3);
 	
 	@Predicate("pageEnd")
-	@ObjectInteger
+	@ObjectNumber
 	@SchemaComicWiki
 	public int pageEnd;
 	
 	@Predicate("pageStart")
-	@ObjectInteger
+	@ObjectNumber
 	@SchemaComicWiki
 	public int pageStart;
 	

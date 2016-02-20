@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.comicwiki.model.schema;
 
-import org.comicwiki.rdf.annotations.ObjectInteger;
+import org.comicwiki.rdf.annotations.ObjectNumber;
 import org.comicwiki.rdf.annotations.ObjectString;
 import org.comicwiki.rdf.annotations.Predicate;
 import org.comicwiki.rdf.annotations.Subject;
@@ -33,11 +33,11 @@ public class PublicationIssue extends CreativeWork {
 	public String issueNumber;
 	
 	@Predicate("pageEnd")
-	@ObjectInteger
+	@ObjectNumber
 	public int pageEnd;
 	
 	@Predicate("pageStart")
-	@ObjectInteger
+	@ObjectNumber
 	public int pageStart;
 	
 	@Predicate("pagination")

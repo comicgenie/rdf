@@ -8,8 +8,8 @@ public class ResourceIDCacheTest {
 	@Test
 	public void setIndex() throws Exception {
 		ResourceIDCache cache = new ResourceIDCache();
-		cache.put("#abcs", "@I5");
-		cache.put("#abct", "@I10");
+		cache.put("#abcs", new IRI("@I5"));
+		cache.put("#abct", new IRI("@I10"));
 	
 		assertEquals(10, cache.setIndex());
 		assertEquals("@I11", cache.generateResourceId());
@@ -18,10 +18,10 @@ public class ResourceIDCacheTest {
 	@Test
 	public void get() throws Exception {
 		ResourceIDCache cache = new ResourceIDCache();
-		cache.put("#abcs", "@I5");
-		cache.put("#abct", "@I10");
+		cache.put("#abcs", new IRI("@I5"));
+		cache.put("#abct", new IRI("@I10"));
 	
-		assertEquals("@I5", cache.get("#abcs"));
+		assertEquals(new IRI("@I5"), cache.get("#abcs"));
 	}
 	
 	

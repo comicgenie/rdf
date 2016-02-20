@@ -18,13 +18,10 @@ package org.comicwiki.rdf.annotations;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-import org.comicwiki.rdf.DataTypeConstants;
-import org.comicwiki.rdf.StatementItemType;
+import org.comicwiki.rdf.NodeType;
 
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ObjectString {
 	
-	String datatype() default DataTypeConstants.STRING;
-	
-	StatementItemType type() default StatementItemType.literal;
+	NodeType type() default NodeType.literal;
 }

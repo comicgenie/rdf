@@ -5,8 +5,6 @@ import java.io.IOException;
 import java.util.HashMap;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.Strings;
-import com.google.common.collect.HashBiMap;
 import com.google.inject.Inject;
 
 public class ResourceIDCache {
@@ -18,7 +16,7 @@ public class ResourceIDCache {
 		return Long.parseLong(resourceId.substring(2, resourceId.length()));
 	}
 
-	private final HashMap<String, String> cpkResourceMap = new HashMap<>();
+	private final HashMap<String, IRI> cpkResourceMap = new HashMap<>();
 
 	private KeyIDGenerator resourceIDGen = new KeyIDGenerator(0);
 
@@ -40,7 +38,7 @@ public class ResourceIDCache {
 		return "@" + resourceIDGen.createID();
 	}
 
-	public String get(String key) {
+	public IRI get(String key) {
 		return cpkResourceMap.get(key);
 	}
 
@@ -49,17 +47,17 @@ public class ResourceIDCache {
 		setIndex();
 	}
 
-	public void put(String key, String value) {
+	public void put(String key, IRI value) {
 		cpkResourceMap.put(key, value);
 	}
 
 	protected long setIndex() {
 		long max = 0, current = 0;
-		for (String resourceId : cpkResourceMap.values()) {
-			if (Strings.isNullOrEmpty(resourceId)) {
+		for (IRI resourceId : cpkResourceMap.values()) {
+			if (resourceId == null) {
 				throw new IllegalArgumentException("empty resourceId");
 			}
-			current = getNumber(resourceId);
+			current = getNumber(resourceId.value);
 			if (current > max) {
 				max = current;
 			}

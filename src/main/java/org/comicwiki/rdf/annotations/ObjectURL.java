@@ -15,12 +15,9 @@
  *******************************************************************************/
 package org.comicwiki.rdf.annotations;
 
-import org.comicwiki.rdf.DataTypeConstants;
-import org.comicwiki.rdf.StatementItemType;
+import org.comicwiki.rdf.NodeType;
 
 public  @interface ObjectURL {
-
-	String datatype() default DataTypeConstants.URI;
 	
-	StatementItemType type() default StatementItemType.literal;
+	NodeType type() default NodeType.literal;
 }

@@ -1,11 +1,24 @@
 package org.comicwiki;
 
+import com.google.common.base.Strings;
+
 public class IRI {
 
 	public String value;
-	
-	public static IRI create(String value, IRICache cache) {		
-		if(!cache.contains(value)) {
+
+	public static IRI create(String value, IRICache cache) {
+		if (Strings.isNullOrEmpty(value)) {
+			throw new IllegalArgumentException("value null");
+		}
+		if (value.startsWith("@")) {
+			throw new IllegalArgumentException(
+					"Can't create IRIs with public resourceIds: " + value);
+		}
+		if(value.contains(" ")) {
+			throw new IllegalArgumentException(
+					"value can't contain spaces " + value);
+		}
+		if (!cache.contains(value)) {
 			IRI iri = new IRI(value);
 			cache.add(iri);
 			return iri;
@@ -13,9 +26,10 @@ public class IRI {
 			return cache.get(value);
 		}
 	}
-	
-	public IRI() { }
-	
+
+	public IRI() {
+	}
+
 	public IRI(String value) {
 		this.value = value;
 	}

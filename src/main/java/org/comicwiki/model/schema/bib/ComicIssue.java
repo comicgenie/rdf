@@ -62,4 +62,9 @@ public class ComicIssue extends PublicationIssue {
 	@SchemaComicWiki
 	public Collection<IRI> brands  = new HashSet<>(1);//Brand
 	
+	@Predicate("issueNumber")
+	@ObjectIRI
+	@SchemaComicWiki
+	public IRI issueNumber;
+	
 }
