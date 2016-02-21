@@ -5,7 +5,7 @@ import org.comicwiki.rdf.annotations.SchemaComicWiki;
 import org.comicwiki.rdf.annotations.Subject;
 
 @SchemaComicWiki
-@Subject(value = "TemporalEntity", key = "name")
+@Subject(value = "TemporalEntity", key = "name", isBlankNode = true)
 public class TemporalEntity extends Intangible {
-	
+
 }

@@ -33,7 +33,8 @@ public final class ThingCache {
 
 	private IRI assignInstanceId(Thing thing) {
 		if (thing.instanceId == null) {
-			thing.instanceId = IRI.create("-" + instanceIDGen.createInstanceId(), iriCache);
+			thing.instanceId = IRI.create(
+					"-" + instanceIDGen.createInstanceId(), iriCache);
 		}
 		return thing.instanceId;
 	}
@@ -87,8 +88,7 @@ public final class ThingCache {
 		return null;
 	}
 
-	protected final HashMap<IRI, Thing> instanceCache = new HashMap<>(
-			1000000);
+	protected final HashMap<IRI, Thing> instanceCache = new HashMap<>(1000000);
 
 	private final Repositories repositories;
 
@@ -114,13 +114,20 @@ public final class ThingCache {
 		HashMap<IRI, IRI> instanceResourceMap = new HashMap<>(1000000);
 		for (Thing thing : instanceCache.values()) {
 			thing.compositePropertyKey = readCompositePropertyKey(thing);
-			if(Strings.isNullOrEmpty(thing.compositePropertyKey)) {
-				throw new IllegalArgumentException("thing.compositePropertyKey is empty");
+			if (Strings.isNullOrEmpty(thing.compositePropertyKey)) {
+				throw new IllegalArgumentException(
+						"thing.compositePropertyKey is empty");
 			}
 			instanceCpkMap.put(thing.instanceId, thing.compositePropertyKey);
 
 			if (!resourceIDCache.containsKey(thing.compositePropertyKey)) {
-				thing.resourceId = new IRI(resourceIDCache.generateResourceId());
+				Subject subjectAnnotation = (Subject) thing.getClass()
+						.getAnnotation(Subject.class);
+
+				thing.resourceId = new IRI(
+						subjectAnnotation.isBlankNode() ? resourceIDCache
+								.generateAnonymousId() : resourceIDCache
+								.generateResourceId());
 				resourceIDCache.put(thing.compositePropertyKey,
 						thing.resourceId);
 			} else {

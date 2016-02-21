@@ -10,7 +10,7 @@ import org.comicwiki.rdf.annotations.SchemaComicWiki;
 import org.comicwiki.rdf.annotations.Subject;
 
 @SchemaComicWiki
-@Subject(value = "Interval", key = "name")
+@Subject(value = "Interval", key = "name", isBlankNode = true)
 public class Interval extends TemporalEntity {
 
 	@Predicate("intervalBegin")

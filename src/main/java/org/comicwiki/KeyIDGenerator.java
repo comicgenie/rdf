@@ -14,7 +14,7 @@ public final class KeyIDGenerator {
 		return count.incrementAndGet();
 	}
 	
-	public String createID() {
-		return "I" + count.incrementAndGet();
+	public long createID() {
+		return count.incrementAndGet();
 	}
 }

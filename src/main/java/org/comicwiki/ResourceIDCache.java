@@ -5,16 +5,46 @@ import java.io.IOException;
 import java.util.HashMap;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Strings;
 import com.google.inject.Inject;
 
 public class ResourceIDCache {
 
-	protected static long getNumber(String resourceId) {
-		if(!resourceId.startsWith("@I")) {
-			throw new IllegalArgumentException("resourceId does not start with a '@I'");
+	public static class MaxPair {
+		long a;
+
+		long n;
+
+		public MaxPair() {
 		}
-		return Long.parseLong(resourceId.substring(2, resourceId.length()));
+
+		public MaxPair(long n, long a) {
+			this.n = n;
+			this.a = a;
+		}
 	}
+
+	protected static MaxPair getNumber(String resourceId) {
+		boolean isIndividual = resourceId.startsWith("@N");
+		boolean isAnonymous = resourceId.startsWith("@A");
+		if (!isIndividual && !isAnonymous) {
+			throw new IllegalArgumentException(
+					"resourceId does not start with a '@N' or '@A'");
+		}
+
+		MaxPair maxPair = new MaxPair();
+		long current = Long.parseLong(resourceId.substring(2,
+				resourceId.length()));
+		if (isIndividual) {
+			maxPair.n = current;
+		} else {
+			maxPair.a = current;
+		}
+		return maxPair;
+
+	}
+
+	private KeyIDGenerator anonymousIDGen = new KeyIDGenerator(0);
 
 	private final HashMap<String, IRI> cpkResourceMap = new HashMap<>();
 
@@ -34,8 +64,12 @@ public class ResourceIDCache {
 		// CPK_RESOURCE_MAP
 	}
 
+	public String generateAnonymousId() {
+		return "@A" + anonymousIDGen.createID();
+	}
+
 	public String generateResourceId() {
-		return "@" + resourceIDGen.createID();
+		return "@N" + resourceIDGen.createID();
 	}
 
 	public IRI get(String key) {
@@ -51,19 +85,24 @@ public class ResourceIDCache {
 		cpkResourceMap.put(key, value);
 	}
 
-	protected long setIndex() {
-		long max = 0, current = 0;
+	protected MaxPair setIndex() {
+		long maxN = 0, maxA = 0;
 		for (IRI resourceId : cpkResourceMap.values()) {
-			if (resourceId == null) {
+			if (resourceId == null || Strings.isNullOrEmpty(resourceId.value)) {
 				throw new IllegalArgumentException("empty resourceId");
 			}
-			current = getNumber(resourceId.value);
-			if (current > max) {
-				max = current;
+			MaxPair pair = getNumber(resourceId.value);
+			if (pair.a > maxA) {
+				maxA = pair.a;
 			}
 
+			if (pair.n > maxN) {
+				maxN = pair.n;
+			}
 		}
-		resourceIDGen = new KeyIDGenerator(max);
-		return max;
+		resourceIDGen = new KeyIDGenerator(maxN);
+		anonymousIDGen = new KeyIDGenerator(maxA);
+
+		return new MaxPair(maxN, maxA);
 	}
 }

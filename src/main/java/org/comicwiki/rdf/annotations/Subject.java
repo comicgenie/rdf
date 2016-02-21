@@ -26,4 +26,6 @@ public @interface Subject {
 	
 	String key() default "";
 	
+	boolean isBlankNode() default false;
+	
 }

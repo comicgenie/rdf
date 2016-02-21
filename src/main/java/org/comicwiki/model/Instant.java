@@ -4,7 +4,6 @@ import java.util.Date;
 
 import static org.comicwiki.rdf.DataType.*;
 
-import org.comicwiki.rdf.DataType;
 import org.comicwiki.rdf.annotations.ObjectDate;
 import org.comicwiki.rdf.annotations.ObjectNonNegativeInteger;
 import org.comicwiki.rdf.annotations.ObjectNumber;
@@ -14,7 +13,7 @@ import org.comicwiki.rdf.annotations.SchemaComicWiki;
 import org.comicwiki.rdf.annotations.Subject;
 
 @SchemaComicWiki
-@Subject(value = "Instant", key = "name")
+@Subject(value = "Instant", key = "name", isBlankNode = true)
 public class Instant extends TemporalEntity {
 
 		@Predicate("year")

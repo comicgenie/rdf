@@ -8,20 +8,20 @@ public class ResourceIDCacheTest {
 	@Test
 	public void setIndex() throws Exception {
 		ResourceIDCache cache = new ResourceIDCache();
-		cache.put("#abcs", new IRI("@I5"));
-		cache.put("#abct", new IRI("@I10"));
+		cache.put("#abcs", new IRI("@N5"));
+		cache.put("#abct", new IRI("@N10"));
 	
-		assertEquals(10, cache.setIndex());
-		assertEquals("@I11", cache.generateResourceId());
+		assertEquals(10, cache.setIndex().n);
+		assertEquals("@N11", cache.generateResourceId());
 	}
 	
 	@Test
 	public void get() throws Exception {
 		ResourceIDCache cache = new ResourceIDCache();
-		cache.put("#abcs", new IRI("@I5"));
-		cache.put("#abct", new IRI("@I10"));
+		cache.put("#abcs", new IRI("@N5"));
+		cache.put("#abct", new IRI("@N10"));
 	
-		assertEquals(new IRI("@I5"), cache.get("#abcs"));
+		assertEquals(new IRI("@N5"), cache.get("#abcs"));
 	}
 	
 	
@@ -34,12 +34,12 @@ public class ResourceIDCacheTest {
 	
 	@Test(expected = IllegalArgumentException.class)
 	public void getNumberWithNoAtSign() throws Exception {
-		ResourceIDCache.getNumber("I1234");
+		ResourceIDCache.getNumber("N1234");
 	}
 	
 	@Test
 	public void getNumber() throws Exception {
-		long number = ResourceIDCache.getNumber("@I1234");
+		long number = ResourceIDCache.getNumber("@N1234").n;
 		assertEquals(1234L, number);
 	}
 	
