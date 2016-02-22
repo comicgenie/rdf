@@ -1,8 +1,10 @@
 package org.comicwiki.model;
 
-import java.util.Date;
+import static org.comicwiki.rdf.DataType.XSD_GDAY;
+import static org.comicwiki.rdf.DataType.XSD_GMONTH;
+import static org.comicwiki.rdf.DataType.XSD_GYEAR;
 
-import static org.comicwiki.rdf.DataType.*;
+import java.util.Date;
 
 import org.comicwiki.rdf.annotations.ObjectDate;
 import org.comicwiki.rdf.annotations.ObjectNonNegativeInteger;

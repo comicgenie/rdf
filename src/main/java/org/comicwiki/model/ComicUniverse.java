@@ -16,6 +16,7 @@
 package org.comicwiki.model;
 
 import org.comicwiki.model.schema.Thing;
+import org.comicwiki.rdf.annotations.ParentClass;
 import org.comicwiki.rdf.annotations.SchemaComicWiki;
 import org.comicwiki.rdf.annotations.Subject;
 
@@ -29,6 +30,6 @@ public class ComicUniverse extends Thing {
 		this.name = name;
 	}
 	
-	//TODO: Need a special ser/der for this
-	public CreativeWorkExtension creativeWork = new CreativeWorkExtension();
+	@ParentClass
+	public ComicCreativeWork creativeWork = new ComicCreativeWork();
 }

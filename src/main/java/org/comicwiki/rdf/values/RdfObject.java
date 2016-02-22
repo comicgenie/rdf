@@ -28,25 +28,7 @@ public class RdfObject {
 	private String language ="en";
 	
 	private String value;//literal or IRI
-	
-	//literal datatype: string, int
-	/**
-	 * rdf:type owl:DatatypeProperty -> literal
-rdf:type owl:ObjectProperty -> URI (property)
 
-float -> QuntityValue
-integer -> QuntityValue
-boolean -> QuntityValue
-duration  -> QuntityValue
-
-anyURI -> URL
-string  -> string
-
-dateTime -> timeValue
-date ->timeValue
-
-	 */
-	//"http://www.w3.org/1999/02/22-rdf-syntax-ns#langString - literal only
 	private String datatype;
 	
 	public RdfObject() { }

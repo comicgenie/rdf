@@ -24,17 +24,21 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 
+import org.comicwiki.FieldWrapper;
 import org.comicwiki.IRI;
 import org.comicwiki.model.schema.Thing;
 import org.comicwiki.rdf.annotations.ObjectBoolean;
 import org.comicwiki.rdf.annotations.ObjectDate;
+import org.comicwiki.rdf.annotations.ObjectEnum;
 import org.comicwiki.rdf.annotations.ObjectIRI;
 import org.comicwiki.rdf.annotations.ObjectNonNegativeInteger;
 import org.comicwiki.rdf.annotations.ObjectNumber;
 import org.comicwiki.rdf.annotations.ObjectString;
 import org.comicwiki.rdf.annotations.ObjectURL;
 import org.comicwiki.rdf.annotations.ObjectXSD;
+import org.comicwiki.rdf.annotations.ParentClass;
 import org.comicwiki.rdf.annotations.Predicate;
+import org.comicwiki.rdf.annotations.SchemaComicWiki;
 import org.comicwiki.rdf.annotations.Subject;
 import org.comicwiki.rdf.values.RdfObject;
 import org.comicwiki.rdf.values.RdfPredicate;
@@ -49,8 +53,20 @@ import static org.comicwiki.rdf.RdfFactory.*;
  */
 public final class ThingToStatementsTransformer {
 
-	private static Collection<Statement> createStatements(
-			RdfSubject rdfSubject, Field field, Object instance)
+	private static boolean isComicWikiUrl(FieldWrapper field) {
+		return field.getAnnotation(SchemaComicWiki.class) != null;
+	}
+
+	private static String getIRI(FieldWrapper field, String iri) {
+		if (iri.startsWith("http")) {
+			return iri;
+		}
+		return isComicWikiUrl(field) ? RdfFactory.BASE_URI + iri
+				: RdfFactory.SCHEMA_ORG + iri;
+	}
+
+	protected static Collection<Statement> createStatements(
+			RdfSubject rdfSubject, FieldWrapper field, Thing thing)
 			throws Exception {
 		Collection<Statement> statements = Lists.newArrayList();
 
@@ -59,18 +75,23 @@ public final class ThingToStatementsTransformer {
 			return statements;
 		}
 		String predicateIRI = ((Predicate) predicateAnnotation).value();
-		RdfPredicate rdfPredicate = createRdfPredicate(new IRI(predicateIRI));
 
-		Object fieldInstance = field.get(instance);
-		if (fieldInstance == null) {
+		RdfPredicate rdfPredicate = createRdfPredicate(new IRI(getIRI(field,
+				predicateIRI)));
+
+		Object fieldInstance = field.get(thing);
+		if (fieldInstance == null
+				|| ((fieldInstance instanceof Collection) && ((Collection) fieldInstance)
+						.isEmpty())) {
 			return statements;
 		}
+
 		for (Annotation annotation : field.getAnnotations()) {
 			if (annotation instanceof ObjectIRI) {
 				if (fieldInstance instanceof Collection) {
 					Collection<IRI> c = (Collection<IRI>) fieldInstance;
-					for (IRI value : c) {
-						RdfObject rdfObject = createRdfObject(value);
+					for (IRI i : c) {
+						RdfObject rdfObject = createRdfObject(i);
 						statements.add(new Statement(rdfSubject, rdfPredicate,
 								rdfObject));
 					}
@@ -79,17 +100,11 @@ public final class ThingToStatementsTransformer {
 					RdfObject rdfObject = createRdfObject(value);
 					statements.add(new Statement(rdfSubject, rdfPredicate,
 							rdfObject));
-				} else if (Thing.class.isAssignableFrom(fieldInstance
-						.getClass())) {
-					IRI value = ((Thing) fieldInstance).resourceId;
-					RdfObject rdfObject = createRdfObject(value);
-					statements.add(new Statement(rdfSubject, rdfPredicate,
-							rdfObject));
 				} else {
 					throwMismatchException(field);
 				}
 			} else if (annotation instanceof ObjectString) {
-				if (fieldInstance instanceof Collection) {
+				if (fieldInstance instanceof Collection) {//Collection of Enums???
 					Collection<String> c = (Collection<String>) fieldInstance;
 					for (String value : c) {
 						statements.add(new Statement(rdfSubject, rdfPredicate,
@@ -99,6 +114,16 @@ public final class ThingToStatementsTransformer {
 					String value = (String) fieldInstance;
 					statements.add(new Statement(rdfSubject, rdfPredicate,
 							value));
+				} else {
+					throwMismatchException(field);
+				}
+			} else if (annotation instanceof ObjectEnum) {
+				if (fieldInstance instanceof Collection) {
+					Collection<Enum> c = (Collection<Enum>) fieldInstance;
+					for (Enum value : c) {
+						statements.add(new Statement(rdfSubject, rdfPredicate,
+								value.name()));
+					}
 				} else if (fieldInstance instanceof Enum) {
 					String value = ((Enum<?>) fieldInstance).name();
 					statements.add(new Statement(rdfSubject, rdfPredicate,
@@ -139,8 +164,9 @@ public final class ThingToStatementsTransformer {
 					throwMismatchException(field);
 				}
 				statements.add(new Statement(rdfSubject, rdfPredicate,
-						(ObjectNonNegativeInteger) annotation, (Integer) fieldInstance));
-			}
+						(ObjectNonNegativeInteger) annotation,
+						(Integer) fieldInstance));
+			} 
 		}
 		return statements;
 	}
@@ -154,10 +180,21 @@ public final class ThingToStatementsTransformer {
 		return new Statement(rdfSubject, rdfPredicate, rdfObject);
 	}
 
-	private static void throwMismatchException(Field field) {
+	private static void throwMismatchException(FieldWrapper field) {
 		throw new IllegalArgumentException(
 				"Annotated type does not match Java field type: "
 						+ field.getName());
+	}
+
+	private static Collection<Statement> transform(RdfSubject rdfSubject,
+			Thing thing) throws Exception {
+		Collection<Statement> statements = new ArrayList<>();
+		for (Field field : thing.getClass().getFields()) {
+			field.setAccessible(true);
+			statements.addAll(createStatements(rdfSubject, new FieldWrapper(
+					field), thing));
+		}
+		return statements;
 	}
 
 	public static Collection<Statement> transform(Thing thing) throws Exception {
@@ -165,6 +202,10 @@ public final class ThingToStatementsTransformer {
 		Collection<Statement> statements = new ArrayList<>();
 		Class<?> clazz = thing.getClass();
 		Subject subject = clazz.getAnnotation(Subject.class);
+
+		if (subject == null) {
+			throw new IllegalArgumentException("No subject annotation on Thing");
+		}
 
 		IRI id = thing.resourceId;
 		if (id == null) {
@@ -176,7 +217,16 @@ public final class ThingToStatementsTransformer {
 		RdfSubject rdfSubject = createRdfSubject(id);
 		for (Field field : thing.getClass().getFields()) {
 			field.setAccessible(true);
-			statements.addAll(createStatements(rdfSubject, field, thing));
+			if (field.getAnnotation(ParentClass.class) == null) {
+				statements.addAll(createStatements(rdfSubject,
+						new FieldWrapper(field), thing));
+			} else {
+				Object fieldInstance = field.get(thing);
+				if (fieldInstance != null) {
+					statements.addAll(transform(rdfSubject, (Thing) fieldInstance));
+				}
+				
+			}
 		}
 		return statements;
 

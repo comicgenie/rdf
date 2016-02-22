@@ -22,6 +22,7 @@ import org.comicwiki.IRI;
 import org.comicwiki.model.schema.Organization;
 import org.comicwiki.rdf.annotations.ObjectIRI;
 import org.comicwiki.rdf.annotations.ObjectString;
+import org.comicwiki.rdf.annotations.ParentClass;
 import org.comicwiki.rdf.annotations.Predicate;
 import org.comicwiki.rdf.annotations.SchemaComicWiki;
 import org.comicwiki.rdf.annotations.Subject;
@@ -45,7 +46,7 @@ public class ComicOrganization extends Organization /*[CreativeWork]*/{
 	@ObjectIRI
 	public Collection<IRI> universes = new HashSet<>(1);
 	
-	//TODO: Need a special ser/der for this
-	public CreativeWorkExtension creativeWork = new CreativeWorkExtension();
+	@ParentClass
+	public ComicCreativeWork creativeWork = new ComicCreativeWork();
 
 }

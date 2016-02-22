@@ -15,21 +15,49 @@
  *******************************************************************************/
 package org.comicwiki.rdf;
 
-import static org.comicwiki.rdf.RdfFactory.createRdfPredicate;
-import static org.comicwiki.rdf.RdfFactory.createRdfSubject;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.comicwiki.rdf.RdfFactory.BASE_URI;
+import static org.junit.Assert.*;
+
+import java.util.Collection;
+import java.util.HashSet;
 
 import org.comicwiki.IRI;
-import org.comicwiki.rdf.annotations.ObjectIRI;
-import org.comicwiki.rdf.annotations.Predicate;
-import org.comicwiki.rdf.annotations.Subject;
+import org.comicwiki.rdf.annotations.ObjectNonNegativeInteger;
+import org.comicwiki.rdf.values.RdfPredicate;
+import org.comicwiki.rdf.values.RdfSubject;
 import org.junit.Test;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class StatementTest {
 
 
+	@Test
+	public void isNotEqual() throws Exception {
+		RdfSubject subject = new RdfSubject(new IRI(BASE_URI + "N123"));
+		Statement s1 = new Statement(subject, new RdfPredicate(new IRI(
+				BASE_URI + "count")), 100);
+		Statement s2 = new Statement(subject, new RdfPredicate(new IRI(
+				BASE_URI + "count")), 100L);
+		assertTrue(!s1.equals(s2));
+	}
+	
+	@Test
+	public void isNotEqual2() throws Exception {
+		RdfSubject subject = new RdfSubject(new IRI(BASE_URI + "N123"));
+		Statement s1 = new Statement(subject, new RdfPredicate(new IRI(
+				BASE_URI + "count")), 100);
+		ObjectNonNegativeInteger a = mock(ObjectNonNegativeInteger.class);
+		Statement s2 = new Statement(subject, new RdfPredicate(new IRI(
+				BASE_URI + "count")), a, 100);
+		assertTrue(!s1.equals(s2));
+		
+		Collection<Statement> statements = new HashSet<>();
+		statements.add(s1);
+		assertTrue(!statements.contains(s2));
+	}
+	
 	/*
 	@Test
 	public void predicate() throws Exception {

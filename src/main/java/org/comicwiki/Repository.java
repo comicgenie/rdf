@@ -28,7 +28,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.TreeSet;
 
-import org.comicwiki.model.CreativeWorkExtension;
+import org.comicwiki.model.ComicCreativeWork;
 import org.comicwiki.model.schema.Thing;
 import org.comicwiki.rdf.Statement;
 import org.comicwiki.rdf.ThingToStatementsTransformer;
@@ -71,8 +71,7 @@ public class Repository<T extends Thing> {
 					Collection cT = (Collection<?>) targetValue;
 					Collection sT = (Collection<?>) sourceValue;
 					cT.addAll(sT);
-				} else if (targetValue instanceof Thing
-						|| targetValue instanceof CreativeWorkExtension) {
+				} else if (targetValue instanceof Thing) {
 					mergeObjects(sourceValue, targetValue);
 				}
 			} catch (Exception e) {

@@ -58,4 +58,9 @@ public class IRI {
 			return false;
 		return true;
 	}
+
+	@Override
+	public String toString() {
+		return "IRI [value=" + value + "]";
+	}
 }

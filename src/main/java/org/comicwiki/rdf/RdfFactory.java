@@ -7,12 +7,9 @@ import static org.comicwiki.rdf.DataType.XSD_DOUBLE;
 import static org.comicwiki.rdf.DataType.XSD_FLOAT;
 import static org.comicwiki.rdf.DataType.XSD_INTEGER;
 import static org.comicwiki.rdf.DataType.XSD_LONG;
+import static org.comicwiki.rdf.DataType.XSD_NONNEGATIVEINTEGER;
 import static org.comicwiki.rdf.DataType.XSD_SHORT;
 import static org.comicwiki.rdf.DataType.XSD_STRING;
-import static org.comicwiki.rdf.DataType.XSD_DATE;
-import static org.comicwiki.rdf.DataType.XSD_DATETIME;
-import static org.comicwiki.rdf.DataType.XSD_DURATION;
-import static org.comicwiki.rdf.DataType.XSD_NONNEGATIVEINTEGER;
 import static org.comicwiki.rdf.NodeType.IRI;
 import static org.comicwiki.rdf.NodeType.literal;
 
@@ -20,7 +17,6 @@ import java.net.URI;
 import java.net.URL;
 
 import org.comicwiki.IRI;
-import org.comicwiki.model.TemporalEntity;
 import org.comicwiki.rdf.annotations.ObjectNonNegativeInteger;
 import org.comicwiki.rdf.annotations.ObjectXSD;
 import org.comicwiki.rdf.values.RdfObject;
@@ -30,6 +26,8 @@ import org.comicwiki.rdf.values.RdfSubject;
 public final class RdfFactory {
 
 	public final static String BASE_URI = "http://comicwiki.org/resources/";
+	
+	public final static String SCHEMA_ORG = "http://schema.org/";
 
 	public static RdfObject createRdfObject(IRI iri) {
 		return new RdfObject(expandIri(iri).value, IRI, null);
@@ -76,8 +74,6 @@ public final class RdfFactory {
 		return new RdfSubject(expandIri(iri));
 	}
 
-	// java.util.Date date = Date.from( ZonedDateTime.parse(
-	// "2014-12-12T10:39:40Z" ).toInstant());
 	private static String getNumberType(Number value) {
 		if (value instanceof Integer) {
 			return XSD_INTEGER;
@@ -102,10 +98,13 @@ public final class RdfFactory {
 		if (iri.value.startsWith("@")) {
 			iri.value = iri.value.replaceFirst("^@", BASE_URI);
 			return iri;
-		}
-		throw new IllegalArgumentException(
-				"Illegal IRI. Must be an absolute URL or a @resourceId: "
-						+ iri.value);
+		} 
+		
+		iri.value = BASE_URI + iri.value;
+		return iri;
+		//throw new IllegalArgumentException(
+		//		"Illegal IRI. Must be an absolute URL or a @resourceId: "
+		//				+ iri.value);
 
 	}
 

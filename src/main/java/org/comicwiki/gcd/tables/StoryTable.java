@@ -357,7 +357,7 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 
 		ComicCreatorAssigner creatorAssigner = new ComicCreatorAssigner(
 				row.colors, row.inks, row.letters, row.pencils, row.script,
-				row.editing, iriCache);
+				row.editing);
 		creatorAssigner.colleagues();
 		creatorAssigner.jobTitles();
 		creatorAssigner.characters(row.characters);

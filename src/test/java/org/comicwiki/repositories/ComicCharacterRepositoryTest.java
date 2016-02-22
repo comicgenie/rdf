@@ -13,7 +13,7 @@ import org.comicwiki.IRICache;
 import org.comicwiki.PersonNameMatcher;
 import org.comicwiki.Repositories;
 import org.comicwiki.model.ComicCharacter;
-import org.comicwiki.model.CreativeWorkExtension;
+import org.comicwiki.model.ComicCreativeWork;
 import org.comicwiki.transforms.ComicCharacterTransform;
 import org.junit.After;
 import org.junit.BeforeClass;
@@ -52,21 +52,21 @@ public class ComicCharacterRepositoryTest {
 	public void testMergeCreativeField() throws Exception {
 
 		ComicCharacter c1 = new ComicCharacter();
-		c1.creativeWork = new CreativeWorkExtension();
-		c1.creativeWork.publisher = IRI.create("pub1", new IRICache());
+		c1.creativeWork = new ComicCreativeWork();
+		c1.creativeWork.publishers.add(IRI.create("pub1", new IRICache()));
 		ComicCharacter c2 = new ComicCharacter();
 
 		Repositories repositories = new Repositories();
 		repositories.COMIC_CHARACTERS.merge(c1, c2);
 		assertEquals(IRI.create("pub1", new IRICache()),
-				c2.creativeWork.publisher);
+				c2.creativeWork.publishers.iterator().next());
 	}
 
 	@Test
 	public void testMergeCreativeFieldWithCollection() throws Exception {
 
 		ComicCharacter c1 = new ComicCharacter();
-		c1.creativeWork = new CreativeWorkExtension();
+		c1.creativeWork = new ComicCreativeWork();
 		c1.creativeWork.artists.add(IRI.create("ART1", new IRICache()));
 
 		ComicCharacter c2 = new ComicCharacter();
@@ -83,15 +83,14 @@ public class ComicCharacterRepositoryTest {
 	public void testNoMergeCreativeField() throws Exception {
 
 		ComicCharacter c1 = new ComicCharacter();
-		c1.creativeWork = new CreativeWorkExtension();
-		c1.creativeWork.publisher = IRI.create("pub1", new IRICache());
+		c1.creativeWork = new ComicCreativeWork();
+		c1.creativeWork.publishers.add(IRI.create("pub1", new IRICache()));
 		ComicCharacter c2 = new ComicCharacter();
-		c2.creativeWork.publisher = IRI.create("pub2", new IRICache());
+		c2.creativeWork.publishers.add(IRI.create("pub2", new IRICache()));
 
 		Repositories repositories = new Repositories();
 		repositories.COMIC_CHARACTERS.merge(c1, c2);
-		assertEquals(IRI.create("pub2", new IRICache()),
-				c2.creativeWork.publisher);
+		c2.creativeWork.publishers.contains(IRI.create("pub2", new IRICache()));
 		System.out.println(JsonUtils.toPrettyString(c2));
 	}
 

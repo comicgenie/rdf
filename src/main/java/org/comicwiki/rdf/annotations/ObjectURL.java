@@ -15,8 +15,12 @@
  *******************************************************************************/
 package org.comicwiki.rdf.annotations;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 import org.comicwiki.rdf.NodeType;
 
+@Retention(RetentionPolicy.RUNTIME)
 public  @interface ObjectURL {
 	
 	NodeType type() default NodeType.literal;

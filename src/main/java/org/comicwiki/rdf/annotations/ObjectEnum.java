@@ -13,36 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package org.comicwiki.serializers;
+package org.comicwiki.rdf.annotations;
 
-import java.io.IOException;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
-import org.comicwiki.model.CreativeWorkExtension;
+import org.comicwiki.rdf.NodeType;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-
-public class CreativeWorkSerializer extends StdSerializer<CreativeWorkExtension> {
-
-	protected CreativeWorkSerializer() {
-		super(CreativeWorkExtension.class);
-	}
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1773603738538548563L;
-
-
-	@Override
-	public void serialize(CreativeWorkExtension cw, JsonGenerator gen,
-			SerializerProvider provider) throws IOException,
-			JsonGenerationException {
+@Retention(RetentionPolicy.RUNTIME)
+public @interface ObjectEnum {
 	
-		// TODO Auto-generated method stub
-		
-	}
-
+	NodeType type() default NodeType.literal;
 }

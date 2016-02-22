@@ -121,8 +121,8 @@ public final class Statement {
 
 	@Override
 	public String toString() {
-		return "Statement [object=" + object + ", predicate=" + predicate
-				+ ", subject=" + subject + "]";
+		return "Statement [subject=" + subject + ", predicate=" + predicate
+				+ ", object=" + object + "]";
 	}
 
 }

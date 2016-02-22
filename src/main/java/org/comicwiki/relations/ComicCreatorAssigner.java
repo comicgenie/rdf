@@ -34,13 +34,11 @@ public final class ComicCreatorAssigner {
 	private final Collection<Person> letters;
 	private final Collection<Person> pencils;
 	private final Collection<Person> script;
-	private final IRICache iriCache;
 
 	public ComicCreatorAssigner(Collection<Person> colors,
 			Collection<Person> inks, Collection<Person> letters,
 			Collection<Person> pencils, Collection<Person> script,
-			Collection<Person> editors, IRICache iriCache) {
-		this.iriCache = iriCache;
+			Collection<Person> editors) {;
 		this.colors = colors;
 		this.inks = inks;
 		this.letters = letters;
