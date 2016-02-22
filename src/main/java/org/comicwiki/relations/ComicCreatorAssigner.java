@@ -18,7 +18,6 @@ package org.comicwiki.relations;
 import java.util.Collection;
 import java.util.stream.Stream;
 
-import org.comicwiki.IRICache;
 import org.comicwiki.model.ComicCharacter;
 import org.comicwiki.model.ComicOrganization;
 import org.comicwiki.model.CreatorRole;
@@ -39,14 +38,16 @@ public final class ComicCreatorAssigner {
 			Collection<Person> inks, Collection<Person> letters,
 			Collection<Person> pencils, Collection<Person> script,
 			Collection<Person> editors) {;
+
+		creators = Stream.of(colors, inks, letters, pencils, script, editors)
+				.flatMap(Collection::stream);
+		
 		this.colors = colors;
 		this.inks = inks;
 		this.letters = letters;
 		this.pencils = pencils;
 		this.script = script;
 		this.editors = editors;
-		creators = Stream.of(colors, inks, letters, pencils, script, editors)
-				.flatMap(Collection::stream);
 	}
 
 	/**
@@ -77,13 +78,14 @@ public final class ComicCreatorAssigner {
 	 * ComicStory.[inkers][....] -> ComicStory.[inkers][....]
 	 */
 	public void colleagues() {
-		creators.forEach(one -> {
-			creators.forEach(two -> {
+		Person[] creatorsArray = creators.toArray(size -> new Person[size]);
+		for(Person one : creatorsArray) {
+			for(Person two : creatorsArray) {
 				if (!one.equals(two)) {
-					one.colleagues.add(two.instanceId );
+					one.colleagues.add(two.instanceId);
 				}
-			});
-		});
+			}
+		}
 	}
 
 	public void jobTitles() {

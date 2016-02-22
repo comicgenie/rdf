@@ -349,7 +349,7 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 	public void transform(StoryRow row) {
 		super.transform(row);
 		ComicCharactersAssigner ccAssign = new ComicCharactersAssigner(
-				row.characters, iriCache);
+				row.characters);
 		// TODO: add all key components first and then calculate KEY
 		ccAssign.colleagues();
 		// ccAssign.genres(row.genre);

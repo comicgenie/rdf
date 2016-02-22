@@ -21,30 +21,33 @@ import org.comicwiki.IRI;
 import org.comicwiki.IRICache;
 import org.comicwiki.model.ComicCharacter;
 import org.comicwiki.model.Genre;
+import org.comicwiki.model.schema.Person;
 import org.comicwiki.model.schema.bib.ComicStory;
 
 public final class ComicCharactersAssigner {
 
 	private final Collection<ComicCharacter> comicCharacters;
-	private final IRICache iriCache;
+
+	private ComicCharacter[] charactersArray;
 
 	/**
 	 * ComicCharacters -> ComicCharacters
 	 */
 	public void colleagues() {
-		comicCharacters.forEach(one -> {
-			comicCharacters.forEach(two -> {
-				if (!two.equals(one)) {
+		for(Person one : charactersArray) {
+			for(Person two : charactersArray) {
+				if (!one.equals(two)) {
 					one.colleagues.add(two.instanceId);
 				}
-			});
-		});
+			}
+		}
 	}
 
 	// Just put in characters in one team
-	public ComicCharactersAssigner(Collection<ComicCharacter> comicCharacters, IRICache iriCache) {
+	public ComicCharactersAssigner(Collection<ComicCharacter> comicCharacters) {
 		this.comicCharacters = comicCharacters;
-		this.iriCache = iriCache;
+		this.charactersArray = comicCharacters
+				.toArray(new ComicCharacter[comicCharacters.size()]);
 	}
 
 	/**
