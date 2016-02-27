@@ -16,6 +16,9 @@
 package org.comicwiki.rdf;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.comicwiki.rdf.RdfFactory.createRdfObject;
+import static org.comicwiki.rdf.RdfFactory.createRdfPredicate;
+import static org.comicwiki.rdf.RdfFactory.createRdfSubject;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -45,8 +48,6 @@ import org.comicwiki.rdf.values.RdfPredicate;
 import org.comicwiki.rdf.values.RdfSubject;
 
 import com.google.common.collect.Lists;
-
-import static org.comicwiki.rdf.RdfFactory.*;
 
 /**
  * Transforms a Thing into a collection of Statements.

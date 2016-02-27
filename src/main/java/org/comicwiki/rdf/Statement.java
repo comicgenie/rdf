@@ -15,6 +15,8 @@
  *******************************************************************************/
 package org.comicwiki.rdf;
 
+import static org.comicwiki.rdf.RdfFactory.createRdfObject;
+
 import java.net.URL;
 
 import org.comicwiki.rdf.annotations.ObjectNonNegativeInteger;
@@ -22,8 +24,6 @@ import org.comicwiki.rdf.annotations.ObjectXSD;
 import org.comicwiki.rdf.values.RdfObject;
 import org.comicwiki.rdf.values.RdfPredicate;
 import org.comicwiki.rdf.values.RdfSubject;
-
-import static org.comicwiki.rdf.RdfFactory.*;
 
 public final class Statement {
 

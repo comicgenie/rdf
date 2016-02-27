@@ -28,4 +28,9 @@ public class SparkUtilsTest {
 	public void jdbcUrlNoDB() throws Exception {
 		SparkUtils.createJDBCUrl("name", "pw", null);
 	}
+	
+	@Test
+	public void contextNotNull() throws Exception {
+//		assertNotNull(SparkUtils.createLocalContext());
+	}
 }

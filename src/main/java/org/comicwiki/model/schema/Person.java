@@ -108,16 +108,22 @@ public class Person extends Thing {
 	public void makeFemale() {
 		this.gender = "F";
 	}
-	
 
 	@Override
 	public String toString() {
-		return "Person [gender=" + gender + ", knows=" + knows + ", memberOf="
-				+ memberOf + ", nationality=" + nationality + ", parents="
-				+ parents + ", relatedTo=" + relatedTo + ", sibling=" + sibling
-				+ ", worksFor=" + worksFor + ", url=" + urls + ", name=" + name
-				+ ", description=" + description + ", alternateNames="
-				+ alternateNames + "]";
+		return "Person [honorificPrefix=" + honorificPrefix
+				+ ", honorificSuffix=" + honorificSuffix + ", givenName="
+				+ givenName + ", familyName=" + familyName + ", colleagues="
+				+ colleagues + ", gender=" + gender + ", jobTitle=" + jobTitle
+				+ ", knows=" + knows + ", memberOf=" + memberOf
+				+ ", nationality=" + nationality + ", parents=" + parents
+				+ ", relatedTo=" + relatedTo + ", sibling=" + sibling
+				+ ", worksFor=" + worksFor + ", areasWorkedIn=" + areasWorkedIn
+				+ ", workedOn=" + workedOn + ", urls=" + urls + ", name="
+				+ name + ", description=" + description + ", alternateNames="
+				+ alternateNames + ", resourceId=" + resourceId
+				+ ", compositePropertyKey=" + compositePropertyKey
+				+ ", instanceId=" + instanceId + "]";
 	}
 
 }

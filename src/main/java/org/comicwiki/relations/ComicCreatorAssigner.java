@@ -15,8 +15,9 @@
  *******************************************************************************/
 package org.comicwiki.relations;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.util.Collection;
-import java.util.stream.Stream;
 
 import org.comicwiki.model.ComicCharacter;
 import org.comicwiki.model.ComicOrganization;
@@ -25,23 +26,51 @@ import org.comicwiki.model.Genre;
 import org.comicwiki.model.schema.Person;
 import org.comicwiki.model.schema.bib.ComicStory;
 
+import com.google.common.collect.Sets;
+
 public final class ComicCreatorAssigner {
 	private final Collection<Person> colors;
-	private final Stream<Person> creators;
 	private final Collection<Person> editors;
 	private final Collection<Person> inks;
 	private final Collection<Person> letters;
 	private final Collection<Person> pencils;
 	private final Collection<Person> script;
+	private Collection<Person> creators;
 
 	public ComicCreatorAssigner(Collection<Person> colors,
 			Collection<Person> inks, Collection<Person> letters,
 			Collection<Person> pencils, Collection<Person> script,
-			Collection<Person> editors) {;
+			Collection<Person> editors) {
 
-		creators = Stream.of(colors, inks, letters, pencils, script, editors)
-				.flatMap(Collection::stream);
-		
+		creators = Sets.newHashSet();
+		if (colors == null) {
+			colors = Sets.newHashSet();
+		}
+		if (inks == null) {
+			inks = Sets.newHashSet();
+		}
+		if (letters == null) {
+			letters = Sets.newHashSet();
+		}
+		if (pencils == null) {
+			pencils = Sets.newHashSet();
+		}
+		if (script == null) {
+			script = Sets.newHashSet();
+		}
+		if (editors == null) {
+			editors = Sets.newHashSet();
+		}
+		creators.addAll(colors);
+		creators.addAll(inks);
+		creators.addAll(letters);
+		creators.addAll(pencils);
+		creators.addAll(script);
+		creators.addAll(editors);
+
+		creators.forEach(c -> {
+			checkNotNull(c.instanceId, "creator instanceId is null: " + c.name);
+		});
 		this.colors = colors;
 		this.inks = inks;
 		this.letters = letters;
@@ -55,32 +84,34 @@ public final class ComicCreatorAssigner {
 	 * ComicStory.[inkers][pencilers][....]
 	 */
 	public void characters(Collection<ComicCharacter> characters) {
-		characters.forEach(cc -> {
-			colors.forEach(e -> cc.creativeWork.colorists.add(
-					e.instanceId ));
-			inks.forEach(e -> cc.creativeWork.inkers.add(
-					e.instanceId ));
-			letters.forEach(e -> cc.creativeWork.letterers.add(
-					e.instanceId ));
-			pencils.forEach(e -> cc.creativeWork.pencilers.add(
-					e.instanceId ));
-			script.forEach(e -> cc.creativeWork.authors.add(
-					e.instanceId ));
-			editors.forEach(e -> cc.creativeWork.editors.add(
-					e.instanceId ));
-			creators.forEach(c -> {
-				c.workedOn.add(cc.instanceId );
-			});
-		});
+		characters
+				.forEach(cc -> {
+					checkNotNull(cc.instanceId, "ComicCharacter.instanceId: "
+							+ cc.name);
+					colors.forEach(e -> cc.creativeWork.colorists
+							.add(e.instanceId));
+					inks.forEach(e -> cc.creativeWork.inkers.add(e.instanceId));
+					letters.forEach(e -> cc.creativeWork.letterers
+							.add(e.instanceId));
+					pencils.forEach(e -> cc.creativeWork.pencilers
+							.add(e.instanceId));
+					script.forEach(e -> cc.creativeWork.authors
+							.add(e.instanceId));
+					editors.forEach(e -> cc.creativeWork.editors
+							.add(e.instanceId));
+					creators.forEach(c -> {
+						c.workedOn.add(cc.instanceId);
+					});
+				});
 	}
 
 	/**
 	 * ComicStory.[inkers][....] -> ComicStory.[inkers][....]
 	 */
 	public void colleagues() {
-		Person[] creatorsArray = creators.toArray(size -> new Person[size]);
-		for(Person one : creatorsArray) {
-			for(Person two : creatorsArray) {
+		Person[] creatorsArray = creators.toArray(new Person[creators.size()]);
+		for (Person one : creatorsArray) {
+			for (Person two : creatorsArray) {
 				if (!one.equals(two)) {
 					one.colleagues.add(two.instanceId);
 				}
@@ -102,11 +133,7 @@ public final class ComicCreatorAssigner {
 	 */
 	public void genres(Collection<Genre> genres) {
 		genres.forEach(g -> {
-			creators.forEach(c -> c.areasWorkedIn.add(g.instanceId
-					));// TODO:
-			// STRING
-			// OR
-			// IRI
+			creators.forEach(c -> c.areasWorkedIn.add(g.instanceId));// TODO:
 		});
 	}
 
@@ -114,9 +141,14 @@ public final class ComicCreatorAssigner {
 	 * ComicStory.[inkers][....] -> ComicOrganizations
 	 */
 	public void organizations(Collection<ComicOrganization> organizations) {
+		if(organizations == null) {
+			return;
+		}
 		organizations.forEach(e -> {
+			checkNotNull(e.instanceId, "ComicOrganization.instanceId: "
+					+ e.name);
 			creators.forEach(c -> {
-				c.workedOn.add(e.instanceId );
+				c.workedOn.add(e.instanceId);
 			});
 		});
 	}
@@ -129,7 +161,7 @@ public final class ComicCreatorAssigner {
 		inks.forEach(e -> story.inkers.add(e.instanceId));
 		letters.forEach(e -> story.letterers.add(e.instanceId));
 		pencils.forEach(e -> story.pencilers.add(e.instanceId));
-		script.forEach(e -> story.authors.add(e.instanceId ));
+		script.forEach(e -> story.authors.add(e.instanceId));
 		editors.forEach(e -> story.editors.add(e.instanceId));
 	}
 }

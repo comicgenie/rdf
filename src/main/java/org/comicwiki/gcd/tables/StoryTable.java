@@ -15,7 +15,6 @@
  *******************************************************************************/
 package org.comicwiki.gcd.tables;
 
-import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -30,10 +29,10 @@ import org.apache.spark.sql.SQLContext;
 import org.comicwiki.BaseTable;
 import org.comicwiki.IRICache;
 import org.comicwiki.ThingFactory;
-import org.comicwiki.gcd.CharacterCreator;
 import org.comicwiki.gcd.CharacterFieldParser;
-import org.comicwiki.gcd.CharacterWalker;
 import org.comicwiki.gcd.CreatorFieldParser;
+import org.comicwiki.gcd.OrgLookupService;
+import org.comicwiki.gcd.SparkUtils;
 import org.comicwiki.model.ComicCharacter;
 import org.comicwiki.model.ComicOrganization;
 import org.comicwiki.model.schema.Organization;
@@ -162,20 +161,17 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 
 	private static ThingFactory thingFactory;
 
-	private CharacterCreator characterCreator;
-
-	private File resourceDir;
-
 	private final IRICache iriCache;
+
+	private OrgLookupService comicOrganizations;
 
 	@Inject
 	public StoryTable(SQLContext sqlContext, ThingFactory thingFactory,
-			IRICache iriCache, CharacterCreator characterCreator) {
+			IRICache iriCache, OrgLookupService comicOrganizations) {
 		super(sqlContext, sParquetName);
 		StoryTable.thingFactory = thingFactory;
 		this.iriCache = iriCache;
-		this.characterCreator = characterCreator;
-		this.resourceDir = new File(".");
+		this.comicOrganizations = comicOrganizations;
 	}
 
 	@Override
@@ -183,8 +179,8 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 		StoryRow storyRow = new StoryRow();
 
 		Fields.Character characterField = parseField(Columns.CHARACTERS, row,
-				new CharacterFieldParser(new CharacterWalker(thingFactory,
-						characterCreator, resourceDir)));
+				new CharacterFieldParser(thingFactory, comicOrganizations,
+						storyRow.instance));
 
 		if (characterField != null) {
 			storyRow.characters = characterField.comicCharacters;
@@ -348,24 +344,28 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 	@Override
 	public void transform(StoryRow row) {
 		super.transform(row);
-		ComicCharactersAssigner ccAssign = new ComicCharactersAssigner(
+		ComicCharactersAssigner charAssign = new ComicCharactersAssigner(
 				row.characters);
-		// TODO: add all key components first and then calculate KEY
-		ccAssign.colleagues();
 		// ccAssign.genres(row.genre);
-		ccAssign.story(row.instance);
+		charAssign.story(row.instance);
 
 		ComicCreatorAssigner creatorAssigner = new ComicCreatorAssigner(
 				row.colors, row.inks, row.letters, row.pencils, row.script,
 				row.editing);
+
 		creatorAssigner.colleagues();
 		creatorAssigner.jobTitles();
 		creatorAssigner.characters(row.characters);
 		creatorAssigner.organizations(row.organizations);
+
 	}
 
 	@Override
 	public void saveToParquetFormat(String jdbcUrl) {
+		if (!SparkUtils.isValidScheme(jdbcUrl)) {
+			throw new IllegalArgumentException("invalid jdbc scheme: "
+					+ jdbcUrl);
+		}
 		super.saveToParquetFormat(sInputTable, Columns.ALL_COLUMNS, jdbcUrl,
 				10000);
 	}

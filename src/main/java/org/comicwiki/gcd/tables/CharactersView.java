@@ -11,9 +11,8 @@ import org.apache.spark.sql.SQLContext;
 import org.comicwiki.BaseTable;
 import org.comicwiki.IRICache;
 import org.comicwiki.ThingFactory;
-import org.comicwiki.gcd.CharacterCreator;
 import org.comicwiki.gcd.CharacterFieldParser;
-import org.comicwiki.gcd.CharacterWalker;
+import org.comicwiki.gcd.OrgLookupService;
 import org.comicwiki.gcd.tables.StoryTable.Fields;
 import org.comicwiki.gcd.tables.StoryTable.StoryRow;
 
@@ -38,21 +37,18 @@ public class CharactersView extends BaseTable<StoryTable.StoryRow> {
 
 	private ThingFactory thingFactory;
 
-	private CharacterCreator characterCreator;
-
-	private File resourceDir;
-
 	private final IRICache iriCache;
+
+	private OrgLookupService comicOrganizations;
 
 	@Inject
 	public CharactersView(SQLContext sqlContext, boolean failOnParse,
 			ThingFactory thingFactory, IRICache iriCache,
-			CharacterCreator characterCreator) {
+			OrgLookupService comicOrganizations) {
 		super(sqlContext, sParquetName);
 		this.iriCache = iriCache;
 		this.thingFactory = thingFactory;
-		this.characterCreator = characterCreator;
-		this.resourceDir = new File(".");
+		this.comicOrganizations = comicOrganizations;
 	}
 
 	@Inject
@@ -72,8 +68,8 @@ public class CharactersView extends BaseTable<StoryTable.StoryRow> {
 	public StoryRow process(Row row) throws IOException {
 		StoryRow storyRow = new StoryTable.StoryRow();
 		Fields.Character characterField = parseField(Columns.CHARACTERS, row,
-				new CharacterFieldParser(new CharacterWalker(thingFactory,
-						characterCreator, resourceDir)));
+				new CharacterFieldParser(thingFactory,
+						comicOrganizations, null));
 
 		if (characterField != null) {
 			storyRow.characters = characterField.comicCharacters;

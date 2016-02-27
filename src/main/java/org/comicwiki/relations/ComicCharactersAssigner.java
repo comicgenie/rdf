@@ -15,10 +15,10 @@
  *******************************************************************************/
 package org.comicwiki.relations;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.util.Collection;
 
-import org.comicwiki.IRI;
-import org.comicwiki.IRICache;
 import org.comicwiki.model.ComicCharacter;
 import org.comicwiki.model.Genre;
 import org.comicwiki.model.schema.Person;
@@ -28,14 +28,14 @@ public final class ComicCharactersAssigner {
 
 	private final Collection<ComicCharacter> comicCharacters;
 
-	private ComicCharacter[] charactersArray;
-
 	/**
 	 * ComicCharacters -> ComicCharacters
 	 */
 	public void colleagues() {
-		for(Person one : charactersArray) {
-			for(Person two : charactersArray) {
+		ComicCharacter[] charactersArray = comicCharacters
+				.toArray(new ComicCharacter[comicCharacters.size()]);
+		for (Person one : charactersArray) {
+			for (Person two : charactersArray) {
 				if (!one.equals(two)) {
 					one.colleagues.add(two.instanceId);
 				}
@@ -46,8 +46,9 @@ public final class ComicCharactersAssigner {
 	// Just put in characters in one team
 	public ComicCharactersAssigner(Collection<ComicCharacter> comicCharacters) {
 		this.comicCharacters = comicCharacters;
-		this.charactersArray = comicCharacters
-				.toArray(new ComicCharacter[comicCharacters.size()]);
+		comicCharacters.forEach(c -> {
+			checkNotNull(c.instanceId, "ComicCharacter.instanceId: " + c.name);
+		});
 	}
 
 	/**

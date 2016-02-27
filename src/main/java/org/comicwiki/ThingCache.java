@@ -16,6 +16,7 @@
 package org.comicwiki;
 
 import java.lang.reflect.Field;
+import java.util.Collection;
 import java.util.HashMap;
 
 import org.apache.commons.codec.digest.DigestUtils;
@@ -29,7 +30,7 @@ import com.google.inject.Singleton;
 @Singleton
 public final class ThingCache {
 
-	private static final KeyIDGenerator instanceIDGen = new KeyIDGenerator(0);
+	private final KeyIDGenerator instanceIDGen = new KeyIDGenerator(0);
 
 	private IRI assignInstanceId(Thing thing) {
 		if (thing.instanceId == null) {
@@ -39,9 +40,10 @@ public final class ThingCache {
 		return thing.instanceId;
 	}
 
-	protected final static String readCompositePropertyKey(Subject subject,
+	protected final String readCompositePropertyKey(Subject subject,
 			Thing object) throws NoSuchFieldException, SecurityException,
-			IllegalArgumentException, IllegalAccessException {
+			IllegalArgumentException, IllegalAccessException,
+			IllegalThingException {
 		Class<?> clazz = object.getClass();
 		if (subject.key().isEmpty()) {// composite
 			StringBuilder sb = new StringBuilder();
@@ -51,17 +53,21 @@ public final class ThingCache {
 				Field field = clazz.getField(key);
 				field.setAccessible(true);
 				Object fieldValue = field.get(object);
-				if (fieldValue instanceof String) {
-					sb.append(fieldValue);
-				} else if (fieldValue == null) {
-
-				} else if (Thing.class.isAssignableFrom(fieldValue.getClass())) {
-					String id = readCompositePropertyKey((Thing) fieldValue);
+				if (fieldValue == null) {
+					continue;
+				} else if (fieldValue instanceof String) {
+					sb.append(field.getName()).append(":").append(fieldValue);
+				} else if (fieldValue instanceof IRI) {
+					Thing thing = instanceCache.get(fieldValue);
+					String id = readCompositePropertyKey(thing);
 					sb.append(id);
 				}
 				sb.append('_');
 			}
-			return DigestUtils.md5Hex(sb.toString());
+			if (sb.length() == 0) {
+				throw new IllegalThingException("No values for any key");
+			}
+			return DigestUtils.md5Hex(object.getClass().getCanonicalName() + ":" + sb.toString());
 		} else {
 			Field field = clazz.getField(subject.key());
 			field.setAccessible(true);
@@ -77,7 +83,7 @@ public final class ThingCache {
 		return null;
 	}
 
-	protected final static String readCompositePropertyKey(Thing object) {
+	protected final String readCompositePropertyKey(Thing object) {
 		Class<?> clazz = object.getClass();
 		Subject subject = clazz.getAnnotation(Subject.class);
 		try {
@@ -103,6 +109,15 @@ public final class ThingCache {
 		this.iriCache = iriCache;
 		this.resourceIDCache = resourceIDCache;
 	}
+	
+	public Thing get(IRI iri) {
+		return instanceCache.get(iri);
+	}
+	
+	public Collection<Thing> getThings() {
+		return instanceCache.values();
+	}
+
 
 	public void add(Thing thing) {
 		assignInstanceId(thing);

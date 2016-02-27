@@ -1,4 +1,7 @@
-grammar Character;       
+grammar Character;    
+@header {
+    package org.comicwiki.gcd.parser;
+}  
 characters  : character ((SEMICOLON|' and ')? character)*(SEMICOLON|' and ')?; 
 teams : team+; 
 team : 

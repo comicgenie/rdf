@@ -16,9 +16,7 @@
 package org.comicwiki;
 
 import java.io.File;
-import java.lang.reflect.Constructor;
 
-import org.apache.spark.sql.SQLContext;
 import org.comicwiki.gcd.tables.BrandEmblemGroupTable;
 import org.comicwiki.gcd.tables.BrandGroupTable;
 import org.comicwiki.gcd.tables.BrandTable;

@@ -30,6 +30,10 @@ public class ThingFactory {
 		this.thingCache = thingCache;
 	}
 	
+	public ThingCache getCache() {
+		return thingCache;
+	}
+	
 	public <T extends Thing> T create(Class<T> clazz) {
 		try {
 			Thing thing = (Thing) clazz.newInstance();

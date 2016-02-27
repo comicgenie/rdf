@@ -62,10 +62,15 @@ public class ComicStory extends CreativeWork {
 	@SchemaComicWiki
 	public int pageStart;
 	
-	@Predicate("organizations")
+	@Predicate("organization")
 	@ObjectIRI
 	@SchemaComicWiki
 	public Collection<IRI> organizations = new HashSet<>(1);
+	
+	@Predicate("characterNote")
+	@ObjectIRI
+	@SchemaComicWiki
+	public Collection<IRI> characterNote = new HashSet<>(3);
 	
 	@Predicate("pageCountUncertain")
 	@ObjectBoolean

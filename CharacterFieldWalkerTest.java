@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.comicwiki.gcd;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,39 +31,37 @@ import org.comicwiki.Repositories;
 import org.comicwiki.ResourceIDCache;
 import org.comicwiki.ThingCache;
 import org.comicwiki.ThingFactory;
-import org.comicwiki.gcd.CharacterFieldCleaner;
-import org.comicwiki.gcd.CharacterWalker;
-import org.comicwiki.gcd.parser.CharacterLexer;
-import org.comicwiki.gcd.parser.CharacterParser;
+import org.comicwiki.gcd.parser.CharacterFieldLexer;
+import org.comicwiki.gcd.parser.CharacterFieldParser;
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class CharacterTest extends BaseTest {
+public class CharacterFieldWalkerTest extends BaseTest {
 
 	private File resourceDir = new File("./src/main/resources/comics");
 
-	private CharacterParser createParser(String text) {
+	private CharacterFieldParser createParser(String text) {
 		text = CharacterFieldCleaner.cleanSemicolonInParanthesis(text);
 		System.out.println(text);
 		text = CharacterFieldCleaner.cleanCommaInBrackets(text);
 		System.out.println(text);
-		CharacterLexer lexer = new CharacterLexer(new ANTLRInputStream(text));
+		CharacterFieldLexer lexer = new CharacterFieldLexer(new ANTLRInputStream(text));
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
-		CharacterParser parser = new CharacterParser(tokens);
+		CharacterFieldParser parser = new CharacterFieldParser(tokens);
 		parser.setErrorHandler(new BailErrorStrategy());
 		return parser;
 	}
 
-	private CharacterWalker walk(CharacterParser parser) {
+	private CharacterFieldWalker walk(CharacterFieldParser parser) {
 		ThingCache thingCache = new ThingCache(new Repositories(),
 				new IRICache(), new ResourceIDCache());
 		ThingFactory thingFactory = new ThingFactory(thingCache);
 		CharacterCreator characterCreator = new CharacterCreator(thingFactory);
 
 		ParseTreeWalker walker = new ParseTreeWalker();
-		CharacterWalker cWalker = new CharacterWalker(thingFactory,
-				characterCreator, resourceDir);
+		CharacterFieldWalker cWalker = new CharacterFieldWalker(thingFactory,
+				characterCreator, new ComicOrganizationsLookupService());
 		walker.walk(cWalker, parser.characters());
 		return cWalker;
 	}
@@ -73,14 +71,14 @@ public class CharacterTest extends BaseTest {
 	 */
 	/*
 	 * @Test public void testOnlyParenthesis() throws IOException { String text
-	 * = "(woman on ice skates)"; CharacterParser parser = createParser(text);
+	 * = "(woman on ice skates)"; CharacterFieldParser parser = createParser(text);
 	 * walk(parser); }
 	 */
 	@Test
 	public void testMismatch() throws IOException {
 		String text = "Batman [Bruce Wayne]; Robin [Dick Grayson]; John Barham (mention only;death); James Barham (millionaire;death); Adam Barham (Jame's cousin); John Gorley; Sheriff Martin; Robert Cray (villain;introduction); Vance Sonderson [as Jay Sonderson] (villain,gun smuggler,introduction)";
-		CharacterParser parser = createParser(text);
-		CharacterWalker cw = walk(parser);
+		CharacterFieldParser parser = createParser(text);
+		CharacterFieldWalker cw = walk(parser);
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.writeValue(System.out, cw.characters);
 		mapper.writeValue(System.out, cw.organizations);
@@ -94,16 +92,16 @@ public class CharacterTest extends BaseTest {
 	@Test
 	public void testSemicolonInParenthesis() throws IOException {
 		String text = "Wilfred of Ivanhoe (introduction; not named,referred to as \"a stranger\")";
-		CharacterParser parser = createParser(text);
+		CharacterFieldParser parser = createParser(text);
 		walk(parser);
 	}
 
 	@Test
 	public void testB() throws IOException {
 		String text = "Batman; Robin; The Thing";
-		CharacterLexer lexer = new CharacterLexer(new ANTLRInputStream(text));
+		CharacterFieldLexer lexer = new CharacterFieldLexer(new ANTLRInputStream(text));
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
-		CharacterParser parser = new CharacterParser(tokens);
+		CharacterFieldParser parser = new CharacterFieldParser(tokens);
 		parser.setErrorHandler(new BailErrorStrategy());
 
 		ThingCache thingCache = new ThingCache(new Repositories(),
@@ -112,18 +110,22 @@ public class CharacterTest extends BaseTest {
 		CharacterCreator characterCreator = new CharacterCreator(thingFactory);
 
 		ParseTreeWalker walker = new ParseTreeWalker();
-		walker.walk(new CharacterWalker(thingFactory,
-				characterCreator, resourceDir), parser.characters());
+		walker.walk(new CharacterFieldWalker(thingFactory, characterCreator,
+				new ComicOrganizationsLookupService()), parser.characters());
 	}
 
 	//
 	@Test
 	public void testC() throws IOException {
-		String text = "Batman; Robin*(batman's sidekick); The Thing [Ben; MyThing](a member of F4, badass)";
-		String fields = "ABC (,hello world, hello universe)";
-		CharacterLexer lexer = new CharacterLexer(new ANTLRInputStream(fields));
+		String fields = "Batman; Robin*(batman's sidekick); The Thing [Ben; MyThing](a member of F4, badass)";
+		//String input ="Fantastic Four [Mr. Fantastic(sample,sample2); Invisible Girl; Human Torch [Johnny Storm]; The Thing]";
+		String input ="X-Men<EM_DASH>Wolverine; FEATURE: Fantastic Four [Mr. Fantastic; Invisible Girl; Human Torch [Johnny Storm]; The Thing]; GUESTS: Crystal; Lockjaw; VILLAIN: Diablo (a,b)X-Men2<EM_DASH>Wolverine2; ";
+		//	String fields = "ABC (,hello world, hello universe)";
+	//	ComicOrganizationsLookupService service = ComicOrganizationsLookupService(Lists.ne);
+		
+		CharacterFieldLexer lexer = new CharacterFieldLexer(new ANTLRInputStream(input));
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
-		CharacterParser parser = new CharacterParser(tokens);
+		CharacterFieldParser parser = new CharacterFieldParser(tokens);
 		parser.setErrorHandler(new BailErrorStrategy());
 
 		ThingCache thingCache = new ThingCache(new Repositories(),
@@ -131,10 +133,10 @@ public class CharacterTest extends BaseTest {
 		ThingFactory thingFactory = new ThingFactory(thingCache);
 		CharacterCreator characterCreator = new CharacterCreator(thingFactory);
 
-		ParseTree tree = parser.team();
+		ParseTree tree = parser.root();
 		ParseTreeWalker walker = new ParseTreeWalker();
-		walker.walk(new CharacterWalker(thingFactory,
-				characterCreator, resourceDir), tree);
+		walker.walk(new CharacterFieldWalker(thingFactory, characterCreator,
+				new ComicOrganizationsLookupService()), tree);
 	}
 
 	@Test
@@ -142,9 +144,9 @@ public class CharacterTest extends BaseTest {
 		String text = "Agent Daisy Caruthers [Dugan];VILLAIN: Sentinels; Zigfried Trask;CAMEOS: The Consortium";
 		String text2 = "CAMEO FLASHBACKS: Dietrich Trask; Wolverine; Cyclops; Iceman; Angel; Storm; Gambit";
 
-		CharacterLexer lexer = new CharacterLexer(new ANTLRInputStream(text2));
+		CharacterFieldLexer lexer = new CharacterFieldLexer(new ANTLRInputStream(text2));
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
-		CharacterParser parser = new CharacterParser(tokens);
+		CharacterFieldParser parser = new CharacterFieldParser(tokens);
 		parser.setErrorHandler(new BailErrorStrategy());
 
 		ThingCache thingCache = new ThingCache(new Repositories(),
@@ -152,10 +154,10 @@ public class CharacterTest extends BaseTest {
 		ThingFactory thingFactory = new ThingFactory(thingCache);
 		CharacterCreator characterCreator = new CharacterCreator(thingFactory);
 
-		ParseTree tree = parser.team();
+		ParseTree tree = parser.characters();
 		ParseTreeWalker walker = new ParseTreeWalker();
-		walker.walk(new CharacterWalker(thingFactory, 
-				characterCreator, resourceDir), tree);
+		walker.walk(new CharacterFieldWalker(thingFactory, characterCreator,
+				new ComicOrganizationsLookupService()), tree);
 	}
 
 	@Test
@@ -164,9 +166,9 @@ public class CharacterTest extends BaseTest {
 		String text2 = "CAMEO FLASHBACKS: Dietrich Trask; Wolverine; Cyclops; Iceman; Angel; Storm; Gambit";
 		String text3 = "X-Men<DOUBLE_HYPHEN>Jean Grey; Rogue";
 
-		CharacterLexer lexer = new CharacterLexer(new ANTLRInputStream(text3));
+		CharacterFieldLexer lexer = new CharacterFieldLexer(new ANTLRInputStream(text3));
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
-		CharacterParser parser = new CharacterParser(tokens);
+		CharacterFieldParser parser = new CharacterFieldParser(tokens);
 		parser.setErrorHandler(new BailErrorStrategy());
 
 		ThingCache thingCache = new ThingCache(new Repositories(),
@@ -174,17 +176,17 @@ public class CharacterTest extends BaseTest {
 		ThingFactory thingFactory = new ThingFactory(thingCache);
 		CharacterCreator characterCreator = new CharacterCreator(thingFactory);
 
-		ParseTree tree = parser.team();
+		ParseTree tree = parser.characters();
 		ParseTreeWalker walker = new ParseTreeWalker();
-		walker.walk(new CharacterWalker(thingFactory,
-				characterCreator, resourceDir), tree);
+		walker.walk(new CharacterFieldWalker(thingFactory, characterCreator,
+				new ComicOrganizationsLookupService()), tree);
 	}
 
 	@Test
 	public void testTeam() throws IOException {
 		String text = "Justice League of America [Green Lantern [Hal Jordan] (origin); Superman [Clark Kent] (Earth-1)]";
-		CharacterParser parser = createParser(text);
-		CharacterWalker cw = walk(parser);
+		CharacterFieldParser parser = createParser(text);
+		CharacterFieldWalker cw = walk(parser);
 		assertEquals(4, cw.characters.size());
 
 	}

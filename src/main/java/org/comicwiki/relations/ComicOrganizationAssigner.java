@@ -15,6 +15,8 @@
  *******************************************************************************/
 package org.comicwiki.relations;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.util.Collection;
 import java.util.stream.Stream;
 
@@ -29,8 +31,9 @@ public final class ComicOrganizationAssigner {
 	private final ComicOrganization organization;
 
 	public ComicOrganizationAssigner(ComicOrganization organization) {
+		checkNotNull(organization.instanceId, "ComicOrganization.instanceId: "
+				+ organization.name);
 		this.organization = organization;
-		//TODO: Check if resourceId is null
 	}
 
 	/**
@@ -38,10 +41,13 @@ public final class ComicOrganizationAssigner {
 	 * ComicOrganization
 	 */
 	public void characters(Collection<ComicCharacter> characters) {
-		characters.forEach(cc -> {
-			cc.memberOf.add(organization.instanceId);
-			organization.members.add(cc.instanceId);
-		});
+		characters
+				.forEach(cc -> {
+					checkNotNull(cc.instanceId, "ComicCharacter.instanceId: "
+							+ cc.name);
+					cc.memberOf.add(organization.instanceId);
+					organization.members.add(cc.instanceId);
+				});
 	}
 
 	/**
@@ -53,7 +59,13 @@ public final class ComicOrganizationAssigner {
 
 		Stream<Person> creators = Stream.of(colors, inks, letters, pencils,
 				script, editors).flatMap(Collection::stream);
-
+		
+		creators.forEach(c -> {
+			checkNotNull(c.instanceId, "creator instanceId is null: " + c.name);
+		});
+		
+		creators = Stream.of(colors, inks, letters, pencils,
+				script, editors).flatMap(Collection::stream);
 		creators.forEach(c -> c.workedOn.add(organization.instanceId));
 		colors.forEach(e -> organization.creativeWork.colorists
 				.add(e.instanceId));
@@ -72,8 +84,9 @@ public final class ComicOrganizationAssigner {
 	 * ComicOrganization -> ComicStory.genres
 	 */
 	public void genres(Collection<Genre> genres) {
-		//TODO: String or IRI for genres?
-		genres.forEach(g -> organization.creativeWork.genres.add(g.instanceId.value));
+		// TODO: String or IRI for genres?
+		genres.forEach(g -> organization.creativeWork.genres
+				.add(g.instanceId.value));
 	}
 
 	/**
