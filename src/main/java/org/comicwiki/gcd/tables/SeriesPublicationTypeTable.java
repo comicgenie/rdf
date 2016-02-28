@@ -31,7 +31,7 @@ public class SeriesPublicationTypeTable extends
 		public static final Column[] ALL_COLUMNS = new Column[] {
 				new Column("id"), new Column("name") };
 		public static final int ID = 0;
-		public static final int NAME = 2;
+		public static final int NAME = 1;
 	}
 
 	public static class SeriesPublicationTypeRow extends TableRow {
@@ -50,8 +50,12 @@ public class SeriesPublicationTypeTable extends
 	@Override
 	public SeriesPublicationTypeRow process(Row row) throws IOException {
 		SeriesPublicationTypeRow seriesTypeRow = new SeriesPublicationTypeRow();
-		seriesTypeRow.id = row.getInt(Columns.ID);
 		seriesTypeRow.name = row.getString(Columns.NAME);
+
+		if (!row.isNullAt(Columns.ID)) {
+			seriesTypeRow.id = row.getInt(Columns.ID);
+			add(seriesTypeRow);
+		}
 		return seriesTypeRow;
 	}
 

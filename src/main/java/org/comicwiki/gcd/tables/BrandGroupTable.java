@@ -21,6 +21,7 @@ import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 import org.comicwiki.BaseTable;
+import org.comicwiki.model.schema.Brand;
 
 import com.google.inject.Inject;
 
@@ -41,14 +42,19 @@ public class BrandGroupTable extends BaseTable<BrandGroupTable.BrandGroupRow> {
 
 		public static final int NOTES = 4;
 
+		/**
+		 * gcd_publisher.id
+		 */
 		public static final int PARENT_ID = 7;
+		
 		public static final int URL = 5;
+		
 		public static final int YEAR_BEGAN = 2;
 
 		public static final int YEAR_ENDED = 3;
 	}
 
-	public static class BrandGroupRow extends TableRow {
+	public static class BrandGroupRow extends TableRow<Brand> {
 
 	}
 
@@ -63,8 +69,12 @@ public class BrandGroupTable extends BaseTable<BrandGroupTable.BrandGroupRow> {
 
 	@Override
 	public BrandGroupRow process(Row row) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		BrandGroupRow groupRow = new BrandGroupRow();
+		if (!row.isNullAt(Columns.ID)) {
+			groupRow.id = row.getInt(Columns.ID);
+			add(groupRow);
+		}
+		return groupRow;
 	}
 
 	@Override

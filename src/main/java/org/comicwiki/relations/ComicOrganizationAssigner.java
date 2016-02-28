@@ -84,9 +84,8 @@ public final class ComicOrganizationAssigner {
 	 * ComicOrganization -> ComicStory.genres
 	 */
 	public void genres(Collection<Genre> genres) {
-		// TODO: String or IRI for genres?
 		genres.forEach(g -> organization.creativeWork.genres
-				.add(g.instanceId.value));
+				.add(g.instanceId));
 	}
 
 	/**

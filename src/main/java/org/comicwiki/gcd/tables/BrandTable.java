@@ -16,68 +16,89 @@
 package org.comicwiki.gcd.tables;
 
 import java.io.IOException;
-import java.net.URI;
-import java.util.Collection;
 import java.util.Date;
-import java.util.HashSet;
 
 import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 import org.comicwiki.BaseTable;
+import org.comicwiki.ThingFactory;
+import org.comicwiki.model.schema.Brand;
 
 import com.google.inject.Inject;
 
 public class BrandTable extends BaseTable<BrandTable.BrandRow> {
 
-	public static class BrandRow extends TableRow {
+	public class BrandRow extends TableRow<Brand> {
+		
+		public Brand instance = this.create(thingFactory);
+		
 		public String name;
 
-		public Collection<String> notes = new HashSet<>(3);
+		public String notes;
 
-		public URI url;
+		public String url;
 
-		public Date yearBegan;
+		public int yearBegan;
 
-		public Date yearEnded;
+		public int yearEnded;
+		
+		public Date modified;
 	}
-	
+
 	private static final class Columns {
 		public static final Column[] ALL_COLUMNS = new Column[] {
-				new Column("id"), new Column("name"), new Column("parent_id"),
+				new Column("id"), new Column("name"),
 				new Column("year_began"), new Column("year_ended"),
-				new Column("notes"), new Column("url"), new Column("modified")};
+				new Column("notes"), new Column("url"), new Column("modified") };
 
 		public static final int ID = 0;
 
-		public static final int MODIFIED = 7;
+		public static final int MODIFIED = 6;
 
 		public static final int NAME = 1;
 
-		public static final int NOTES = 5;
+		public static final int NOTES = 4;
 
-		public static final int PARENT_ID = 2;
+		public static final int URL = 5;
 
-		public static final int URL = 6;
-		
-		public static final int YEAR_BEGAN = 3;
+		public static final int YEAR_BEGAN = 2;
 
-		public static final int YEAR_ENDED = 4;
+		public static final int YEAR_ENDED = 3;
 	}
 
 	private static final String sInputTable = "gcd_brand";
 
 	private static final String sParquetName = sInputTable + ".parquet";
 
+	private ThingFactory thingFactory;
+
 	@Inject
-	public BrandTable(SQLContext sqlContext) {
+	public BrandTable(SQLContext sqlContext, ThingFactory thingFactory) {
 		super(sqlContext, sParquetName);
+		this.thingFactory = thingFactory;
 	}
 
 	@Override
 	public BrandRow process(Row row) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		BrandRow brandRow = new BrandRow();
+
+		brandRow.modified = row.getTimestamp(Columns.MODIFIED);
+		brandRow.name = row.getString(Columns.NAME);
+		brandRow.notes = row.getString(Columns.NOTES);
+		brandRow.url = row.getString(Columns.URL);
+		if (!row.isNullAt(Columns.YEAR_BEGAN)) {
+			brandRow.yearBegan = row.getInt(Columns.YEAR_BEGAN);
+		}
+		if (!row.isNullAt(Columns.YEAR_ENDED)) {
+			brandRow.yearEnded = row.getInt(Columns.YEAR_ENDED);
+		}
+			
+		if (!row.isNullAt(Columns.ID)) {
+			brandRow.id = row.getInt(Columns.ID);
+			add(brandRow);
+		}
+		return brandRow;
 	}
 
 	@Override

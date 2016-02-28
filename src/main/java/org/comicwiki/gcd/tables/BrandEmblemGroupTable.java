@@ -24,13 +24,16 @@ import org.comicwiki.BaseTable;
 
 import com.google.inject.Inject;
 
+/**
+ * Maps relation between a brand and a brand group
+ */
 public class BrandEmblemGroupTable extends
 		BaseTable<BrandEmblemGroupTable.BrandEmblemGroupRow> {
 
 	public static class BrandEmblemGroupRow extends TableRow {
 
 		public int brandId;
-		
+
 		public int brandGroupId;
 	}
 
@@ -46,7 +49,7 @@ public class BrandEmblemGroupTable extends
 		public static final int BRAND_GROUP_ID = 2;
 
 	}
-	
+
 	private static final String sInputTable = "gcd_brand_emblem_group";
 
 	private static final String sParquetName = sInputTable + ".parquet";
@@ -59,9 +62,19 @@ public class BrandEmblemGroupTable extends
 	@Override
 	public BrandEmblemGroupRow process(Row row) throws IOException {
 		BrandEmblemGroupRow groupRow = new BrandEmblemGroupRow();
-		groupRow.id = row.getInt(Columns.ID);
-		groupRow.brandGroupId = row.getInt(Columns.BRAND_GROUP_ID);
-		groupRow.brandId = row.getInt(Columns.BRAND_ID);
+
+		if (!row.isNullAt(Columns.BRAND_GROUP_ID)) {
+			groupRow.brandGroupId = row.getInt(Columns.BRAND_GROUP_ID);
+		}
+
+		if (!row.isNullAt(Columns.BRAND_ID)) {
+			groupRow.brandId = row.getInt(Columns.BRAND_ID);
+		}
+
+		if (!row.isNullAt(Columns.ID)) {
+			groupRow.id = row.getInt(Columns.ID);
+			add(groupRow);
+		}
 		return groupRow;
 	}
 

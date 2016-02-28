@@ -15,6 +15,14 @@
  *******************************************************************************/
 package org.comicwiki.model.schema;
 
+import java.util.Collection;
+import java.util.HashSet;
+
+import org.comicwiki.IRI;
+import org.comicwiki.model.BrandUse;
+import org.comicwiki.rdf.annotations.ObjectIRI;
+import org.comicwiki.rdf.annotations.Predicate;
+import org.comicwiki.rdf.annotations.SchemaComicWiki;
 import org.comicwiki.rdf.annotations.Subject;
 
 /**
@@ -24,4 +32,21 @@ import org.comicwiki.rdf.annotations.Subject;
 @Subject(value = "http://schema.org/Brand", key = "name")
 public class Brand extends Intangible {
 
+	@Predicate("startUseDate")
+	@ObjectIRI
+	public IRI startUseDate;
+	
+	@Predicate("endUseDate")
+	@ObjectIRI
+	public IRI endUseDate;
+	
+	@Predicate("brandUse")
+	@ObjectIRI
+	@SchemaComicWiki
+	public Collection<BrandUse> brandUse = new HashSet<>(1);
+	
+	@Predicate("parentBrand")
+	@ObjectIRI
+	@SchemaComicWiki
+	public IRI parentBrand;
 }

@@ -26,6 +26,9 @@ import org.comicwiki.model.schema.Organization;
 
 import com.google.inject.Inject;
 
+/**
+ * Joins with IssueTable
+ */
 public class IndiciaPublisherTable extends
 		BaseTable<IndiciaPublisherTable.IndiciaPublisherRow> {
 
@@ -36,6 +39,9 @@ public class IndiciaPublisherTable extends
 				new Column("notes"), new Column("url"), new Column("modified"),
 				new Column("parent_id") };
 
+		/**
+		 * gcd_country.id
+		 */
 		public static final int COUNTRY_ID = 2;
 
 		public static final int ID = 0;
@@ -46,8 +52,13 @@ public class IndiciaPublisherTable extends
 
 		public static final int NOTES = 5;
 
+		/**
+		 * gcd_publisher.id
+		 */
 		public static final int PARENT_ID = 8;
+
 		public static final int URL = 6;
+
 		public static final int YEAR_BEGAN = 3;
 
 		public static final int YEAR_ENDED = 4;
@@ -63,6 +74,10 @@ public class IndiciaPublisherTable extends
 
 		public String notes;
 
+		/**
+		 * gcd_publisher.id
+		 * map to Organization.parentOrganization
+		 */
 		public int parentId;
 
 		public String url;
@@ -84,22 +99,33 @@ public class IndiciaPublisherTable extends
 	@Override
 	public IndiciaPublisherRow process(Row row) throws IOException {
 		IndiciaPublisherRow publisherRow = new IndiciaPublisherRow();
-		publisherRow.id = row.getInt(Columns.ID);
-		publisherRow.countryId = row.getInt(Columns.COUNTRY_ID);
+		if (!row.isNullAt(Columns.COUNTRY_ID)) {
+			publisherRow.countryId = row.getInt(Columns.COUNTRY_ID);
+		}
+
 		publisherRow.modified = row.getTimestamp(Columns.MODIFIED);
 		publisherRow.name = row.getString(Columns.NAME);
 		publisherRow.notes = row.getString(Columns.NOTES);
 		publisherRow.url = row.getString(Columns.URL);
-		publisherRow.yearBegan = row.getInt(Columns.YEAR_BEGAN);
-		publisherRow.yearEnded = row.getInt(Columns.YEAR_ENDED);
-		publisherRow.parentId = row.getInt(Columns.PARENT_ID);
-		add(publisherRow);
+		if (!row.isNullAt(Columns.YEAR_BEGAN)) {
+			publisherRow.yearBegan = row.getInt(Columns.YEAR_BEGAN);
+		}
+		if (!row.isNullAt(Columns.YEAR_ENDED)) {
+			publisherRow.yearEnded = row.getInt(Columns.YEAR_ENDED);
+		}
+		if (!row.isNullAt(Columns.PARENT_ID)) {
+			publisherRow.parentId = row.getInt(Columns.PARENT_ID);
+		}
+
+		if (!row.isNullAt(Columns.ID)) {
+			publisherRow.id = row.getInt(Columns.ID);
+			add(publisherRow);
+		}
 		return publisherRow;
 	}
 
 	@Override
 	public void saveToParquetFormat(String jdbcUrl) {
 		super.saveToParquetFormat(sInputTable, Columns.ALL_COLUMNS, jdbcUrl);
-
 	}
 }

@@ -23,23 +23,14 @@ import org.comicwiki.rdf.annotations.ObjectIRI;
 import org.comicwiki.rdf.annotations.ObjectString;
 import org.comicwiki.rdf.annotations.Predicate;
 import org.comicwiki.rdf.annotations.Subject;
-import org.comicwiki.serializers.YearDeserializer;
-import org.comicwiki.serializers.YearSerializer;
-
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @Subject(value = "http://schema.org/Organization", key="name")
 public class Organization extends Thing {
 
-	@JsonSerialize(using=YearSerializer.class)
-	@JsonDeserialize(using=YearDeserializer.class)
 	@Predicate("foundingDate")
 	@ObjectIRI
 	public IRI foundingDate;
 	
-	@JsonSerialize(using=YearSerializer.class)
-	@JsonDeserialize(using=YearDeserializer.class)
 	@Predicate("dissolutionDate")
 	@ObjectIRI
 	public IRI dissolutionDate;
@@ -57,19 +48,18 @@ public class Organization extends Thing {
 	@ObjectIRI
 	public IRI parentOrganization;
 	
-	//This doesn't come directly from gcdb (it is assigned per issue)
 	@Predicate("brand")
 	@ObjectIRI
-	public Collection<IRI> brands  = new HashSet<>();//Brand
+	public Collection<IRI> brands  = new HashSet<>();
 	
 	/**
 	 * ID of person (name:universe:era)
 	 */
-	@Predicate(CONTEXT + "member")
+	@Predicate("member")
 	@ObjectIRI
 	public Collection<IRI> members = new HashSet<>();
 	
-	@Predicate(CONTEXT + "founder")
+	@Predicate("founder")
 	public Collection<IRI> founders = new HashSet<>();
 
 }

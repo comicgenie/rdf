@@ -47,8 +47,8 @@ public class CreativeWork extends Thing {
 	public String headline;// featured for comic story
 
 	@Predicate("genre")
-	@ObjectString
-	public Collection<String> genres = new HashSet<>(3);
+	@ObjectIRI
+	public Collection<IRI> genres = new HashSet<>(3);
 
 	@Predicate("hasPart")
 	@ObjectIRI
@@ -147,5 +147,20 @@ public class CreativeWork extends Thing {
 	@ObjectIRI
 	@SchemaComicWiki
 	public Collection<IRI> creatorAlias = new HashSet<>(1);
+		
+	@Predicate("reprint")
+	@ObjectIRI
+	@SchemaComicWiki
+	public Collection<IRI> reprint = new HashSet<>(1);
 	
+	@Predicate("reprintOf")
+	@ObjectIRI
+	@SchemaComicWiki
+	public Collection<IRI> reprintOf = new HashSet<>(1);
+	
+	@Predicate("reprintNote")
+	@ObjectIRI
+	@SchemaComicWiki
+	public Collection<IRI> reprintNote = new HashSet<>(1);
+		
 }

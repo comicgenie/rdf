@@ -25,6 +25,7 @@ import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 import org.apache.spark.storage.StorageLevel;
 import org.comicwiki.gcd.FieldParser;
+import org.comicwiki.gcd.SparkUtils;
 import org.comicwiki.gcd.tables.TableRow;
 import org.comicwiki.model.schema.Thing;
 
@@ -32,6 +33,13 @@ import com.google.inject.Singleton;
 
 @Singleton
 public abstract class BaseTable<R extends TableRow> {
+
+	private static void assertValidJdbcScheme(String jdbcUrl) {
+		if (!SparkUtils.isValidScheme(jdbcUrl)) {
+			throw new IllegalArgumentException("invalid jdbc scheme: "
+					+ jdbcUrl);
+		}
+	}
 
 	public HashMap<Integer, R> cache = new HashMap<>();
 
@@ -45,15 +53,15 @@ public abstract class BaseTable<R extends TableRow> {
 
 	private final TableFormat tableFormat;
 
+	public BaseTable(SQLContext sqlContext, String datasourceName) {
+		this(sqlContext, datasourceName, TableFormat.RDB);
+	}
+
 	public BaseTable(SQLContext sqlContext, String datasourceName,
 			TableFormat tableFormat) {
 		this.sqlContext = sqlContext;
 		this.datasourceName = datasourceName;
 		this.tableFormat = tableFormat;
-	}
-
-	public BaseTable(SQLContext sqlContext, String datasourceName) {
-		this(sqlContext, datasourceName, TableFormat.RDB);
 	}
 
 	protected final void add(R row) {
@@ -106,15 +114,16 @@ public abstract class BaseTable<R extends TableRow> {
 	protected abstract R process(Row row) throws IOException;
 
 	protected final void saveAllToParquetFormat(String tableName, String jdbcUrl) {
+		assertValidJdbcScheme(jdbcUrl);
 		DataFrame df = sqlContext.read().format("jdbc").option("url", jdbcUrl)
 				.option("dbtable", tableName).load();
 		df.write().save(datasourceName);
 	}
 
 	public abstract void saveToParquetFormat(String jdbcUrl);
-
 	protected final void saveToParquetFormat(String tableName,
 			Column[] columns, String jdbcUrl) {
+		assertValidJdbcScheme(jdbcUrl);
 		DataFrame df = createReader(jdbcUrl, tableName).load();
 		df.select(columns).write().save(datasourceName);
 	}
@@ -126,12 +135,14 @@ public abstract class BaseTable<R extends TableRow> {
 
 	protected final void saveToParquetFormat(String tableName,
 			Column[] columns, String jdbcUrl, int limit, String outputName) {
+		assertValidJdbcScheme(jdbcUrl);
 		DataFrame df = createReader(jdbcUrl, tableName).load();
 		df.limit(limit).select(columns).write().save(outputName);
 	}
 
 	protected final void saveToParquetFormat(String tableName,
 			Column[] columns, String jdbcUrl, String outputName) {
+		assertValidJdbcScheme(jdbcUrl);
 		DataFrame df = createReader(jdbcUrl, tableName).load();
 		df.select(columns).write().save(outputName);
 	}

@@ -15,37 +15,49 @@
  *******************************************************************************/
 package org.comicwiki.gcd.tables;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
-import org.apache.spark.sql.SQLContext;
+import org.comicwiki.BaseTable;
 import org.comicwiki.IRICache;
 import org.comicwiki.Repositories;
 import org.comicwiki.ResourceIDCache;
 import org.comicwiki.ThingCache;
 import org.comicwiki.ThingFactory;
 import org.comicwiki.gcd.OrgLookupService;
+import org.comicwiki.gcd.tables.StoryTable.StoryRow;
 import org.comicwiki.model.ComicCharacter;
 import org.comicwiki.model.schema.Person;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-public class StoryTableTest {
-
+public class StoryTableTest extends TableTestCase<StoryTable> {
+	
+	@Test
+	public void joinStoryTypeTable() throws Exception {
+		Row row = RowFactory.create(8, "credits");
+		StoryTypeTable table = new StoryTypeTable(null);
+		table.process(row);
+		
+		StoryTable storyTable = createTable();
+		Row storyRow = RowFactory.create(1, null, null, null, null, null,
+				null, null, null, null, null, null, null, null, null, null,
+				null, null, 8, null, null);
+		StoryRow row2 = storyTable.process(storyRow);	
+		storyTable.join(table);
+		
+		assertEquals("credits", row2.storyType);
+	}
 	
 	@Test
 	public void characterStoryRelation() throws Exception {
-		ThingCache thingCache = new ThingCache(new Repositories(),
-				new IRICache(), new ResourceIDCache());
-		ThingFactory thingFactory = new ThingFactory(thingCache);
-		StoryTable table = new StoryTable(null, thingFactory, new IRICache(),
-				new OrgLookupService());
+		ThingFactory thingFactory = createThingFactory();
+		StoryTable table = createTable(thingFactory);
 		StoryTable.StoryRow row = new StoryTable.StoryRow();
+	
 		ComicCharacter cc = thingFactory.create(ComicCharacter.class);
 		row.characters = Lists.newArrayList(cc);
 		
@@ -54,33 +66,11 @@ public class StoryTableTest {
 		assertTrue(row.instance.characters.contains(cc.instanceId));
 	}
 	
-	@Test(expected = IllegalArgumentException.class)
-	public void badJcbcUrl() throws Exception {
-		ThingCache thingCache = new ThingCache(new Repositories(),
-				new IRICache(), new ResourceIDCache());
-		ThingFactory thingFactory = new ThingFactory(thingCache);
-		StoryTable table = new StoryTable(null, thingFactory, new IRICache(),
-				new OrgLookupService());
-		table.saveToParquetFormat("dsafjkldfksa");
-	}
-	
-	@Test(expected = NullPointerException.class)
-	public void badJcbcUrl2() throws Exception {
-		ThingCache thingCache = new ThingCache(new Repositories(),
-				new IRICache(), new ResourceIDCache());
-		ThingFactory thingFactory = new ThingFactory(thingCache);
-		StoryTable table = new StoryTable(null, thingFactory, new IRICache(),
-				new OrgLookupService());
-		table.saveToParquetFormat("jdbc:mysql://invalid");
-	}
-	
 	@Test
 	public void creatorWorkOnCharacter() throws Exception {
-		ThingCache thingCache = new ThingCache(new Repositories(),
-				new IRICache(), new ResourceIDCache());
-		ThingFactory thingFactory = new ThingFactory(thingCache);
-		StoryTable table = new StoryTable(null, thingFactory, new IRICache(),
-				new OrgLookupService());
+		ThingFactory thingFactory = createThingFactory();
+		StoryTable table = createTable(thingFactory);
+		
 		StoryTable.StoryRow row = new StoryTable.StoryRow();
 		ComicCharacter cc = thingFactory.create(ComicCharacter.class);
 		row.characters = Lists.newArrayList(cc);
@@ -88,7 +78,6 @@ public class StoryTableTest {
 		Person inker = thingFactory.create(Person.class);
 		row.inks = Lists.newArrayList(inker);
 		table.transform(row);
-		System.out.println(row.inks);
 		
 		assertTrue(inker.workedOn.contains(cc.instanceId));
 		assertTrue(cc.creativeWork.inkers.contains(inker.instanceId));
@@ -96,30 +85,24 @@ public class StoryTableTest {
 	
 	@Test
 	public void allNull() throws Exception {
-		ThingCache thingCache = new ThingCache(new Repositories(),
-				new IRICache(), new ResourceIDCache());
-		ThingFactory thingFactory = new ThingFactory(thingCache);
+		ThingFactory thingFactory = createThingFactory();
+		StoryTable table = createTable(thingFactory);
 
 		Row row = RowFactory.create(null, null, null, null, null, null, null,
 				null, null, null, null, null, null, null, null, null, null,
 				null, null, null, null);
-		StoryTable table = new StoryTable(null, thingFactory, new IRICache(),
-				null);
 		table.process(row);
 		assertEquals(0, table.cache.size());
 	}
 
 	@Test
 	public void character() throws Exception {
-		ThingCache thingCache = new ThingCache(new Repositories(),
-				new IRICache(), new ResourceIDCache());
-		ThingFactory thingFactory = new ThingFactory(thingCache);
-
+		ThingFactory thingFactory = createThingFactory();
+		StoryTable table = createTable(thingFactory);
+		
 		Row row = RowFactory.create(1, null, null, null, null, null, null,
 				null, null, null, null, null, null, "Daredevil", null, null,
 				null, null, null, null, null);
-		StoryTable table = new StoryTable(null, thingFactory, new IRICache(),
-				new OrgLookupService());
 		StoryTable.StoryRow tableRow = table.process(row);
 		assertEquals(1, tableRow.characters.size());
 		assertEquals("Daredevil", tableRow.characters.stream().findFirst()
@@ -150,16 +133,20 @@ public class StoryTableTest {
 
 	@Test
 	public void title() throws Exception {
-		ThingCache thingCache = new ThingCache(new Repositories(),
-				new IRICache(), new ResourceIDCache());
-		ThingFactory thingFactory = new ThingFactory(thingCache);
+		ThingFactory thingFactory = createThingFactory();
+		StoryTable table = createTable(thingFactory);
 
 		Row row = RowFactory.create(1, "Action Comics", null, null, null, null,
 				null, null, null, null, null, null, null, null, null, null,
 				null, null, null, null, null);
-		StoryTable table = new StoryTable(null, thingFactory, new IRICache(),
-				null);
+
 		StoryTable.StoryRow tableRow = table.process(row);
 		assertEquals("Action Comics", tableRow.title);
+	}
+
+	@Override
+	protected StoryTable createTable(ThingFactory thingFactory) {
+		return new StoryTable(null, thingFactory, new IRICache(),
+				new OrgLookupService());
 	}
 }

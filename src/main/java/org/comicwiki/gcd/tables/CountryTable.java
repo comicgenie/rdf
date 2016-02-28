@@ -21,8 +21,7 @@ import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 import org.comicwiki.BaseTable;
-import org.comicwiki.Repositories;
-import org.comicwiki.Repository;
+import org.comicwiki.ThingFactory;
 import org.comicwiki.model.schema.Country;
 
 import com.google.inject.Inject;
@@ -38,38 +37,33 @@ public class CountryTable extends BaseTable<CountryTable.CountryRow> {
 		public static final int NAME = 2;
 	}
 
-	public class CountryRow extends TableRow {
-
-		public Country country;
+	public class CountryRow extends TableRow<Country> {
+		public Country instance = create(thingFactory);
 	}
 
 	private static final String sInputTable = "gcd_country";
 
 	private static final String sParquetName = sInputTable + ".parquet";
 
-	private final Repository<Country> countryRepository;
+	private final ThingFactory thingFactory;
 
 	@Inject
-	public CountryTable(SQLContext sqlContext, Repositories repositories) {
+	public CountryTable(SQLContext sqlContext, ThingFactory thingFactory) {
 		super(sqlContext, sParquetName);
-		countryRepository = repositories.COUNTRY;
+		this.thingFactory = thingFactory;
 	}
 
 	@Override
 	public CountryRow process(Row row) throws IOException {
-		Country country = new Country();
-		country.name = row.getString(Columns.CODE);
-
-		// CountryNameField f = new CountryNameField();
-		// country.alternateNames.add(f.process(row));
-
-		countryRepository.add(country);
-
 		CountryRow countryRow = new CountryRow();
-		countryRow.id = row.getInt(Columns.CODE);
-		countryRow.country = country;
-
-		add(countryRow);
+		countryRow.instance.name = row.getString(Columns.NAME);
+		if (!row.isNullAt(Columns.CODE)) {
+			countryRow.instance.countryCode.add(row.getString(Columns.CODE));
+		}
+		if (!row.isNullAt(Columns.ID)) {
+			countryRow.id = row.getInt(Columns.ID);
+			add(countryRow);
+		}
 		return countryRow;
 	}
 

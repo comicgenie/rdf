@@ -50,6 +50,9 @@ public class PublisherTable extends BaseTable<PublisherTable.PublisherRow> {
 
 	public static class PublisherRow extends TableRow<Organization> {
 
+		/**
+		 * gcd_country.id
+		 */
 		public int countryId;
 
 		public Date modified;
@@ -77,16 +80,27 @@ public class PublisherTable extends BaseTable<PublisherTable.PublisherRow> {
 	@Override
 	public PublisherRow process(Row row) throws IOException {
 		PublisherRow publisherRow = new PublisherRow();
-		publisherRow.id = row.getInt(Columns.ID);
-		publisherRow.countryId = row.getInt(Columns.COUNTRY_ID);
+		if (!row.isNullAt(Columns.COUNTRY_ID)) {
+			publisherRow.countryId = row.getInt(Columns.COUNTRY_ID);
+		}
+
 		publisherRow.modified = row.getTimestamp(Columns.MODIFIED);
 		publisherRow.name = row.getString(Columns.NAME);
 		publisherRow.notes = row.getString(Columns.NOTES);
 		publisherRow.url = row.getString(Columns.URL);
-		publisherRow.yearBegan = row.getInt(Columns.YEAR_BEGAN);
-		publisherRow.yearEnded = row.getInt(Columns.YEAR_ENDED);
+		if (!row.isNullAt(Columns.YEAR_BEGAN)) {
+			publisherRow.yearBegan = row.getInt(Columns.YEAR_BEGAN);
+		}
 
-		add(publisherRow);
+		if (!row.isNullAt(Columns.YEAR_ENDED)) {
+			publisherRow.yearEnded = row.getInt(Columns.YEAR_ENDED);
+		}
+
+		if (!row.isNullAt(Columns.ID)) {
+			publisherRow.id = row.getInt(Columns.ID);
+			;
+			add(publisherRow);
+		}
 		return publisherRow;
 	}
 

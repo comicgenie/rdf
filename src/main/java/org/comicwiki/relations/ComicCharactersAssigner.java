@@ -43,7 +43,6 @@ public final class ComicCharactersAssigner {
 		}
 	}
 
-	// Just put in characters in one team
 	public ComicCharactersAssigner(Collection<ComicCharacter> comicCharacters) {
 		this.comicCharacters = comicCharacters;
 		comicCharacters.forEach(c -> {
@@ -63,6 +62,6 @@ public final class ComicCharactersAssigner {
 	 */
 	public void genres(Collection<Genre> genres) {
 		genres.forEach(g -> comicCharacters.forEach(c -> c.creativeWork.genres
-				.add(g.name)));
+				.add(g.instanceId)));
 	}
 }

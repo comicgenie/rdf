@@ -21,9 +21,16 @@ import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 import org.comicwiki.BaseTable;
+import org.comicwiki.model.ReprintNote;
 
 import com.google.inject.Inject;
 
+/**
+ * Will join into issue table
+ * 
+ * Issue to Issue
+ * 
+ */
 public class IssueReprintTable extends
 		BaseTable<IssueReprintTable.IssueReprintRow> {
 	public static class Columns {
@@ -35,13 +42,21 @@ public class IssueReprintTable extends
 
 		public static final int NOTES = 3;
 
+		/**
+		 * Original issue
+		 * gcd_issue.id
+		 */
 		public static final int ORIGIN_ISSUE_ID = 1;
 
+		/**
+		 * New Issue that contains reprints
+		 * gcd_issue.id
+		 */
 		public static final int TARGET_ISSUE_ID = 2;
 
 	}
 
-	public static class IssueReprintRow extends TableRow {
+	public static class IssueReprintRow extends TableRow<ReprintNote> {
 
 	}
 
@@ -56,8 +71,12 @@ public class IssueReprintTable extends
 
 	@Override
 	public IssueReprintRow process(Row row) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		IssueReprintRow issueReprintRow = new IssueReprintRow();
+		if (!row.isNullAt(Columns.ID)) {
+			issueReprintRow.id = row.getInt(Columns.ID);
+			add(issueReprintRow);
+		}
+		return issueReprintRow;
 	}
 
 	@Override

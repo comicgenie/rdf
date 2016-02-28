@@ -67,9 +67,10 @@ public class CharactersView extends BaseTable<StoryTable.StoryRow> {
 	@Override
 	public StoryRow process(Row row) throws IOException {
 		StoryRow storyRow = new StoryTable.StoryRow();
-		Fields.Character characterField = parseField(Columns.CHARACTERS, row,
-				new CharacterFieldParser(thingFactory,
-						comicOrganizations, null));
+		Fields.Character characterField = parseField(
+				Columns.CHARACTERS,
+				row,
+				new CharacterFieldParser(thingFactory, comicOrganizations, null));
 
 		if (characterField != null) {
 			storyRow.characters = characterField.comicCharacters;

@@ -1,18 +1,18 @@
 package org.comicwiki.gcd;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Scanner;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.BailErrorStrategy;
 import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.Token;
 import org.comicwiki.IRI;
 import org.comicwiki.IRICache;
 import org.comicwiki.Repositories;

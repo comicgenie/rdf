@@ -60,10 +60,14 @@ public class SeriesBondTypeTable extends
 	@Override
 	public SeriesBondTypeRow process(Row row) throws IOException {
 		SeriesBondTypeRow bondTypeRow = new SeriesBondTypeRow();
-		bondTypeRow.id = row.getInt(Columns.ID);
 		bondTypeRow.description = row.getString(Columns.DESCRIPTION);
 		bondTypeRow.name = row.getString(Columns.NAME);
 		bondTypeRow.notes = row.getString(Columns.NOTES);
+
+		if (!row.isNullAt(Columns.ID)) {
+			bondTypeRow.id = row.getInt(Columns.ID);
+			add(bondTypeRow);
+		}
 		return bondTypeRow;
 	}
 

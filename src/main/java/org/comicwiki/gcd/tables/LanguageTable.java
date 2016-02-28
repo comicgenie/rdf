@@ -21,6 +21,8 @@ import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 import org.comicwiki.BaseTable;
+import org.comicwiki.ThingFactory;
+import org.comicwiki.model.schema.Language;
 
 import com.google.inject.Inject;
 
@@ -35,30 +37,34 @@ public class LanguageTable extends BaseTable<LanguageTable.LanguageRow> {
 		public static final int NAME = 2;
 	}
 
-	public static class LanguageRow extends TableRow {
+	public class LanguageRow extends TableRow<Language> {
 
-		public String code;
+		public Language instance = create(thingFactory);
 
-		public String name;
 	}
 
 	private static final String sInputTable = "gcd_language";
 
 	private static final String sParquetName = sInputTable + ".parquet";
 
+	private ThingFactory thingFactory;
+
 	@Inject
-	public LanguageTable(SQLContext sqlContext) {
+	public LanguageTable(SQLContext sqlContext, ThingFactory thingFactory) {
 		super(sqlContext, sParquetName);
+		this.thingFactory = thingFactory;
 	}
 
 	@Override
 	public LanguageRow process(Row row) throws IOException {
 		LanguageRow languageRow = new LanguageRow();
-		languageRow.id = row.getInt(Columns.ID);
-		languageRow.name = row.getString(Columns.NAME);
-		languageRow.code = row.getString(Columns.CODE);
+		languageRow.instance.name = row.getString(Columns.NAME);
+		languageRow.instance.languageCode = row.getString(Columns.CODE);
 
-		add(languageRow);
+		if (!row.isNullAt(Columns.ID)) {
+			languageRow.id = row.getInt(Columns.ID);
+			add(languageRow);
+		}
 		return languageRow;
 	}
 

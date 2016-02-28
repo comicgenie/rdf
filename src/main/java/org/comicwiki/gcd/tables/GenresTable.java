@@ -15,17 +15,16 @@
  *******************************************************************************/
 package org.comicwiki.gcd.tables;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.TreeSet;
 
 import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 import org.comicwiki.BaseTable;
+import org.comicwiki.ThingFactory;
+import org.comicwiki.model.Genre;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Sets;
@@ -39,23 +38,22 @@ public class GenresTable extends BaseTable<GenresTable.GenreRow> {
 				"genre") };
 	}
 
-	public static class GenreRow extends TableRow {
-		String gcdName;
-
-		String name;
+	public class GenreRow extends TableRow<Genre> {
+		//public Genre instance = create(thingFactory);
 	}
 
 	private static final String sParquetName = "genres.parquet";
 
 	private static final String sTableName = "gcd_story";
+	
+	public HashMap<String, Genre> cache = new HashMap<>();
 
-	public TreeSet<String> cache = new TreeSet<>();
-
-	HashMap<String, Integer> g2 = new HashMap<>();
+	private ThingFactory thingFactory;
 
 	@Inject
-	public GenresTable(SQLContext sqlContext) {
+	public GenresTable(SQLContext sqlContext, ThingFactory thingFactory) {
 		super(sqlContext, sParquetName);
+		this.thingFactory = thingFactory;
 	}
 
 	@Override
@@ -68,29 +66,20 @@ public class GenresTable extends BaseTable<GenresTable.GenreRow> {
 							.omitEmptyStrings()
 							.split(r.getString(f).toUpperCase()));
 				});
-		for (String gen : genres) {
-			if (g2.containsKey(gen)) {
-				int value = g2.get(gen) + 1;
-				g2.put(gen, value);
-			} else {
-				g2.put(gen, 1);
+		
+		for(String name : genres) {
+			if(!cache.containsKey(name)) {
+				Genre genre = thingFactory.create(Genre.class);
+				genre.name = name;	
+				cache.put(name, genre);
 			}
 		}
-		cache.addAll(genres);
+		
 		return null;
 	}
 
 	@Override
 	public void saveToParquetFormat(String jdbcUrl) {
 		super.saveToParquetFormat(sTableName, Columns.ALL_COLUMNS, jdbcUrl);
-	}
-
-	public void writeToFile(File file) throws IOException {
-		FileOutputStream fos = new FileOutputStream(file);
-		for (String genre : cache) {
-			fos.write((genre + "\r\n").getBytes());
-		}
-		fos.close();
-		//System.out.println(g2);
 	}
 }

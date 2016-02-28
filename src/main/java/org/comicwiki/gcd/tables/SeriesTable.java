@@ -71,16 +71,22 @@ public class SeriesTable extends BaseTable<SeriesTable.SeriesRow> {
 
 		public Collection<String> color = new HashSet<>(3);
 
+		/**
+		 * gcd_country.id
+		 */
 		public int countryId;
-		
+
 		public String country;
 
 		public Collection<String> dimensions = new HashSet<>(3);
 
 		public Collection<String> format = new HashSet<>(3);
 
+		/**
+		 * gcd_language.id
+		 */
 		public int languageId;
-		
+
 		public String language;
 
 		public Date modified;
@@ -95,8 +101,11 @@ public class SeriesTable extends BaseTable<SeriesTable.SeriesRow> {
 
 		public String publicationNotes;
 
+		/**
+		 * gcd_publisher.id
+		 */
 		public int publisherId;
-		
+
 		public String publisher;
 
 		public Collection<String> publishingFormat = new HashSet<>(3);
@@ -131,27 +140,41 @@ public class SeriesTable extends BaseTable<SeriesTable.SeriesRow> {
 	@Override
 	protected void join(BaseTable<?> table) {
 		super.join(table);
-		//publisherId
-		//countryId
-		//languageId
+		// publisherId
+		// countryId
+		// languageId
 	}
 
 	@Override
 	public SeriesRow process(Row row) throws IOException {
 		SeriesRow seriesRow = new SeriesRow();
 
-		seriesRow.id = row.getInt(Columns.ID);
-		seriesRow.countryId = row.getInt(Columns.COUNTRY_ID);
-		seriesRow.languageId = row.getInt(Columns.LANGUAGE_ID);
+		if (!row.isNullAt(Columns.COUNTRY_ID)) {
+			seriesRow.countryId = row.getInt(Columns.COUNTRY_ID);
+		}
+		if (!row.isNullAt(Columns.LANGUAGE_ID)) {
+			seriesRow.languageId = row.getInt(Columns.LANGUAGE_ID);
+		}
+
 		seriesRow.modified = row.getTimestamp(Columns.MODIFIED);
 		seriesRow.name = row.getString(Columns.NAME);
 		seriesRow.notes = row.getString(Columns.NOTES);
 		seriesRow.publicationDates = row.getString(Columns.PUBLICATION_DATES);
 		seriesRow.publicationNotes = row.getString(Columns.PUBLICATION_NOTES);
-		seriesRow.publisherId = row.getInt(Columns.PUBLISHER_ID);
+
+		if (!row.isNullAt(Columns.PUBLISHER_ID)) {
+			seriesRow.publisherId = row.getInt(Columns.PUBLISHER_ID);
+		}
+
 		seriesRow.trackingNotes = row.getString(Columns.TRACKING_NOTES);
-		seriesRow.yearBegan = row.getInt(Columns.YEAR_BEGAN);
-		seriesRow.yearEnded = row.getInt(Columns.YEAR_ENDED);
+
+		if (!row.isNullAt(Columns.YEAR_BEGAN)) {
+			seriesRow.yearBegan = row.getInt(Columns.YEAR_BEGAN);
+		}
+
+		if (!row.isNullAt(Columns.YEAR_ENDED)) {
+			seriesRow.yearEnded = row.getInt(Columns.YEAR_ENDED);
+		}
 
 		if (!row.isNullAt(Columns.FORMAT)) {
 			seriesRow.format = parseField(Columns.FORMAT, row,
@@ -182,7 +205,11 @@ public class SeriesTable extends BaseTable<SeriesTable.SeriesRow> {
 			seriesRow.publishingFormat = parseField(Columns.PUBLISHING_FORMAT,
 					row, (f, r) -> split(f, r));
 		}
-
+		if (!row.isNullAt(Columns.ID)) {
+			seriesRow.id = row.getInt(Columns.ID);
+			;
+			add(seriesRow);
+		}
 		return seriesRow;
 	}
 

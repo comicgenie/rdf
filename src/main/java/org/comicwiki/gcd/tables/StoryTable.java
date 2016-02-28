@@ -32,7 +32,6 @@ import org.comicwiki.ThingFactory;
 import org.comicwiki.gcd.CharacterFieldParser;
 import org.comicwiki.gcd.CreatorFieldParser;
 import org.comicwiki.gcd.OrgLookupService;
-import org.comicwiki.gcd.SparkUtils;
 import org.comicwiki.model.ComicCharacter;
 import org.comicwiki.model.ComicOrganization;
 import org.comicwiki.model.schema.Organization;
@@ -47,7 +46,7 @@ import com.google.inject.Inject;
 
 public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 
-	private static final class Columns {
+	public static final class Columns {
 
 		public static final Column[] ALL_COLUMNS = new Column[] {
 				new Column("id"), new Column("title"), new Column("feature"),
@@ -352,7 +351,6 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 		ComicCreatorAssigner creatorAssigner = new ComicCreatorAssigner(
 				row.colors, row.inks, row.letters, row.pencils, row.script,
 				row.editing);
-
 		creatorAssigner.colleagues();
 		creatorAssigner.jobTitles();
 		creatorAssigner.characters(row.characters);
@@ -362,10 +360,6 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 
 	@Override
 	public void saveToParquetFormat(String jdbcUrl) {
-		if (!SparkUtils.isValidScheme(jdbcUrl)) {
-			throw new IllegalArgumentException("invalid jdbc scheme: "
-					+ jdbcUrl);
-		}
 		super.saveToParquetFormat(sInputTable, Columns.ALL_COLUMNS, jdbcUrl,
 				10000);
 	}

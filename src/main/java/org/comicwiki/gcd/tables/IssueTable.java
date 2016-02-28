@@ -76,16 +76,22 @@ public class IssueTable extends BaseTable<IssueTable.IssueRow> {
 
 		public String barcode;
 
+		/**
+		 * gcd_brand.id
+		 */
 		public int brandId;
-		
+
 		public String brand;
 
 		public Collection<Person> editors = new HashSet<>(3);
 
 		public String indiciaFrequency;
 
+		/**
+		 * gcd_indicia_publisher.id
+		 */
 		public int indiciaPublisherId;
-		
+
 		public String indiciaPublisher;
 
 		public String isbn;
@@ -108,9 +114,12 @@ public class IssueTable extends BaseTable<IssueTable.IssueRow> {
 
 		public String rating;
 
+		/**
+		 * gcd_series.id
+		 */
 		public int seriesId;
-		
-		public String series;//Is this unique???
+
+		public String series;// Is this unique???
 
 		public String title;
 
@@ -132,34 +141,48 @@ public class IssueTable extends BaseTable<IssueTable.IssueRow> {
 	@Override
 	public void join(BaseTable<?>... tables) {
 		super.join(tables);
+		// Join with IssueReprintTable
+
 	}
 
 	@Override
 	protected void join(BaseTable<?> table) {
 		super.join(table);
-		//indiciaPublisherId
-		//brandId
-		//series
+		// indiciaPublisherId
+		// brandId
+		// series
 	}
 
 	@Override
 	public IssueRow process(Row row) throws IOException {
 		IssueRow issueRow = new IssueRow();
 		issueRow.barcode = row.getString(Columns.BARCODE);
-		issueRow.brandId = row.getInt(Columns.BRAND_ID);
-		issueRow.id = row.getInt(Columns.ID);
+		if (!row.isNullAt(Columns.BRAND_ID)) {
+			issueRow.brandId = row.getInt(Columns.BRAND_ID);
+		}
+
 		issueRow.indiciaFrequency = row.getString(Columns.INDICIA_FREQUENCY);
-		issueRow.indiciaPublisherId = row.getInt(Columns.INDICIA_PUBLISHER_ID);
+		if (!row.isNullAt(Columns.INDICIA_PUBLISHER_ID)) {
+			issueRow.indiciaPublisherId = row
+					.getInt(Columns.INDICIA_PUBLISHER_ID);
+		}
 		issueRow.isbn = row.getString(Columns.ISBN);
 		issueRow.keyDate = row.getString(Columns.KEY_DATE);
 		issueRow.modified = row.getTimestamp(Columns.MODIFIED);
 		issueRow.note = row.getString(Columns.NOTES);
 		issueRow.number = row.getString(Columns.NUMBER);
 		issueRow.onSaleDate = row.getString(Columns.ON_SALE_DATE);
-		issueRow.pageCount = row.getInt(Columns.PAGE_COUNT);
+
+		if (!row.isNullAt(Columns.PAGE_COUNT)) {
+			issueRow.pageCount = row.getInt(Columns.PAGE_COUNT);
+		}
+
 		issueRow.publicationDate = row.getString(Columns.PUBLICATION_DATE);
 		issueRow.rating = row.getString(Columns.RATING);
-		issueRow.seriesId = row.getInt(Columns.SERIES_ID);
+		if (!row.isNullAt(Columns.SERIES_ID)) {
+			issueRow.seriesId = row.getInt(Columns.SERIES_ID);
+		}
+
 		issueRow.title = row.getString(Columns.TITLE);
 		issueRow.variantName = row.getString(Columns.VARIANT_NAME);
 		issueRow.volume = row.getString(Columns.VOLUMN);
@@ -175,6 +198,10 @@ public class IssueTable extends BaseTable<IssueTable.IssueRow> {
 		}
 		if (!row.isNullAt(Columns.EDITING)) {
 			// issueRow.editors
+		}
+		if (!row.isNullAt(Columns.ID)) {
+			issueRow.id = row.getInt(Columns.ID);
+			add(issueRow);
 		}
 		return issueRow;
 

@@ -17,14 +17,40 @@ package org.comicwiki.gcd.tables;
 
 import java.io.IOException;
 
+import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 import org.comicwiki.BaseTable;
+import org.comicwiki.model.ReprintNote;
 
 import com.google.inject.Inject;
 
+/**
+ * Reprints of stories
+ */
 public class ReprintTable extends BaseTable<ReprintTable.ReprintRow> {
-	public static class ReprintRow extends TableRow {
+
+	public static class Columns {
+
+		public static final Column[] ALL_COLUMNS = new Column[] {
+				new Column("id"), new Column("origin_id"),
+				new Column("target_id"), new Column("notes") };
+		public static final int ID = 0;
+
+		public static final int NOTES = 3;
+
+		/**
+		 * gcd_story.id
+		 */
+		public static final int ORIGIN_ID = 1;
+
+		/**
+		 * gcd_story.id
+		 */
+		public static final int TARGET_ID = 2;
+	}
+
+	public static class ReprintRow extends TableRow<ReprintNote> {
 
 	}
 
@@ -39,13 +65,16 @@ public class ReprintTable extends BaseTable<ReprintTable.ReprintRow> {
 
 	@Override
 	public ReprintRow process(Row row) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		ReprintRow reprintRow = new ReprintRow();
+		if (!row.isNullAt(Columns.ID)) {
+			reprintRow.id = row.getInt(Columns.ID);
+			add(reprintRow);
+		}
+		return reprintRow;
 	}
 
 	@Override
 	public void saveToParquetFormat(String jdbcUrl) {
-		// TODO Auto-generated method stub
-
+		super.saveToParquetFormat(sInputTable, Columns.ALL_COLUMNS, jdbcUrl);
 	}
 }

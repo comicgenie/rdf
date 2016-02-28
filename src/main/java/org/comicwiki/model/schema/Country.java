@@ -15,6 +15,12 @@
  *******************************************************************************/
 package org.comicwiki.model.schema;
 
+import java.util.Collection;
+import java.util.HashSet;
+
+import org.comicwiki.rdf.annotations.ObjectString;
+import org.comicwiki.rdf.annotations.Predicate;
+import org.comicwiki.rdf.annotations.SchemaComicWiki;
 import org.comicwiki.rdf.annotations.Subject;
 
 /**
@@ -23,4 +29,8 @@ import org.comicwiki.rdf.annotations.Subject;
 @Subject(value = "http://schema.org/Country", key= "name")
 public class Country extends AdministrativeArea {
 
+	@SchemaComicWiki
+	@Predicate("countryCode")
+	@ObjectString
+	public Collection<String> countryCode = new HashSet<>(1);
 }

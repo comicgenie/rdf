@@ -17,16 +17,41 @@ package org.comicwiki.gcd.tables;
 
 import java.io.IOException;
 
+import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 import org.comicwiki.BaseTable;
+import org.comicwiki.model.ReprintNote;
 
 import com.google.inject.Inject;
 
+/**
+ * Issue has one of it's stories reprinted
+ */
 public class ReprintFromIssueTable extends
 		BaseTable<ReprintFromIssueTable.ReprintFromIssueRow> {
+	public static class Columns {
 
-	public static class ReprintFromIssueRow extends TableRow {
+		public static final Column[] ALL_COLUMNS = new Column[] {
+				new Column("id"), new Column("origin_issue_id"),
+				new Column("target_id"), new Column("notes") };
+		public static final int ID = 0;
+
+		public static final int NOTES = 3;
+
+		/**
+		 * gcd_issue.id
+		 */
+		public static final int ORIGIN_ISSUE_ID = 1;
+
+		/**
+		 * gcd_story.id
+		 */
+		public static final int TARGET_ID = 2;
+
+	}
+
+	public static class ReprintFromIssueRow extends TableRow<ReprintNote> {
 
 	}
 
@@ -41,13 +66,16 @@ public class ReprintFromIssueTable extends
 
 	@Override
 	public ReprintFromIssueRow process(Row row) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		ReprintFromIssueRow issueRow = new ReprintFromIssueRow();
+		if (!row.isNullAt(Columns.ID)) {
+			issueRow.id = row.getInt(Columns.ID);
+			add(issueRow);
+		}
+		return issueRow;
 	}
 
 	@Override
 	public void saveToParquetFormat(String jdbcUrl) {
-		// TODO Auto-generated method stub
-
+		super.saveToParquetFormat(sInputTable, Columns.ALL_COLUMNS, jdbcUrl);
 	}
 }

@@ -36,7 +36,7 @@ public class StoryTypeTable extends BaseTable<StoryTypeTable.StoryTypeRow> {
 	}
 
 	public static class StoryTypeRow extends TableRow {
-		
+
 		public String name;
 	}
 
@@ -52,8 +52,11 @@ public class StoryTypeTable extends BaseTable<StoryTypeTable.StoryTypeRow> {
 	@Override
 	public StoryTypeRow process(Row row) throws IOException {
 		StoryTypeRow storyTypeRow = new StoryTypeRow();
-		storyTypeRow.id = row.getInt(Columns.ID);
 		storyTypeRow.name = row.getString(Columns.NAME);
+		if (!row.isNullAt(Columns.ID)) {
+			storyTypeRow.id = row.getInt(Columns.ID);
+			add(storyTypeRow);
+		}
 		return storyTypeRow;
 	}
 

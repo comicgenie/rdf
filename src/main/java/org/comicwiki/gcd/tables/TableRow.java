@@ -24,7 +24,7 @@ public class TableRow<T extends Thing> {
 	public int id;
 
 	public T instance;
-	
+
 	public T create(ThingFactory thingFactory) {
 		Class<T> clazz = (Class<T>) ((ParameterizedType) getClass()
 				.getGenericSuperclass()).getActualTypeArguments()[0];

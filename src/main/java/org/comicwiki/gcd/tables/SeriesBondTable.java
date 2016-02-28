@@ -68,12 +68,26 @@ public class SeriesBondTable extends BaseTable<SeriesBondTable.SeriesBondRow> {
 	@Override
 	public SeriesBondRow process(Row row) throws IOException {
 		SeriesBondRow bondRow = new SeriesBondRow();
-		bondRow.id = row.getInt(Columns.ID);
-		bondRow.bondTypeId = row.getInt(Columns.BOND_TYPE_ID);
-		bondRow.originId = row.getInt(Columns.ORIGIN_ID);
-		bondRow.originIssueId = row.getInt(Columns.ORIGIN_ISSUE_ID);
-		bondRow.targetId = row.getInt(Columns.TARGET_ID);
-		bondRow.targetIssueId = row.getInt(Columns.TARGET_ISSUE_ID);
+		if (!row.isNullAt(Columns.BOND_TYPE_ID)) {
+			bondRow.bondTypeId = row.getInt(Columns.BOND_TYPE_ID);
+		}
+		if (!row.isNullAt(Columns.ORIGIN_ID)) {
+			bondRow.originId = row.getInt(Columns.ORIGIN_ID);
+		}
+		if (!row.isNullAt(Columns.ORIGIN_ISSUE_ID)) {
+			bondRow.originIssueId = row.getInt(Columns.ORIGIN_ISSUE_ID);
+		}
+		if (!row.isNullAt(Columns.TARGET_ID)) {
+			bondRow.targetId = row.getInt(Columns.TARGET_ID);
+		}
+		if (!row.isNullAt(Columns.TARGET_ISSUE_ID)) {
+			bondRow.targetIssueId = row.getInt(Columns.TARGET_ISSUE_ID);
+		}
+
+		if (!row.isNullAt(Columns.ID)) {
+			bondRow.id = row.getInt(Columns.ID);
+			add(bondRow);
+		}
 		return bondRow;
 	}
 

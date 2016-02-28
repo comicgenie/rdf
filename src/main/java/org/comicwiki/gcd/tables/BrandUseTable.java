@@ -21,12 +21,13 @@ import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 import org.comicwiki.BaseTable;
+import org.comicwiki.model.BrandUse;
 
 import com.google.inject.Inject;
 
 public class BrandUseTable extends BaseTable<BrandUseTable.BrandUseRow> {
 
-	public static class BrandUseRow extends TableRow {
+	public static class BrandUseRow extends TableRow<BrandUse> {
 
 	}
 
@@ -63,8 +64,12 @@ public class BrandUseTable extends BaseTable<BrandUseTable.BrandUseRow> {
 
 	@Override
 	public BrandUseRow process(Row row) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		BrandUseRow groupRow = new BrandUseRow();
+		if (!row.isNullAt(Columns.ID)) {
+			groupRow.id = row.getInt(Columns.ID);
+			add(groupRow);
+		}
+		return groupRow;
 	}
 
 	@Override
