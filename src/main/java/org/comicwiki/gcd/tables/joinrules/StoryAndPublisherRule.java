@@ -11,7 +11,7 @@ public class StoryAndPublisherRule implements
 
 	@Override
 	public void join(StoryRow left, PublisherRow right) {
-		if(left.publisherId == right.id) {
+		if(left.fkPublisherId == right.id) {
 			left.publisher = right.instance;
 		}	
 	} 

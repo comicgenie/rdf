@@ -35,6 +35,44 @@ import org.junit.Test;
 import com.google.common.collect.Lists;
 
 public class StoryTableTest extends TableTestCase<StoryTable> {
+	@Test
+	public void notes() throws Exception {	
+		StoryTable storyTable = createTable();
+		Row storyRow = RowFactory.create(1, null, null, null, null, null,
+				null, null, null, null, null, null, null, null, null, null,
+				null, "note1;note2", null, null, null);
+		StoryRow row = storyTable.process(storyRow);	
+		
+		assertEquals(2, row.notes.size());
+		assertTrue(row.notes.contains("note1"));
+		assertTrue(row.notes.contains("note2"));
+	}
+	
+	@Test
+	public void genres() throws Exception {	
+		StoryTable storyTable = createTable();
+		Row storyRow = RowFactory.create(1, null, null, null, null, null,
+				null, null, null, null, null, null, "superhero;western", null, null, null,
+				null, null, null, null, null);
+		StoryRow row = storyTable.process(storyRow);	
+		
+		assertEquals(2, row.genre.size());
+		assertTrue(row.genre.contains("superhero"));
+		assertTrue(row.genre.contains("western"));
+	}
+	
+	@Test
+	public void reprintNotes() throws Exception {	
+		StoryTable storyTable = createTable();
+		Row storyRow = RowFactory.create(1, null, null, null, null, null,
+				null, null, null, null, null, null, null, null, null, "reprint1; reprint2",
+				null, null, null, null, null);
+		StoryRow row = storyTable.process(storyRow);	
+		
+		assertEquals(2, row.reprintNotes.size());
+		assertTrue(row.reprintNotes.contains("reprint1"));
+		assertTrue(row.reprintNotes.contains("reprint2"));
+	}
 	
 	@Test
 	public void joinStoryTypeTable() throws Exception {

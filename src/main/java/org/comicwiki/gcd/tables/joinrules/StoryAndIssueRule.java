@@ -11,10 +11,10 @@ public class StoryAndIssueRule implements
 
 	@Override
 	public void join(StoryRow left, IssueRow right) {
-		if (left.issueId == right.id) {
+		if (left.fkIssueId == right.id) {
 			left.editing.addAll(right.editors);
-			left.indiciaPublisherId = right.indiciaPublisherId;
-			left.seriesId = right.seriesId;
+			left.fkIndiciaPublisherId = right.indiciaPublisherId;
+			left.fkSeriesId = right.seriesId;
 		}
 	}
 }

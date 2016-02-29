@@ -11,7 +11,7 @@ public class StoryAndStoryTypeRule implements
 
 	@Override
 	public void join(StoryRow left, StoryTypeRow right) {
-		if (left.typeId == right.id) {
+		if (left.fkTypeId == right.id) {
 			left.storyType = right.name;
 		}
 	}

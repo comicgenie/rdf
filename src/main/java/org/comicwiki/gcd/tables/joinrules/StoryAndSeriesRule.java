@@ -11,9 +11,9 @@ public class StoryAndSeriesRule implements
 
 	@Override
 	public void join(StoryRow left, SeriesRow right) {
-		if (left.seriesId == right.id) {
-			left.seriesName = right.name;
-			left.publisherId = right.publisherId;
+		if (left.fkSeriesId == right.id) {
+			left.series = right.instance;
+			left.fkPublisherId = right.fkPublisherId;
 		}
 	}
 }

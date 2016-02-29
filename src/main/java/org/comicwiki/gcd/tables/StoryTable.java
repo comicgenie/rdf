@@ -41,6 +41,7 @@ import org.comicwiki.model.ComicCharacter;
 import org.comicwiki.model.ComicOrganization;
 import org.comicwiki.model.schema.Organization;
 import org.comicwiki.model.schema.Person;
+import org.comicwiki.model.schema.bib.ComicSeries;
 import org.comicwiki.model.schema.bib.ComicStory;
 import org.comicwiki.relations.ComicCharactersAssigner;
 import org.comicwiki.relations.ComicCreatorAssigner;
@@ -104,8 +105,6 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 
 	public static final class StoryRow extends TableRow<ComicStory> {
 
-		public ComicStory instance = create(thingFactory);
-
 		public Collection<ComicCharacter> characters;
 
 		public Collection<Person> colors;
@@ -114,17 +113,44 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 
 		public String feature;
 
+		/**
+		 * gcd_indicia_publisher.id
+		 */
+		public int fkIndiciaPublisherId;
+
+		/**
+		 * gcd_series.id
+		 */
+		public int fkIssueId;
+
+		/**
+		 * gcd_publisher.id
+		 */
+		public int fkPublisherId;
+
+		/**
+		 * gcd_series.id
+		 */
+		public int fkSeriesId;
+
+		/**
+		 * gcd_story_type.id
+		 */
+		public int fkTypeId;
+
 		public Collection<String> genre;
+
+		public Organization indiciaPublisher;
 
 		public Collection<Person> inks;
 
-		public int issueId;
+		public ComicStory instance = create(thingFactory);
 
 		public String jobNumber;
 
 		public Collection<Person> letters;
 
-		public Date modified;
+		public Date modified;;
 
 		public Collection<String> notes;
 
@@ -134,33 +160,23 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 
 		public boolean pageCountUncertain;
 
-		public Collection<Person> pencils;;
+		public Collection<Person> pencils;
 
-		public Collection<String> reprintNotes;;
+		public Organization publisher;
+
+		public Collection<String> reprintNotes;
 
 		public Collection<Person> script;
 
 		public int sequenceNumber;
+
+		public ComicSeries series;
 
 		public String storyType;
 
 		public String synopsis;
 
 		public String title;
-
-		public int typeId;
-
-		public int indiciaPublisherId;
-
-		public int seriesId;
-
-		public String seriesName;
-
-		public int publisherId;
-
-		public Organization publisher;
-
-		public Organization indiciaPublisher;
 
 	}
 
@@ -170,9 +186,9 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 
 	private static ThingFactory thingFactory;
 
-	private final IRICache iriCache;
-
 	private OrgLookupService comicOrganizations;
+
+	private final IRICache iriCache;
 
 	@Inject
 	public StoryTable(SQLContext sqlContext, ThingFactory thingFactory,
@@ -181,6 +197,10 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 		StoryTable.thingFactory = thingFactory;
 		this.iriCache = iriCache;
 		this.comicOrganizations = comicOrganizations;
+	}
+	
+	public StoryRow createRow() {
+		return new StoryRow();
 	}
 
 	@Override
@@ -237,7 +257,7 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 					});
 		}
 		if (!row.isNullAt(Columns.REPRINT_NOTES)) {
-			storyRow.notes = parseField(
+			storyRow.reprintNotes = parseField(
 					Columns.REPRINT_NOTES,
 					row,
 					(f, r) -> {
@@ -248,7 +268,7 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 		storyRow.synopsis = row.getString(Columns.SYNPOSIS);
 
 		if (!row.isNullAt(Columns.TYPE_ID)) {
-			storyRow.typeId = row.getInt(Columns.TYPE_ID);
+			storyRow.fkTypeId = row.getInt(Columns.TYPE_ID);
 		}
 		if (!row.isNullAt(Columns.PAGE_COUNT)) {
 			storyRow.pageCount = (BigDecimal) row.get(Columns.PAGE_COUNT);
@@ -258,7 +278,7 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 		}
 
 		if (!row.isNullAt(Columns.ISSUE_ID)) {
-			storyRow.issueId = row.getInt(Columns.ISSUE_ID);
+			storyRow.fkIssueId = row.getInt(Columns.ISSUE_ID);
 		}
 
 		if (!row.isNullAt(Columns.ID)) {
@@ -266,6 +286,12 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 			add(storyRow);
 		}
 		return storyRow;
+	}
+
+	@Override
+	public void saveToParquetFormat(String jdbcUrl) {
+		super.saveToParquetFormat(sInputTable, Columns.ALL_COLUMNS, jdbcUrl,
+				10000);
 	}
 
 	@Override
@@ -284,11 +310,5 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 		creatorAssigner.characters(row.characters);
 		creatorAssigner.organizations(row.organizations);
 
-	}
-
-	@Override
-	public void saveToParquetFormat(String jdbcUrl) {
-		super.saveToParquetFormat(sInputTable, Columns.ALL_COLUMNS, jdbcUrl,
-				10000);
 	}
 }

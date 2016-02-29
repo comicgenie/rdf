@@ -24,13 +24,26 @@ import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 import org.comicwiki.BaseTable;
+import org.comicwiki.Join;
 import org.comicwiki.TableRow;
+import org.comicwiki.ThingFactory;
+import org.comicwiki.gcd.tables.joinrules.SeriesAndCountryRule;
+import org.comicwiki.gcd.tables.joinrules.SeriesAndLanguageRule;
+import org.comicwiki.gcd.tables.joinrules.SeriesAndPublicationTypeRule;
+import org.comicwiki.gcd.tables.joinrules.SeriesAndPublisherRule;
+import org.comicwiki.model.schema.Country;
+import org.comicwiki.model.schema.Language;
+import org.comicwiki.model.schema.Organization;
 import org.comicwiki.model.schema.bib.ComicSeries;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 
+@Join(value = LanguageTable.class, withRule = SeriesAndLanguageRule.class)
+@Join(value = PublisherTable.class, withRule = SeriesAndPublisherRule.class)
+@Join(value = CountryTable.class, withRule = SeriesAndCountryRule.class)
+@Join(value = SeriesPublicationTypeTable.class, withRule = SeriesAndPublicationTypeRule.class)
 public class SeriesTable extends BaseTable<SeriesTable.SeriesRow> {
 
 	public static class Columns {
@@ -44,7 +57,8 @@ public class SeriesTable extends BaseTable<SeriesTable.SeriesRow> {
 				new Column("publication_notes"), new Column("modified"),
 				new Column("color"), new Column("dimensions"),
 				new Column("paper_stock"), new Column("binding"),
-				new Column("publishing_format") };
+				new Column("publishing_format"),
+				new Column("publication_type_id") };
 		public static final int BINDING = 17;
 		public static final int COLOR = 13;
 		public static final int COUNTRY_ID = 7;
@@ -60,6 +74,7 @@ public class SeriesTable extends BaseTable<SeriesTable.SeriesRow> {
 		public static final int PUBLICATION_NOTES = 11;
 		public static final int PUBLISHER_ID = 6;
 		public static final int PUBLISHING_FORMAT = 18;
+		public static final int PUBLICATION_TYPE_ID = 19;
 		public static final int REPRINT_NOTES = 15;
 		public static final int TRACKING_NOTES = 9;
 		public static final int YEAR_BEGAN = 3;
@@ -72,23 +87,37 @@ public class SeriesTable extends BaseTable<SeriesTable.SeriesRow> {
 
 		public Collection<String> color = new HashSet<>(3);
 
-		/**
-		 * gcd_country.id
-		 */
-		public int countryId;
-
-		public String country;
+		public Country country;
 
 		public Collection<String> dimensions = new HashSet<>(3);
 
-		public Collection<String> format = new HashSet<>(3);
+		/**
+		 * gcd_country.id
+		 */
+		public int fkCountryId;
 
 		/**
 		 * gcd_language.id
 		 */
-		public int languageId;
+		public int fkLanguageId;
 
-		public String language;
+		/**
+		 * gcd_publisher.id
+		 */
+		public int fkPublisherId;
+		
+		/**
+		 * gcd_publication_type.id
+		 */
+		public int fkPublicationTypeId;
+		
+		public String publicationType;
+
+		public Collection<String> format = new HashSet<>(3);
+
+		public ComicSeries instance = create(thingFactory);
+
+		public Language language;
 
 		public Date modified;
 
@@ -102,12 +131,7 @@ public class SeriesTable extends BaseTable<SeriesTable.SeriesRow> {
 
 		public String publicationNotes;
 
-		/**
-		 * gcd_publisher.id
-		 */
-		public int publisherId;
-
-		public String publisher;
+		public Organization publisher;
 
 		public Collection<String> publishingFormat = new HashSet<>(3);
 
@@ -123,27 +147,21 @@ public class SeriesTable extends BaseTable<SeriesTable.SeriesRow> {
 
 	private static final String sParquetName = sInputTable + ".parquet";
 
+	private static ThingFactory thingFactory;
+
+	private static Collection<String> split(int position, Row r) {
+		return Sets.newHashSet(Splitter.on(';').trimResults()
+				.omitEmptyStrings().split(r.getString(position)));
+	}
+
 	@Inject
-	public SeriesTable(SQLContext sqlContext) {
+	public SeriesTable(SQLContext sqlContext, ThingFactory thingFactory) {
 		super(sqlContext, sParquetName);
+		this.thingFactory = thingFactory;
 	}
 
-	@Override
-	protected void transform(SeriesRow row) {
-		super.transform(row);
-	}
-
-	@Override
-	public void join(BaseTable<?>... tables) {
-		super.join(tables);
-	}
-
-	@Override
-	protected void join(BaseTable<?> table) {
-		super.join(table);
-		// publisherId
-		// countryId
-		// languageId
+	public SeriesRow createRow() {
+		return new SeriesRow();
 	}
 
 	@Override
@@ -151,10 +169,10 @@ public class SeriesTable extends BaseTable<SeriesTable.SeriesRow> {
 		SeriesRow seriesRow = new SeriesRow();
 
 		if (!row.isNullAt(Columns.COUNTRY_ID)) {
-			seriesRow.countryId = row.getInt(Columns.COUNTRY_ID);
+			seriesRow.fkCountryId = row.getInt(Columns.COUNTRY_ID);
 		}
 		if (!row.isNullAt(Columns.LANGUAGE_ID)) {
-			seriesRow.languageId = row.getInt(Columns.LANGUAGE_ID);
+			seriesRow.fkLanguageId = row.getInt(Columns.LANGUAGE_ID);
 		}
 
 		seriesRow.modified = row.getTimestamp(Columns.MODIFIED);
@@ -164,7 +182,7 @@ public class SeriesTable extends BaseTable<SeriesTable.SeriesRow> {
 		seriesRow.publicationNotes = row.getString(Columns.PUBLICATION_NOTES);
 
 		if (!row.isNullAt(Columns.PUBLISHER_ID)) {
-			seriesRow.publisherId = row.getInt(Columns.PUBLISHER_ID);
+			seriesRow.fkPublisherId = row.getInt(Columns.PUBLISHER_ID);
 		}
 
 		seriesRow.trackingNotes = row.getString(Columns.TRACKING_NOTES);
@@ -208,7 +226,6 @@ public class SeriesTable extends BaseTable<SeriesTable.SeriesRow> {
 		}
 		if (!row.isNullAt(Columns.ID)) {
 			seriesRow.id = row.getInt(Columns.ID);
-			;
 			add(seriesRow);
 		}
 		return seriesRow;
@@ -217,12 +234,11 @@ public class SeriesTable extends BaseTable<SeriesTable.SeriesRow> {
 	@Override
 	public void saveToParquetFormat(String jdbcUrl) {
 		super.saveToParquetFormat(sInputTable, Columns.ALL_COLUMNS, jdbcUrl);
-
 	}
 
-	private static Collection<String> split(int position, Row r) {
-		return Sets.newHashSet(Splitter.on(';').trimResults()
-				.omitEmptyStrings().split(r.getString(position)));
+	@Override
+	protected void transform(SeriesRow row) {
+		super.transform(row);
 	}
 
 }

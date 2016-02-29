@@ -55,9 +55,9 @@ public class ReprintToIssueTable extends
 	public static class ReprintToIssueRow extends TableRow<ReprintNote> {
 		public String notes;
 
-		public int originIssueId;
+		public int fkOriginIssueId;
 
-		public int targetIssueId;
+		public int fkTargetIssueId;
 	}
 
 	private static final String sInputTable = "gcd_reprint_to_issue";
@@ -72,6 +72,13 @@ public class ReprintToIssueTable extends
 	@Override
 	public ReprintToIssueRow process(Row row) throws IOException {
 		ReprintToIssueRow issueRow = new ReprintToIssueRow();
+		issueRow.notes = row.getString(Columns.NOTES);
+		if (!row.isNullAt(Columns.ORIGIN_ID)) {
+			issueRow.fkOriginIssueId = row.getInt(Columns.ORIGIN_ID);
+		}
+		if (!row.isNullAt(Columns.TARGET_ISSUE_ID)) {
+			issueRow.fkTargetIssueId = row.getInt(Columns.TARGET_ISSUE_ID);
+		}		
 		if (!row.isNullAt(Columns.ID)) {
 			issueRow.id = row.getInt(Columns.ID);
 			add(issueRow);

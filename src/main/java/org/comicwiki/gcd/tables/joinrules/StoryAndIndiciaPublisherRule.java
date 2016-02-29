@@ -12,7 +12,7 @@ public class StoryAndIndiciaPublisherRule
 
 	@Override
 	public void join(StoryRow left, IndiciaPublisherRow right) {
-		if (left.indiciaPublisherId == right.id) {
+		if (left.fkIndiciaPublisherId == right.id) {
 			left.indiciaPublisher = right.instance;
 		}
 	}

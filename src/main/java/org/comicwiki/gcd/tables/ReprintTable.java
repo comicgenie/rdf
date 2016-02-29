@@ -22,6 +22,7 @@ import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 import org.comicwiki.BaseTable;
 import org.comicwiki.TableRow;
+import org.comicwiki.gcd.tables.ReprintToIssueTable.Columns;
 import org.comicwiki.model.ReprintNote;
 
 import com.google.inject.Inject;
@@ -52,7 +53,11 @@ public class ReprintTable extends BaseTable<ReprintTable.ReprintRow> {
 	}
 
 	public static class ReprintRow extends TableRow<ReprintNote> {
+		public String notes;
 
+		public int fkOriginId;
+
+		public int fkTargetId;
 	}
 
 	private static final String sInputTable = "gcd_reprint";
@@ -67,6 +72,7 @@ public class ReprintTable extends BaseTable<ReprintTable.ReprintRow> {
 	@Override
 	public ReprintRow process(Row row) throws IOException {
 		ReprintRow reprintRow = new ReprintRow();
+		reprintRow.notes = row.getString(Columns.NOTES);
 		if (!row.isNullAt(Columns.ID)) {
 			reprintRow.id = row.getInt(Columns.ID);
 			add(reprintRow);
