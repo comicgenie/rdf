@@ -24,6 +24,7 @@ import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 import org.comicwiki.BaseTable;
+import org.comicwiki.TableRow;
 import org.comicwiki.model.schema.bib.ComicSeries;
 
 import com.google.common.base.Splitter;

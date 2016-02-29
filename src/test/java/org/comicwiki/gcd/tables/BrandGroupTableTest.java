@@ -11,7 +11,7 @@ public class BrandGroupTableTest extends TableTestCase<BrandGroupTable> {
 
 	@Override
 	protected BrandGroupTable createTable(ThingFactory thingFactory) {
-		return new BrandGroupTable(null);
+		return new BrandGroupTable(null, thingFactory);
 	}
 
 	@Test

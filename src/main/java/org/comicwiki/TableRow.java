@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package org.comicwiki.gcd.tables;
+package org.comicwiki;
 
 import java.lang.reflect.ParameterizedType;
 
-import org.comicwiki.ThingFactory;
 import org.comicwiki.model.schema.Thing;
 
 public class TableRow<T extends Thing> {

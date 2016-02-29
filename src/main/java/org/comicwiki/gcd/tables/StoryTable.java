@@ -17,21 +17,26 @@ package org.comicwiki.gcd.tables;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.stream.Stream;
 
 import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 import org.comicwiki.BaseTable;
 import org.comicwiki.IRICache;
+import org.comicwiki.Join;
+import org.comicwiki.TableRow;
 import org.comicwiki.ThingFactory;
 import org.comicwiki.gcd.CharacterFieldParser;
 import org.comicwiki.gcd.CreatorFieldParser;
 import org.comicwiki.gcd.OrgLookupService;
+import org.comicwiki.gcd.tables.joinrules.StoryAndIndiciaPublisherRule;
+import org.comicwiki.gcd.tables.joinrules.StoryAndIssueRule;
+import org.comicwiki.gcd.tables.joinrules.StoryAndPublisherRule;
+import org.comicwiki.gcd.tables.joinrules.StoryAndSeriesRule;
+import org.comicwiki.gcd.tables.joinrules.StoryAndStoryTypeRule;
 import org.comicwiki.model.ComicCharacter;
 import org.comicwiki.model.ComicOrganization;
 import org.comicwiki.model.schema.Organization;
@@ -44,6 +49,11 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 
+@Join(value = IssueTable.class, withRule = StoryAndIssueRule.class)
+@Join(value = SeriesTable.class, withRule = StoryAndSeriesRule.class)
+@Join(value = PublisherTable.class, withRule = StoryAndPublisherRule.class)
+@Join(value = StoryTypeTable.class, withRule = StoryAndStoryTypeRule.class)
+@Join(value = IndiciaPublisherTable.class, withRule = StoryAndIndiciaPublisherRule.class)
 public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 
 	public static final class Columns {
@@ -256,88 +266,6 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 			add(storyRow);
 		}
 		return storyRow;
-	}
-
-	@Override
-	public void join(BaseTable<?>... tables) {
-		// filter and order tables
-		// order IssueTable, SeriesTable, then any order
-		ArrayList<BaseTable<?>> orderedTables = new ArrayList<>();
-
-		for (BaseTable<?> table : tables) {
-			if (table instanceof IssueTable) {
-				orderedTables.add(0, table);
-			} else if (table instanceof SeriesTable) {
-				orderedTables.add(1, table);
-			} else {
-				orderedTables.add(table);
-			}
-		}
-
-		for (BaseTable<?> table : orderedTables) {
-			join(table);
-		}
-	}
-
-	@Override
-	protected void join(BaseTable<?> table) {
-		if (table instanceof IssueTable) {
-			IssueTable issueTable = (IssueTable) table;
-			for (IssueTable.IssueRow issuesRow : issueTable.cache.values()) {
-				Stream<StoryTable.StoryRow> storyRows = cache.values().stream()
-						.filter(r -> r.issueId == issuesRow.id);
-
-				storyRows.forEach(storyRow -> {
-					storyRow.editing.addAll(issuesRow.editors);
-					storyRow.indiciaPublisherId = issuesRow.indiciaPublisherId;
-					storyRow.seriesId = issuesRow.seriesId;
-				});
-			}
-		} else if (table instanceof SeriesTable) {
-			SeriesTable seriesTable = (SeriesTable) table;
-			for (SeriesTable.SeriesRow seriesRow : seriesTable.cache.values()) {
-				Stream<StoryTable.StoryRow> storyRows = cache.values().stream()
-						.filter(r -> r.seriesId == seriesRow.id);
-
-				storyRows.forEach(storyRow -> {
-					storyRow.seriesName = seriesRow.name;
-					storyRow.publisherId = seriesRow.publisherId;
-				});
-			}
-		} else if (table instanceof PublisherTable) {
-			PublisherTable publisherTable = (PublisherTable) table;
-			for (PublisherTable.PublisherRow publisherRow : publisherTable.cache
-					.values()) {
-				Stream<StoryTable.StoryRow> storyRows = cache.values().stream()
-						.filter(r -> r.publisherId == publisherRow.id);
-
-				storyRows.forEach(storyRow -> {
-					storyRow.publisher = publisherRow.instance;
-				});
-			}
-		} else if (table instanceof IndiciaPublisherTable) {
-			IndiciaPublisherTable publisherTable = (IndiciaPublisherTable) table;
-			for (IndiciaPublisherTable.IndiciaPublisherRow publisherRow : publisherTable.cache
-					.values()) {
-				Stream<StoryTable.StoryRow> storyRows = cache.values().stream()
-						.filter(r -> r.indiciaPublisherId == publisherRow.id);
-
-				storyRows.forEach(storyRow -> {
-					storyRow.indiciaPublisher = publisherRow.instance;
-				});
-			}
-		} else if (table instanceof StoryTypeTable) {
-			StoryTypeTable storyTypeTable = (StoryTypeTable) table;
-			for (StoryTypeTable.StoryTypeRow storyTypeRow : storyTypeTable.cache
-					.values()) {
-				Stream<StoryTable.StoryRow> storyRows = cache.values().stream()
-						.filter(r -> r.typeId == storyTypeRow.id);
-
-				storyRows.forEach(storyRow -> {
-					storyRow.storyType = storyTypeRow.name;
-				});
-			}
-		}
 	}
 
 	@Override

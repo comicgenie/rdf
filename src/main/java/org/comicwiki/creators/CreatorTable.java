@@ -7,7 +7,7 @@ import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 import org.comicwiki.BaseTable;
 import org.comicwiki.TableFormat;
-import org.comicwiki.gcd.tables.TableRow;
+import org.comicwiki.TableRow;
 import org.comicwiki.model.schema.Person;
 
 public class CreatorTable extends BaseTable<CreatorTable.CreatorRow> {

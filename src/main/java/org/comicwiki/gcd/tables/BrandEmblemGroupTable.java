@@ -21,6 +21,7 @@ import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 import org.comicwiki.BaseTable;
+import org.comicwiki.TableRow;
 
 import com.google.inject.Inject;
 
@@ -81,6 +82,5 @@ public class BrandEmblemGroupTable extends
 	@Override
 	public void saveToParquetFormat(String jdbcUrl) {
 		super.saveToParquetFormat(sInputTable, Columns.ALL_COLUMNS, jdbcUrl);
-
 	}
 }

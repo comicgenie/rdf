@@ -21,6 +21,8 @@ import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 import org.comicwiki.BaseTable;
+import org.comicwiki.TableRow;
+import org.comicwiki.model.schema.Thing;
 
 import com.google.inject.Inject;
 
@@ -35,7 +37,7 @@ public class StoryTypeTable extends BaseTable<StoryTypeTable.StoryTypeRow> {
 		public static final int NAME = 1;
 	}
 
-	public static class StoryTypeRow extends TableRow {
+	public static class StoryTypeRow extends TableRow<Thing> {
 
 		public String name;
 	}

@@ -42,7 +42,7 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 
 public class ETL {
-
+ 
 	@SuppressWarnings("unchecked")
 	private static final Class<? extends BaseTable<?>>[] tableClasses = new Class[] {
 			BrandEmblemGroupTable.class, BrandGroupTable.class,

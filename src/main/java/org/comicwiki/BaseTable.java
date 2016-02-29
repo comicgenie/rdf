@@ -16,6 +16,7 @@
 package org.comicwiki;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.apache.spark.sql.Column;
@@ -26,13 +27,12 @@ import org.apache.spark.sql.SQLContext;
 import org.apache.spark.storage.StorageLevel;
 import org.comicwiki.gcd.FieldParser;
 import org.comicwiki.gcd.SparkUtils;
-import org.comicwiki.gcd.tables.TableRow;
 import org.comicwiki.model.schema.Thing;
 
 import com.google.inject.Singleton;
 
 @Singleton
-public abstract class BaseTable<R extends TableRow> {
+public abstract class BaseTable<ROW extends TableRow<?>> {
 
 	private static void assertValidJdbcScheme(String jdbcUrl) {
 		if (!SparkUtils.isValidScheme(jdbcUrl)) {
@@ -41,7 +41,7 @@ public abstract class BaseTable<R extends TableRow> {
 		}
 	}
 
-	public HashMap<Integer, R> cache = new HashMap<>();
+	public HashMap<Integer, ROW> cache = new HashMap<>();
 
 	protected final String datasourceName;
 
@@ -64,7 +64,7 @@ public abstract class BaseTable<R extends TableRow> {
 		this.tableFormat = tableFormat;
 	}
 
-	protected final void add(R row) {
+	protected final void add(ROW row) {
 		cache.put(row.id, row);
 	}
 
@@ -92,18 +92,59 @@ public abstract class BaseTable<R extends TableRow> {
 		}
 	}
 
-	public final R get(int id) {
+	public final ROW get(int id) {
 		return cache.get(id);
 	}
 
+	public HashMap<Integer, ROW> getCache() {
+		return cache;
+	}
+	
+	private static BaseTable getTable(BaseTable[] tables, Class<?> clazz) {
+		for(BaseTable baseTable : tables) {
+			if(baseTable.getClass().isAssignableFrom(clazz)) {
+				return baseTable;
+			}
+		}
+		return null;
+	}
+
 	public void join(BaseTable<?>... tables) {
-		for (BaseTable<?> table : tables) {
+		ArrayList<BaseTable<?>> orderedTables = new ArrayList<>();
+		Join[] joins = getClass().getAnnotationsByType(Join.class);
+
+		for (Join join : joins) {
+			BaseTable baseTable = getTable(tables, join.value());
+			if (baseTable != null) {
+				orderedTables.add(baseTable);
+			}
+		}
+
+		for (BaseTable<?> table : orderedTables) {
 			join(table);
 		}
 	}
 
 	protected void join(BaseTable<?> table) {
+		Join[] joins = this.getClass().getAnnotationsByType(Join.class);
+		for(Join join : joins) {
+			if(table.getClass().isAssignableFrom(join.value())) {
+				try {
+					join(this, table, join.withRule().newInstance());
+				} catch (Exception e) {
+					
+				} 
+			}
+		}
+	}
 
+	protected final <LT extends BaseTable<ROW>, RT extends BaseTable<?>, 
+		JR extends JoinRule> void join(LT left, RT right, JR rule) {
+			for (TableRow<?> rightRow : right.getCache().values()) {
+				left.getCache().values().forEach(leftJoinedRow -> 
+					rule.join(leftJoinedRow, rightRow)
+				);
+			}
 	}
 
 	protected final <T> T parseField(int field, Row row,
@@ -111,7 +152,7 @@ public abstract class BaseTable<R extends TableRow> {
 		return fieldParser.parse(field, row);
 	}
 
-	protected abstract R process(Row row) throws IOException;
+	protected abstract ROW process(Row row) throws IOException;
 
 	protected final void saveAllToParquetFormat(String tableName, String jdbcUrl) {
 		assertValidJdbcScheme(jdbcUrl);
@@ -121,6 +162,7 @@ public abstract class BaseTable<R extends TableRow> {
 	}
 
 	public abstract void saveToParquetFormat(String jdbcUrl);
+
 	protected final void saveToParquetFormat(String tableName,
 			Column[] columns, String jdbcUrl) {
 		assertValidJdbcScheme(jdbcUrl);
@@ -148,7 +190,7 @@ public abstract class BaseTable<R extends TableRow> {
 	}
 
 	private void setCacheSize(int size) {
-		cache = new HashMap<Integer, R>(size);
+		cache = new HashMap<Integer, ROW>(size);
 	}
 
 	public final void tranform() {
@@ -157,7 +199,7 @@ public abstract class BaseTable<R extends TableRow> {
 		});
 	}
 
-	protected void transform(R row) {
+	protected void transform(ROW row) {
 		// noop
 	}
 }
