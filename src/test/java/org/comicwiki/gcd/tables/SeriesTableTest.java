@@ -83,11 +83,7 @@ public class SeriesTableTest extends TableTestCase<SeriesTable> {
 
 		SeriesTable seriesTable = createTable(thingFactory);
 
-		Row row = RowFactory.create(1, null, null, null, null, null, null, 225/**
-		 * 
-		 * 
-		 * countryId
-		 */
+		Row row = RowFactory.create(1, null, null, null, null, null, null, 225/* countryId */
 		, null, null, null, null, null, null, null, null, null, null, null,
 				null, null, null);
 		SeriesRow seriesRow = seriesTable.process(row);
@@ -185,6 +181,7 @@ public class SeriesTableTest extends TableTestCase<SeriesTable> {
 		Row row = RowFactory.create(1, null, null, null, null, null, null, 225/**
 		 * 
 		 * 
+		 * 
 		 * countryId
 		 */
 		, null, null, null, null, null, null, null, null, null, null, null,
@@ -230,29 +227,28 @@ public class SeriesTableTest extends TableTestCase<SeriesTable> {
 		assertTrue(seriesRow.instance.colors.contains("color cover"));
 		assertTrue(seriesRow.instance.colors.contains("black & white interior"));
 	}
-	//hardcover; 222x158mm; farger
+
+	// hardcover; 222x158mm; farger
 	@Test
 	public void transformFormatToBinding() throws Exception {
 		ThingFactory thingFactory = createThingFactory();
 		SeriesTable table = createTable(thingFactory);
-		Row row = RowFactory.create(1, null, "hardcover; 222x158mm; farger", null, null, null, null,
-				null, null, null, null, null, null,
-				null, null, null, null, null,
-				null, null, null, null);
+		Row row = RowFactory.create(1, null, "hardcover; 222x158mm; farger",
+				null, null, null, null, null, null, null, null, null, null,
+				null, null, null, null, null, null, null, null, null);
 		SeriesRow seriesRow = table.process(row);
 		table.tranform();
 
 		assertTrue(seriesRow.instance.binding.contains("hardcover"));
 	}
-	
+
 	@Test
 	public void transformPublishingFormat() throws Exception {
 		ThingFactory thingFactory = createThingFactory();
 		SeriesTable table = createTable(thingFactory);
 		Row row = RowFactory.create(1, null, null, null, null, null, null,
-				null, null, null, null, null, null,
-				null, null, null, null, null,
-				"Limited Series", null, null, null);
+				null, null, null, null, null, null, null, null, null, null,
+				null, "Limited Series", null, null, null);
 		SeriesRow seriesRow = table.process(row);
 		table.tranform();
 

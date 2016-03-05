@@ -249,10 +249,11 @@ public class SeriesTable extends BaseTable<SeriesTable.SeriesRow> {
 	@Override
 	protected void transform(SeriesRow row) {
 		super.transform(row);
-		//volume partOf???
+
 		ComicSeries series = row.instance;
 		series.name = row.name;
 		// series.authors
+
 		series.binding.addAll(row.binding);
 		series.binding.addAll(row.format);
 		series.colors.addAll(row.color);

@@ -23,6 +23,7 @@ import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 import org.comicwiki.BaseTable;
+import org.comicwiki.Join;
 import org.comicwiki.TableRow;
 import org.comicwiki.ThingFactory;
 import org.comicwiki.model.Instant;
@@ -32,9 +33,7 @@ import org.comicwiki.model.schema.Organization;
 import com.google.common.base.Strings;
 import com.google.inject.Inject;
 
-/**
- * Joins with IssueTable
- */
+@Join(value = CountryTable.class, leftKey = "fkCountryId", leftField = "country")
 public class IndiciaPublisherTable extends
 		BaseTable<IndiciaPublisherTable.IndiciaPublisherRow> {
 
@@ -111,7 +110,7 @@ public class IndiciaPublisherTable extends
 	@Inject
 	public IndiciaPublisherTable(SQLContext sqlContext, ThingFactory thingFactory) {
 		super(sqlContext, sParquetName);
-		this.thingFactory = thingFactory;
+		IndiciaPublisherTable.thingFactory = thingFactory;
 	}
 
 	@Override
