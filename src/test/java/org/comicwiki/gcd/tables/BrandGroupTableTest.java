@@ -42,7 +42,7 @@ public class BrandGroupTableTest extends TableTestCase<BrandGroupTable> {
 		BrandGroupRow row2 = table.process(row);
 		table.tranform();
 
-		assertEquals(2016, row2.yearEnded);
+		assertEquals(new Integer(2016), row2.yearEnded);
 
 		Instant end = (Instant) thingFactory.getCache().get(
 				row2.instance.endUseDate);
@@ -59,7 +59,7 @@ public class BrandGroupTableTest extends TableTestCase<BrandGroupTable> {
 		BrandGroupRow row2 = table.process(row);
 		table.tranform();
 
-		assertEquals(1940, row2.yearBegan);
+		assertEquals(new Integer(1940), row2.yearBegan);
 
 		Instant begin = (Instant) thingFactory.getCache().get(
 				row2.instance.startUseDate);

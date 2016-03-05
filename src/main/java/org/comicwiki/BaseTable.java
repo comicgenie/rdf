@@ -134,14 +134,15 @@ public abstract class BaseTable<ROW extends TableRow<?>> {
 		for (Join join : joins) {
 			if (table.getClass().isAssignableFrom(join.value())) {
 				try {
-					if (join.withRule().isAssignableFrom(NoOpJoinRule.class)) {						 
+					if (join.withRule().isAssignableFrom(NoOpJoinRule.class)) {
 						for (TableRow<?> rightRow : table.getCache().values()) {
 							for (ROW leftRow : getCache().values()) {
-								join(join.leftKey(), join.rightKey(), join.leftField(),
-											join.rightField(), leftRow, rightRow);	
-							}					
-						}						
-					} else {					
+								join(join.leftKey(), join.rightKey(),
+										join.leftField(), join.rightField(),
+										leftRow, rightRow);
+							}
+						}
+					} else {
 						join(this, table, join.withRule().newInstance());
 					}
 				} catch (Exception e) {
@@ -221,9 +222,7 @@ public abstract class BaseTable<ROW extends TableRow<?>> {
 
 	public final void tranform() {
 		if (cache != null) {
-			cache.values().forEach(r -> {
-				transform(r);
-			});
+			cache.values().forEach(r -> transform(r));
 		}
 	}
 

@@ -16,6 +16,7 @@
 package org.comicwiki.gcd.tables;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.Date;
 
 import org.apache.spark.sql.Column;
@@ -29,16 +30,17 @@ import org.comicwiki.model.Instant;
 import org.comicwiki.model.schema.Brand;
 import org.comicwiki.model.schema.Organization;
 
+import com.google.common.base.Strings;
 import com.google.inject.Inject;
 
-@Join(value = BrandEmblemGroupTable.class, leftKey = "id", leftField = "fkBrandId", rightKey="brandGroupId", rightField = "brandId")
-@Join(value = BrandTable.class, leftKey = "fkBrandId", leftField = "brand")
+@Join(value = BrandEmblemGroupTable.class, leftKey = "id", leftField = "fkBrandId", rightKey = "brandGroupId", rightField = "brandId")
+@Join(value = BrandTable.class, leftKey = "fkBrandId", leftField = "subBrand")
 @Join(value = PublisherTable.class, leftKey = "fkParentId", leftField = "publisher")
 public class BrandGroupTable extends BaseTable<BrandGroupTable.BrandGroupRow> {
 
 	public class BrandGroupRow extends TableRow<Brand> {
 
-		public Brand brand;
+		public Brand subBrand;
 
 		public int fkBrandId;
 
@@ -46,7 +48,7 @@ public class BrandGroupTable extends BaseTable<BrandGroupTable.BrandGroupRow> {
 		 * gcd_publisher.id
 		 */
 		public int fkParentId;
-		
+
 		public Organization publisher;
 
 		public Brand instance = create(thingFactory);
@@ -59,9 +61,9 @@ public class BrandGroupTable extends BaseTable<BrandGroupTable.BrandGroupRow> {
 
 		public String url;
 
-		public int yearBegan;
+		public Integer yearBegan;
 
-		public int yearEnded;
+		public Integer yearEnded;
 	}
 
 	private static final class Columns {
@@ -135,19 +137,40 @@ public class BrandGroupTable extends BaseTable<BrandGroupTable.BrandGroupRow> {
 	@Override
 	protected void transform(BrandGroupRow row) {
 		super.transform(row);
-		
-		if (row.yearBegan != 0) {
+		Brand brandGroup = row.instance;
+
+		if (row.yearBegan != null) {
 			Instant begin = thingFactory.create(Instant.class);
 			begin.year = row.yearBegan;
-			row.instance.startUseDate = begin.instanceId;
+			brandGroup.startUseDate = begin.instanceId;
 		}
 
-		if (row.yearEnded != 0) {
+		if (row.yearEnded != null) {
 			Instant end = thingFactory.create(Instant.class);
 			end.year = row.yearEnded;
-			row.instance.endUseDate = end.instanceId;
+			brandGroup.endUseDate = end.instanceId;
+		}
+
+		if (row.subBrand != null) {
+			brandGroup.subBrand.add(row.subBrand.instanceId);
+			row.subBrand.parentBrand = brandGroup.instanceId;
+			if (row.publisher != null) {
+				row.subBrand.publisher.add(row.publisher.instanceId);
+				row.publisher.brands.add(row.subBrand.instanceId);
+			}
+		}
+
+		if (row.publisher != null) {
+			row.publisher.brands.add(brandGroup.instanceId);
+			brandGroup.publisher.add(brandGroup.instanceId);
+		}
+
+		if (!Strings.isNullOrEmpty(row.notes)) {
+			brandGroup.description.add(row.notes);
+		}
+
+		if (!Strings.isNullOrEmpty(row.url)) {
+			brandGroup.urls.add(URI.create(row.url));
 		}
 	}
-	
-	
 }

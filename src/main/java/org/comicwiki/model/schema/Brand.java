@@ -51,4 +51,14 @@ public class Brand extends Intangible {
 	@ObjectIRI
 	@SchemaComicWiki
 	public IRI parentBrand;
+	
+	@Predicate("subBrand")
+	@ObjectIRI
+	@SchemaComicWiki
+	public Collection<IRI> subBrand  = new HashSet<>(3);
+	
+	@Predicate("publisher")
+	@ObjectIRI
+	@SchemaComicWiki
+	public Collection<IRI> publisher  = new HashSet<>(3);
 }

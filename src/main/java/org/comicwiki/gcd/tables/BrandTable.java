@@ -16,6 +16,7 @@
 package org.comicwiki.gcd.tables;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.Date;
 
 import org.apache.spark.sql.Column;
@@ -27,6 +28,7 @@ import org.comicwiki.ThingFactory;
 import org.comicwiki.model.Instant;
 import org.comicwiki.model.schema.Brand;
 
+import com.google.common.base.Strings;
 import com.google.inject.Inject;
 
 public class BrandTable extends BaseTable<BrandTable.BrandRow> {
@@ -41,9 +43,9 @@ public class BrandTable extends BaseTable<BrandTable.BrandRow> {
 
 		public String url;
 
-		public int yearBegan;
+		public Integer yearBegan;
 
-		public int yearEnded;
+		public Integer yearEnded;
 		
 		public Date modified;
 	}
@@ -114,16 +116,24 @@ public class BrandTable extends BaseTable<BrandTable.BrandRow> {
 	protected void transform(BrandRow row) {
 		super.transform(row);
 
-		if (row.yearBegan != 0) {
+		if (row.yearBegan != null) {
 			Instant begin = thingFactory.create(Instant.class);
 			begin.year = row.yearBegan;
 			row.instance.startUseDate = begin.instanceId;
 		}
 
-		if (row.yearEnded != 0) {
+		if (row.yearEnded != null) {
 			Instant end = thingFactory.create(Instant.class);
 			end.year = row.yearEnded;
 			row.instance.endUseDate = end.instanceId;
+		}
+		
+		if(!Strings.isNullOrEmpty(row.notes)) {			
+			row.instance.description.add(row.notes);
+		}
+		
+		if(!Strings.isNullOrEmpty(row.url)) {			
+			row.instance.urls.add(URI.create(row.url));
 		}
 	}	
 }

@@ -50,9 +50,9 @@ public class BrandUseTable extends BaseTable<BrandUseTable.BrandUseRow> {
 
 		public String notes;
 
-		public int yearBegan;
+		public Integer yearBegan;
 
-		public int yearEnded;
+		public Integer yearEnded;
 		
 	}
 
@@ -87,7 +87,7 @@ public class BrandUseTable extends BaseTable<BrandUseTable.BrandUseRow> {
 	@Inject
 	public BrandUseTable(SQLContext sqlContext, ThingFactory thingFactory) {
 		super(sqlContext, sParquetName);
-		this.thingFactory = thingFactory;
+		BrandUseTable.thingFactory = thingFactory;
 	}
 
 	@Override
@@ -127,13 +127,13 @@ public class BrandUseTable extends BaseTable<BrandUseTable.BrandUseRow> {
 	@Override
 	protected void transform(BrandUseRow row) {
 		super.transform(row);
-		if (row.yearBegan != 0) {
+		if (row.yearBegan != null) {
 			Instant begin = thingFactory.create(Instant.class);
 			begin.year = row.yearBegan;
 			row.instance.begin = begin.instanceId;
 		}
 
-		if (row.yearEnded != 0) {
+		if (row.yearEnded != null) {
 			Instant end = thingFactory.create(Instant.class);
 			end.year = row.yearEnded;
 			row.instance.end = end.instanceId;

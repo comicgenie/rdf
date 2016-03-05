@@ -43,7 +43,7 @@ public class BrandUseTableTest extends TableTestCase<BrandUseTable> {
 		BrandUseRow row2 = table.process(row);
 		table.tranform();
 		
-		assertEquals(2016, row2.yearEnded);
+		assertEquals(new Integer(2016), row2.yearEnded);
 		
 		Instant end = (Instant) thingFactory.getCache().get(row2.instance.end);
 		assertEquals(2016, end.year);
@@ -60,7 +60,7 @@ public class BrandUseTableTest extends TableTestCase<BrandUseTable> {
 		BrandUseRow row2 = table.process(row);
 		table.tranform();
 		
-		assertEquals(1940, row2.yearBegan);
+		assertEquals(new Integer(1940), row2.yearBegan);
 		
 		Instant begin = (Instant) thingFactory.getCache().get(row2.instance.begin);
 		assertEquals(1940, begin.year);
