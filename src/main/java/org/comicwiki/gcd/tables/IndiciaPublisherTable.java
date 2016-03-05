@@ -16,6 +16,7 @@
 package org.comicwiki.gcd.tables;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.Date;
 
 import org.apache.spark.sql.Column;
@@ -23,8 +24,12 @@ import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 import org.comicwiki.BaseTable;
 import org.comicwiki.TableRow;
+import org.comicwiki.ThingFactory;
+import org.comicwiki.model.Instant;
+import org.comicwiki.model.schema.Country;
 import org.comicwiki.model.schema.Organization;
 
+import com.google.common.base.Strings;
 import com.google.inject.Inject;
 
 /**
@@ -67,7 +72,20 @@ public class IndiciaPublisherTable extends
 
 	public static class IndiciaPublisherRow extends TableRow<Organization> {
 
-		public int countryId;
+		public Country country;
+		
+		/**
+		 * gcd_country.id
+		 */
+		public int fkCountryId;
+		
+		/**
+		 * gcd_publisher.id
+		 * map to Organization.parentOrganization
+		 */
+		public int fkParentId;
+		
+		public Organization instance = create(thingFactory);
 
 		public Date modified;
 
@@ -75,11 +93,7 @@ public class IndiciaPublisherTable extends
 
 		public String notes;
 
-		/**
-		 * gcd_publisher.id
-		 * map to Organization.parentOrganization
-		 */
-		public int parentId;
+		public Organization parentOrganization;
 
 		public String url;
 
@@ -92,20 +106,24 @@ public class IndiciaPublisherTable extends
 
 	private static final String sParquetName = sInputTable + ".parquet";
 
+	private static ThingFactory thingFactory;
+
 	@Inject
-	public IndiciaPublisherTable(SQLContext sqlContext) {
+	public IndiciaPublisherTable(SQLContext sqlContext, ThingFactory thingFactory) {
 		super(sqlContext, sParquetName);
+		this.thingFactory = thingFactory;
 	}
 
 	@Override
 	public IndiciaPublisherRow process(Row row) throws IOException {
 		IndiciaPublisherRow publisherRow = new IndiciaPublisherRow();
 		if (!row.isNullAt(Columns.COUNTRY_ID)) {
-			publisherRow.countryId = row.getInt(Columns.COUNTRY_ID);
+			publisherRow.fkCountryId = row.getInt(Columns.COUNTRY_ID);
 		}
 
 		publisherRow.modified = row.getTimestamp(Columns.MODIFIED);
 		publisherRow.name = row.getString(Columns.NAME);
+		publisherRow.instance.name = publisherRow.name;
 		publisherRow.notes = row.getString(Columns.NOTES);
 		publisherRow.url = row.getString(Columns.URL);
 		if (!row.isNullAt(Columns.YEAR_BEGAN)) {
@@ -115,7 +133,7 @@ public class IndiciaPublisherTable extends
 			publisherRow.yearEnded = row.getInt(Columns.YEAR_ENDED);
 		}
 		if (!row.isNullAt(Columns.PARENT_ID)) {
-			publisherRow.parentId = row.getInt(Columns.PARENT_ID);
+			publisherRow.fkParentId = row.getInt(Columns.PARENT_ID);
 		}
 
 		if (!row.isNullAt(Columns.ID)) {
@@ -128,5 +146,41 @@ public class IndiciaPublisherTable extends
 	@Override
 	public void saveToParquetFormat(String jdbcUrl) {
 		super.saveToParquetFormat(sInputTable, Columns.ALL_COLUMNS, jdbcUrl);
+	}
+
+	@Override
+	protected void transform(IndiciaPublisherRow row) {
+		super.transform(row);
+		
+		Organization publisher = row.instance;
+		publisher.name = row.name;
+		if(row.country != null) {
+			publisher.location = row.country.instanceId;
+		}
+			
+		if(row.yearBegan != 0) {
+			Instant began = thingFactory.create(Instant.class);
+			began.year = row.yearBegan;
+			publisher.foundingDate = began.instanceId;			
+		}
+
+		if(row.yearEnded != 0) {
+			Instant ended = thingFactory.create(Instant.class);
+			ended.year = row.yearBegan;
+			publisher.foundingDate = ended.instanceId;		
+		}
+		
+		if(!Strings.isNullOrEmpty(row.notes)) {
+			publisher.description.add(row.notes);
+		}
+		
+		if(row.parentOrganization != null) {
+			publisher.parentOrganization = row.parentOrganization.instanceId;
+		}
+		
+		if(!Strings.isNullOrEmpty(row.url)) {
+			publisher.urls.add(URI.create(row.url));
+		}
+		
 	}
 }

@@ -21,6 +21,7 @@ import java.util.HashSet;
 import org.comicwiki.IRI;
 import org.comicwiki.model.schema.PublicationIssue;
 import org.comicwiki.rdf.annotations.ObjectIRI;
+import org.comicwiki.rdf.annotations.ObjectString;
 import org.comicwiki.rdf.annotations.Predicate;
 import org.comicwiki.rdf.annotations.SchemaBib;
 import org.comicwiki.rdf.annotations.SchemaComicWiki;
@@ -37,10 +38,25 @@ public class ComicIssue extends PublicationIssue {
 	@SchemaBib
 	public Collection<IRI> artists  = new HashSet<>(1);//person
 	
+	@Predicate("brand")
+	@ObjectIRI
+	@SchemaComicWiki
+	public Collection<IRI> brands  = new HashSet<>(1);//Brand
+	
 	@Predicate("colorist")
 	@ObjectIRI
 	@SchemaBib
 	public Collection<IRI> colorists  = new HashSet<>(1);
+	
+	@Predicate("inker")
+	@ObjectIRI
+	@SchemaBib
+	public Collection<IRI> inkers  = new HashSet<>(1);
+	
+	@Predicate("issueNumber")
+	@ObjectIRI
+	@SchemaComicWiki
+	public IRI issueNumber;
 	
 	@Predicate("letterer")
 	@ObjectIRI
@@ -52,19 +68,14 @@ public class ComicIssue extends PublicationIssue {
 	@SchemaBib
 	public Collection<IRI> pencilers  = new HashSet<>(1);
 	
-	@Predicate("inker")
-	@ObjectIRI
-	@SchemaBib
-	public Collection<IRI> inkers  = new HashSet<>(1);
-	
-	@Predicate("brand")
+	@Predicate("price")
 	@ObjectIRI
 	@SchemaComicWiki
-	public Collection<IRI> brands  = new HashSet<>(1);//Brand
+	public Collection<IRI> price = new HashSet<>(3);
 	
-	@Predicate("issueNumber")
-	@ObjectIRI
+	@Predicate("frequency")
+	@ObjectString
 	@SchemaComicWiki
-	public IRI issueNumber;
+	public String frequency;
 	
 }

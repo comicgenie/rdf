@@ -13,24 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package org.comicwiki.gcd;
+package org.comicwiki.gcd.fields;
 
 import java.util.Collection;
 import java.util.HashSet;
 
 import org.apache.spark.sql.Row;
-import org.comicwiki.IRICache;
 import org.comicwiki.ThingFactory;
+import org.comicwiki.gcd.FieldParser;
 import org.comicwiki.model.schema.Person;
 
 public final class CreatorFieldParser implements FieldParser<Collection<Person>> {
 
 	private final ThingFactory thingFactory;
-	private final IRICache iriCache;
 
-	public CreatorFieldParser(ThingFactory thingFactory, IRICache iriCache) {
+	protected CreatorFieldParser(ThingFactory thingFactory) {
 		this.thingFactory = thingFactory;
-		this.iriCache = iriCache;
 	}
 	
 	@Override

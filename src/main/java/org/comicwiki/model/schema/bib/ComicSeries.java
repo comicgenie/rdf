@@ -31,11 +31,6 @@ public class ComicSeries extends Periodical {
 
 	//use URL to reference http://comics.org/issues/id
 	
-	@Predicate("format")
-	@ObjectString
-	@SchemaComicWiki
-	public Collection<String> format  = new HashSet<>(3);
-	
 	@Predicate("binding")
 	@ObjectString
 	@SchemaComicWiki
@@ -50,6 +45,11 @@ public class ComicSeries extends Periodical {
 	@ObjectString
 	@SchemaComicWiki
 	public Collection<String> dimensions  = new HashSet<>(3);
+	
+	@Predicate("format")
+	@ObjectString
+	@SchemaComicWiki
+	public Collection<String> format  = new HashSet<>(3);
 	
 	@Predicate("paperStock")
 	@ObjectString

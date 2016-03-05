@@ -12,7 +12,7 @@ import org.comicwiki.rdf.annotations.SchemaComicWiki;
 import org.comicwiki.rdf.annotations.Subject;
 
 @SchemaComicWiki
-@Subject(value = "ReprintNote", key = "name")
+@Subject(value = "ReprintNote", isBlankNode = true)
 public class ReprintNote extends Intangible {
 
 	@Predicate("note")

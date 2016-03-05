@@ -12,7 +12,7 @@ import org.comicwiki.rdf.annotations.SchemaComicWiki;
 import org.comicwiki.rdf.annotations.Subject;
 
 @SchemaComicWiki
-@Subject(value = "StoryNote", key = "name")
+@Subject(value = "StoryNote", isBlankNode = true)
 public class StoryNote extends Intangible {
 
 	@Predicate("comicCharacter")

@@ -19,42 +19,43 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 
 import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 import org.comicwiki.BaseTable;
-import org.comicwiki.IRICache;
 import org.comicwiki.Join;
 import org.comicwiki.TableRow;
 import org.comicwiki.ThingFactory;
-import org.comicwiki.gcd.CharacterFieldParser;
-import org.comicwiki.gcd.CreatorFieldParser;
 import org.comicwiki.gcd.OrgLookupService;
-import org.comicwiki.gcd.tables.joinrules.StoryAndIndiciaPublisherRule;
+import org.comicwiki.gcd.fields.FieldParserFactory;
 import org.comicwiki.gcd.tables.joinrules.StoryAndIssueRule;
-import org.comicwiki.gcd.tables.joinrules.StoryAndPublisherRule;
 import org.comicwiki.gcd.tables.joinrules.StoryAndSeriesRule;
-import org.comicwiki.gcd.tables.joinrules.StoryAndStoryTypeRule;
 import org.comicwiki.model.ComicCharacter;
 import org.comicwiki.model.ComicOrganization;
+import org.comicwiki.model.Genre;
+import org.comicwiki.model.ReprintNote;
+import org.comicwiki.model.StoryNote;
 import org.comicwiki.model.schema.Organization;
 import org.comicwiki.model.schema.Person;
+import org.comicwiki.model.schema.bib.ComicIssue;
 import org.comicwiki.model.schema.bib.ComicSeries;
 import org.comicwiki.model.schema.bib.ComicStory;
 import org.comicwiki.relations.ComicCharactersAssigner;
 import org.comicwiki.relations.ComicCreatorAssigner;
 
 import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 
 @Join(value = IssueTable.class, withRule = StoryAndIssueRule.class)
 @Join(value = SeriesTable.class, withRule = StoryAndSeriesRule.class)
-@Join(value = PublisherTable.class, withRule = StoryAndPublisherRule.class)
-@Join(value = StoryTypeTable.class, withRule = StoryAndStoryTypeRule.class)
-@Join(value = IndiciaPublisherTable.class, withRule = StoryAndIndiciaPublisherRule.class)
+@Join(value = PublisherTable.class, leftKey = "fkPublisherId", leftField = "publisher")
+@Join(value = StoryTypeTable.class, leftKey = "fkTypeId", leftField = "storyType", rightField = "name")
+@Join(value = IndiciaPublisherTable.class, leftKey = "fkIndiciaPublisherId", leftField = "indiciaPublisher")
 public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 
 	public static final class Columns {
@@ -138,7 +139,7 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 		 */
 		public int fkTypeId;
 
-		public Collection<String> genre;
+		public Collection<Genre> genre = new HashSet<>(3);
 
 		public Organization indiciaPublisher;
 
@@ -156,7 +157,7 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 
 		public Collection<ComicOrganization> organizations;
 
-		public BigDecimal pageCount;
+		public int pageCount;
 
 		public boolean pageCountUncertain;
 
@@ -177,6 +178,8 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 		public String synopsis;
 
 		public String title;
+		
+		public ComicIssue issue;
 
 	}
 
@@ -188,19 +191,18 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 
 	private OrgLookupService comicOrganizations;
 
-	private final IRICache iriCache;
+	private HashMap<String, Genre> genreCache = new HashMap<>();
+
+	private final FieldParserFactory parserFactory;
 
 	@Inject
 	public StoryTable(SQLContext sqlContext, ThingFactory thingFactory,
-			IRICache iriCache, OrgLookupService comicOrganizations) {
+			FieldParserFactory parserFactory,
+			OrgLookupService comicOrganizations) {
 		super(sqlContext, sParquetName);
 		StoryTable.thingFactory = thingFactory;
-		this.iriCache = iriCache;
 		this.comicOrganizations = comicOrganizations;
-	}
-	
-	public StoryRow createRow() {
-		return new StoryRow();
+		this.parserFactory = parserFactory;
 	}
 
 	@Override
@@ -208,8 +210,7 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 		StoryRow storyRow = new StoryRow();
 
 		Fields.Character characterField = parseField(Columns.CHARACTERS, row,
-				new CharacterFieldParser(thingFactory, comicOrganizations,
-						storyRow.instance));
+				parserFactory.character(comicOrganizations, storyRow.instance));
 
 		if (characterField != null) {
 			storyRow.characters = characterField.comicCharacters;
@@ -220,33 +221,42 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 		storyRow.feature = row.getString(Columns.FEATURE);
 
 		storyRow.colors = parseField(Columns.COLORS, row,
-				new CreatorFieldParser(thingFactory, iriCache));
+				parserFactory.creator());
 		storyRow.editing = parseField(Columns.EDITING, row,
-				new CreatorFieldParser(thingFactory, iriCache));
-		storyRow.inks = parseField(Columns.INKS, row, new CreatorFieldParser(
-				thingFactory, iriCache));
+				parserFactory.creator());
+		storyRow.inks = parseField(Columns.INKS, row, parserFactory.creator());
 		storyRow.letters = parseField(Columns.LETTERS, row,
-				new CreatorFieldParser(thingFactory, iriCache));
+				parserFactory.creator());
 		storyRow.pencils = parseField(Columns.PENCILS, row,
-				new CreatorFieldParser(thingFactory, iriCache));
+				parserFactory.creator());
 		storyRow.script = parseField(Columns.SCRIPT, row,
-				new CreatorFieldParser(thingFactory, iriCache));
+				parserFactory.creator());
 
 		storyRow.jobNumber = row.getString(Columns.JOB_NUMBER);
 		storyRow.modified = row.getTimestamp(Columns.MODIFIED);
 		storyRow.pageCountUncertain = row
 				.isNullAt(Columns.PAGE_COUNT_UNCERTAIN) ? false : row
 				.getBoolean(Columns.PAGE_COUNT_UNCERTAIN);
-
 		if (!row.isNullAt(Columns.GENRE)) {
-			storyRow.genre = parseField(
+			Collection<String> genres = parseField(
 					Columns.GENRE,
 					row,
 					(f, r) -> {
 						return Sets.newHashSet(Splitter.on(';').trimResults()
-								.omitEmptyStrings().split(r.getString(f)));
+								.omitEmptyStrings()
+								.split(r.getString(f).toUpperCase()));
 					});
+
+			for (String name : genres) {
+				if (!cache.containsKey(name)) {
+					Genre genre = thingFactory.create(Genre.class);
+					genre.name = name;
+					genreCache.put(name, genre);
+				}
+				storyRow.genre.add(genreCache.get(name));
+			}
 		}
+
 		if (!row.isNullAt(Columns.NOTES)) {
 			storyRow.notes = parseField(
 					Columns.NOTES,
@@ -271,7 +281,8 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 			storyRow.fkTypeId = row.getInt(Columns.TYPE_ID);
 		}
 		if (!row.isNullAt(Columns.PAGE_COUNT)) {
-			storyRow.pageCount = (BigDecimal) row.get(Columns.PAGE_COUNT);
+			storyRow.pageCount = ((BigDecimal) row.get(Columns.PAGE_COUNT))
+					.intValue();
 		}
 		if (!row.isNullAt(Columns.SEQUENCE_NUMBER)) {
 			storyRow.sequenceNumber = row.getInt(Columns.SEQUENCE_NUMBER);
@@ -297,10 +308,20 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 	@Override
 	public void transform(StoryRow row) {
 		super.transform(row);
-		ComicCharactersAssigner charAssign = new ComicCharactersAssigner(
-				row.characters);
-		// ccAssign.genres(row.genre);
-		charAssign.story(row.instance);
+		ComicStory story = row.instance;
+		for (Genre g : row.genre) {
+			story.genres.add(g.instanceId);
+			row.series.genres.addAll(story.genres);
+		}
+
+		if (row.characters != null) {
+			ComicCharactersAssigner charAssign = new ComicCharactersAssigner(
+					row.characters);
+			if (row.genre != null) {
+				charAssign.genres(row.genre);
+			}
+			charAssign.story(story);
+		}
 
 		ComicCreatorAssigner creatorAssigner = new ComicCreatorAssigner(
 				row.colors, row.inks, row.letters, row.pencils, row.script,
@@ -308,7 +329,59 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 		creatorAssigner.colleagues();
 		creatorAssigner.jobTitles();
 		creatorAssigner.characters(row.characters);
-		creatorAssigner.organizations(row.organizations);
+		creatorAssigner.comicOrganizations(row.organizations);
 
+		if (row.publisher != null) {
+			story.publishers.add(row.publisher.instanceId);
+			creatorAssigner.organization(row.publisher);
+
+		}
+		if (row.indiciaPublisher != null) {
+			story.publisherImprints.add(row.indiciaPublisher.instanceId);
+			creatorAssigner.organization(row.indiciaPublisher);
+		}
+
+		if (row.reprintNotes != null && !row.reprintNotes.isEmpty()) {
+			ReprintNote rn = thingFactory.create(ReprintNote.class);
+			rn.note.addAll(row.reprintNotes);
+			story.reprintNote.add(rn.instanceId);
+		}
+
+		if (row.notes != null && !row.notes.isEmpty()) {
+			StoryNote storyNote = thingFactory.create(StoryNote.class);
+			storyNote.note.addAll(row.notes);
+			story.storyNote.add(storyNote.instanceId);
+		}
+
+		if (row.series != null) {
+			story.isPartOf.add(row.series.instanceId);
+			row.series.hasParts.add(story.instanceId);
+		}
+		
+		if(row.issue != null) {
+			row.issue.hasParts.add(row.instance.instanceId);
+			row.issue.genres.addAll(row.instance.genres);
+			row.instance.isPartOf.add(row.issue.instanceId);		
+		}
+		
+		story.headline = row.feature;
+		story.name = row.title;
+		story.storyType = row.storyType;
+		if (!Strings.isNullOrEmpty(row.synopsis)) {
+			story.description.add(row.synopsis);
+		}
+		story.jobCode = row.jobNumber;
+		story.position = row.sequenceNumber;
+		story.pageCountUncertain = row.pageCountUncertain;
+		story.pageCount = row.pageCount;
+		// story.pageStart - requires more than one row...
+		/**
+		 * We can take sequences + page counts to determine pageStart and
+		 * pageEnd
+		 */
+		if (row.organizations != null) {
+			row.organizations.forEach(e -> story.fictionalOrganizations
+					.add(e.instanceId));
+		}
 	}
 }

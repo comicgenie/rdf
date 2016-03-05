@@ -94,7 +94,7 @@ public class ComicCreatorAssignerTest {
 		ComicCreatorAssigner assigner = assigner();
 		
 		ComicOrganization comicOrg = factory.create(ComicOrganization.class);
-		assigner.organizations(Sets.newHashSet(comicOrg));
+		assigner.comicOrganizations(Sets.newHashSet(comicOrg));
 		assertTrue(p1Colorist.workedOn.contains(comicOrg.instanceId));
 		assertTrue(p2Inker.workedOn.contains(comicOrg.instanceId));
 	}

@@ -27,10 +27,6 @@ import org.comicwiki.rdf.annotations.SchemaComicWiki;
 @SchemaComicWiki
 public class ComicCreativeWork extends CreativeWork {
 
-	@Predicate("editor")
-	@ObjectIRI
-	public Collection<IRI> editors = new HashSet<>(3);
-	
 	@Predicate("artist")
 	@ObjectIRI
 	public Collection<IRI> artists  = new HashSet<>(3);
@@ -39,6 +35,14 @@ public class ComicCreativeWork extends CreativeWork {
 	@ObjectIRI
 	public Collection<IRI> colorists  = new HashSet<>(3);
 	
+	@Predicate("editor")
+	@ObjectIRI
+	public Collection<IRI> editors = new HashSet<>(3);
+	
+	@Predicate("inker")
+	@ObjectIRI
+	public Collection<IRI> inkers  = new HashSet<>(3);
+	
 	@Predicate("letterer")
 	@ObjectIRI
 	public Collection<IRI> letterers  = new HashSet<>(3);
@@ -46,10 +50,6 @@ public class ComicCreativeWork extends CreativeWork {
 	@Predicate("penciler")
 	@ObjectIRI
 	public Collection<IRI> pencilers  = new HashSet<>(3);
-	
-	@Predicate("inker")
-	@ObjectIRI
-	public Collection<IRI> inkers  = new HashSet<>(3);
 	
 	
 }

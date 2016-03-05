@@ -34,10 +34,12 @@ public class Brand extends Intangible {
 
 	@Predicate("startUseDate")
 	@ObjectIRI
+	@SchemaComicWiki
 	public IRI startUseDate;
 	
 	@Predicate("endUseDate")
 	@ObjectIRI
+	@SchemaComicWiki
 	public IRI endUseDate;
 	
 	@Predicate("brandUse")

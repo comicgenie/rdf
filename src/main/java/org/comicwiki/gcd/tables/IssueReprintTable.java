@@ -79,6 +79,13 @@ public class IssueReprintTable extends
 	public IssueReprintRow process(Row row) throws IOException {
 		IssueReprintRow issueReprintRow = new IssueReprintRow();
 		issueReprintRow.notes = row.getString(Columns.NOTES);
+		if (!row.isNullAt(Columns.ORIGIN_ISSUE_ID)) {
+			issueReprintRow.fkOriginIssueId = row.getInt(Columns.ORIGIN_ISSUE_ID);
+		}
+		if (!row.isNullAt(Columns.TARGET_ISSUE_ID)) {
+			issueReprintRow.fkTargetIssueId= row.getInt(Columns.TARGET_ISSUE_ID);
+			
+		}
 		if (!row.isNullAt(Columns.ID)) {
 			issueReprintRow.id = row.getInt(Columns.ID);
 			add(issueReprintRow);

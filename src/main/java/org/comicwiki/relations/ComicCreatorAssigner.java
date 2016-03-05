@@ -23,6 +23,7 @@ import org.comicwiki.model.ComicCharacter;
 import org.comicwiki.model.ComicOrganization;
 import org.comicwiki.model.CreatorRole;
 import org.comicwiki.model.Genre;
+import org.comicwiki.model.schema.Organization;
 import org.comicwiki.model.schema.Person;
 import org.comicwiki.model.schema.bib.ComicStory;
 
@@ -68,9 +69,8 @@ public final class ComicCreatorAssigner {
 		creators.addAll(script);
 		creators.addAll(editors);
 
-		creators.forEach(c -> {
-			checkNotNull(c.instanceId, "creator instanceId is null: " + c.name);
-		});
+		creators.forEach(c -> checkNotNull(c.instanceId,
+				"creator instanceId is null: " + c.name));
 		this.colors = colors;
 		this.inks = inks;
 		this.letters = letters;
@@ -84,6 +84,9 @@ public final class ComicCreatorAssigner {
 	 * ComicStory.[inkers][pencilers][....]
 	 */
 	public void characters(Collection<ComicCharacter> characters) {
+		if(characters == null) {
+			return;
+		}
 		characters
 				.forEach(cc -> {
 					checkNotNull(cc.instanceId, "ComicCharacter.instanceId: "
@@ -99,9 +102,7 @@ public final class ComicCreatorAssigner {
 							.add(e.instanceId));
 					editors.forEach(e -> cc.creativeWork.editors
 							.add(e.instanceId));
-					creators.forEach(c -> {
-						c.workedOn.add(cc.instanceId);
-					});
+					creators.forEach(c -> c.workedOn.add(cc.instanceId));
 				});
 	}
 
@@ -132,25 +133,34 @@ public final class ComicCreatorAssigner {
 	 * ComicStory.[inkers][....] -> ComicStory.genres
 	 */
 	public void genres(Collection<Genre> genres) {
-		genres.forEach(g -> {
-			creators.forEach(c -> c.areasWorkedIn.add(g.instanceId));// TODO:
-		});
+		genres.forEach(g -> creators.forEach(c -> c.areasWorkedIn
+				.add(g.instanceId)));
 	}
 
 	/**
 	 * ComicStory.[inkers][....] -> ComicOrganizations
 	 */
-	public void organizations(Collection<ComicOrganization> organizations) {
-		if(organizations == null) {
+	public void comicOrganizations(Collection<ComicOrganization> organizations) {
+		if (organizations == null) {
 			return;
 		}
 		organizations.forEach(e -> {
 			checkNotNull(e.instanceId, "ComicOrganization.instanceId: "
 					+ e.name);
-			creators.forEach(c -> {
-				c.workedOn.add(e.instanceId);
-			});
+			creators.forEach(c -> c.workedOn.add(e.instanceId));
 		});
+	}
+	
+	public void organization(Organization organization) {
+		if (organization == null) {
+			return;
+		}
+			checkNotNull(organization.instanceId, "Organization.instanceId: "
+					+ organization.name);
+			creators.forEach(c -> {
+				c.worksFor.add(organization.instanceId);
+				organization.members.add(c.instanceId);
+			});
 	}
 
 	/**

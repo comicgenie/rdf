@@ -1,4 +1,5 @@
 /*******************************************************************************
+
  * See the NOTICE file distributed with this work for additional 
  * information regarding copyright ownership. ComicGenie licenses this 
  * file to you under the Apache License, Version 2.0 (the "License"); 
@@ -22,6 +23,7 @@ import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 import org.comicwiki.BaseTable;
 import org.comicwiki.TableRow;
+import org.comicwiki.model.ThingInItself;
 
 import com.google.inject.Inject;
 
@@ -31,11 +33,11 @@ import com.google.inject.Inject;
 public class BrandEmblemGroupTable extends
 		BaseTable<BrandEmblemGroupTable.BrandEmblemGroupRow> {
 
-	public static class BrandEmblemGroupRow extends TableRow {
+	public static class BrandEmblemGroupRow extends TableRow<ThingInItself> {
 
-		public int brandId;
+		public Integer brandId;
 
-		public int brandGroupId;
+		public Integer brandGroupId;
 	}
 
 	public static class Columns {
@@ -43,11 +45,12 @@ public class BrandEmblemGroupTable extends
 		public static final Column[] ALL_COLUMNS = new Column[] {
 				new Column("id"), new Column("brand_id"),
 				new Column("brandgroup_id") };
-		public static final int BRAND_ID = 1;
+		
+		public static final Integer BRAND_ID = 1;
 
 		public static final int ID = 0;
 
-		public static final int BRAND_GROUP_ID = 2;
+		public static final Integer BRAND_GROUP_ID = 2;
 
 	}
 

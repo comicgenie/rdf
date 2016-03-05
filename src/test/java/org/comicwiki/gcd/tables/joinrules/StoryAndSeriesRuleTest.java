@@ -21,7 +21,7 @@ public class StoryAndSeriesRuleTest {
 	@Test
 	public void rule() throws Exception {	
 		StoryTable table = createStoryTable(createThingFactory());
-		StoryRow left = table.createRow();
+		StoryRow left = new StoryRow();
 		left.id = 1;
 		left.fkSeriesId = 10;
 		

@@ -18,14 +18,16 @@ package org.comicwiki.model.schema;
 import org.comicwiki.rdf.annotations.ObjectNumber;
 import org.comicwiki.rdf.annotations.ObjectString;
 import org.comicwiki.rdf.annotations.Predicate;
+import org.comicwiki.rdf.annotations.SchemaBib;
+import org.comicwiki.rdf.annotations.Subject;
 
 /**
  * A part of a successively published publication such as a periodical or
  * multi-volume work, often numbered. It may represent a time span, such as a
  * year.
- * 
- * http://bib.schema.org/PublicationVolume
  */
+@Subject(value = "http://bib.schema.org/PublicationVolume",  compositeKey= {"name", "volumeNumber"})
+@SchemaBib
 public class PublicationVolume extends CreativeWork {
 
 	/**

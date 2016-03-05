@@ -23,9 +23,12 @@ import org.comicwiki.rdf.annotations.SchemaComicWiki;
 import org.comicwiki.rdf.annotations.Subject;
 
 @SchemaComicWiki
-@Subject(value = "ComicIssueNumber", key = "name")
+@Subject(value = "ComicIssueNumber", isBlankNode = true)
 public class ComicIssueNumber extends Intangible {
 
+	/**
+	 * Assigned by indexer
+	 */
 	public String assigned;
 	
 	public String cover;
@@ -33,6 +36,8 @@ public class ComicIssueNumber extends Intangible {
 	public String year;
 	
 	public Collection<String> indicia = new HashSet<>();
+	
+	public String note;
 	
 	
 }

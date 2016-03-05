@@ -73,6 +73,13 @@ public class ReprintTable extends BaseTable<ReprintTable.ReprintRow> {
 	public ReprintRow process(Row row) throws IOException {
 		ReprintRow reprintRow = new ReprintRow();
 		reprintRow.notes = row.getString(Columns.NOTES);
+		if (!row.isNullAt(Columns.ORIGIN_ID)) {
+			reprintRow.fkOriginId = row.getInt(Columns.ORIGIN_ID);
+		}
+		if (!row.isNullAt(Columns.TARGET_ID)) {
+			reprintRow.fkTargetId = row.getInt(Columns.TARGET_ID);
+		}	
+		
 		if (!row.isNullAt(Columns.ID)) {
 			reprintRow.id = row.getInt(Columns.ID);
 			add(reprintRow);

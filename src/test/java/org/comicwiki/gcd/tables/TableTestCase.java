@@ -22,9 +22,9 @@ public abstract class TableTestCase<T extends BaseTable> {
 		return createTable(createThingFactory());
 	}
 	
-	@Test(expected = NullPointerException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void badJcbcUrl() throws Exception {
 		T table = createTable();
-		table.saveToParquetFormat("jdbc:mysql://invalid");
+		table.saveToParquetFormat("jdb:mysql://invalid");
 	}
 }

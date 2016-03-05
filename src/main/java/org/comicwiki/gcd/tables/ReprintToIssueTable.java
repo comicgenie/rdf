@@ -55,7 +55,7 @@ public class ReprintToIssueTable extends
 	public static class ReprintToIssueRow extends TableRow<ReprintNote> {
 		public String notes;
 
-		public int fkOriginIssueId;
+		public int fkOriginId;
 
 		public int fkTargetIssueId;
 	}
@@ -74,7 +74,7 @@ public class ReprintToIssueTable extends
 		ReprintToIssueRow issueRow = new ReprintToIssueRow();
 		issueRow.notes = row.getString(Columns.NOTES);
 		if (!row.isNullAt(Columns.ORIGIN_ID)) {
-			issueRow.fkOriginIssueId = row.getInt(Columns.ORIGIN_ID);
+			issueRow.fkOriginId = row.getInt(Columns.ORIGIN_ID);
 		}
 		if (!row.isNullAt(Columns.TARGET_ISSUE_ID)) {
 			issueRow.fkTargetIssueId = row.getInt(Columns.TARGET_ISSUE_ID);

@@ -16,20 +16,44 @@
 package org.comicwiki.gcd.tables;
 
 import java.io.IOException;
+import java.util.Date;
 
 import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 import org.comicwiki.BaseTable;
 import org.comicwiki.TableRow;
+import org.comicwiki.ThingFactory;
 import org.comicwiki.model.BrandUse;
+import org.comicwiki.model.Instant;
 
+import com.google.common.base.Strings;
 import com.google.inject.Inject;
 
 public class BrandUseTable extends BaseTable<BrandUseTable.BrandUseRow> {
 
 	public static class BrandUseRow extends TableRow<BrandUse> {
 
+		/**
+		 * gcd_brand_emblem_group.id
+		 */
+		public int fkEmblemId;
+
+		/**
+		 * gcd_publisher.id
+		 */
+		public int fkPublisherId;
+
+		public BrandUse instance = create(thingFactory);
+
+		public Date modified;
+
+		public String notes;
+
+		public int yearBegan;
+
+		public int yearEnded;
+		
 	}
 
 	private static final class Columns {
@@ -58,14 +82,36 @@ public class BrandUseTable extends BaseTable<BrandUseTable.BrandUseRow> {
 
 	private static final String sParquetName = sInputTable + ".parquet";
 
+	private static ThingFactory thingFactory;
+
 	@Inject
-	public BrandUseTable(SQLContext sqlContext) {
+	public BrandUseTable(SQLContext sqlContext, ThingFactory thingFactory) {
 		super(sqlContext, sParquetName);
+		this.thingFactory = thingFactory;
 	}
 
 	@Override
 	public BrandUseRow process(Row row) throws IOException {
 		BrandUseRow groupRow = new BrandUseRow();
+		groupRow.modified = row.getTimestamp(Columns.MODIFIED);
+		groupRow.notes = row.getString(Columns.NOTES);
+
+		if (!row.isNullAt(Columns.EMBLEM_ID)) {
+			groupRow.fkEmblemId = row.getInt(Columns.EMBLEM_ID);
+		}
+
+		if (!row.isNullAt(Columns.PUBLISHER_ID)) {
+			groupRow.fkPublisherId = row.getInt(Columns.PUBLISHER_ID);
+		}
+
+		if (!row.isNullAt(Columns.YEAR_BEGAN)) {
+			groupRow.yearBegan = row.getInt(Columns.YEAR_BEGAN);
+		}
+
+		if (!row.isNullAt(Columns.YEAR_ENDED)) {
+			groupRow.yearEnded = row.getInt(Columns.YEAR_ENDED);
+		}
+
 		if (!row.isNullAt(Columns.ID)) {
 			groupRow.id = row.getInt(Columns.ID);
 			add(groupRow);
@@ -76,5 +122,25 @@ public class BrandUseTable extends BaseTable<BrandUseTable.BrandUseRow> {
 	@Override
 	public void saveToParquetFormat(String jdbcUrl) {
 		super.saveToParquetFormat(sInputTable, Columns.ALL_COLUMNS, jdbcUrl);
+	}
+
+	@Override
+	protected void transform(BrandUseRow row) {
+		super.transform(row);
+		if (row.yearBegan != 0) {
+			Instant begin = thingFactory.create(Instant.class);
+			begin.year = row.yearBegan;
+			row.instance.begin = begin.instanceId;
+		}
+
+		if (row.yearEnded != 0) {
+			Instant end = thingFactory.create(Instant.class);
+			end.year = row.yearEnded;
+			row.instance.end = end.instanceId;
+		}
+
+		if (!Strings.isNullOrEmpty(row.notes)) {
+			row.instance.description.add(row.notes);
+		}
 	}
 }

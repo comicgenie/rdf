@@ -11,7 +11,7 @@ public class PublisherTableTest extends TableTestCase<PublisherTable> {
 
 	@Override
 	protected PublisherTable createTable(ThingFactory thingFactory) {
-		return new PublisherTable(null);
+		return new PublisherTable(null, createThingFactory());
 	}
 
 	@Test

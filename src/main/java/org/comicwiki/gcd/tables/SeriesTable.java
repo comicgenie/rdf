@@ -27,23 +27,23 @@ import org.comicwiki.BaseTable;
 import org.comicwiki.Join;
 import org.comicwiki.TableRow;
 import org.comicwiki.ThingFactory;
-import org.comicwiki.gcd.tables.joinrules.SeriesAndCountryRule;
-import org.comicwiki.gcd.tables.joinrules.SeriesAndLanguageRule;
-import org.comicwiki.gcd.tables.joinrules.SeriesAndPublicationTypeRule;
-import org.comicwiki.gcd.tables.joinrules.SeriesAndPublisherRule;
+import org.comicwiki.gcd.fields.FieldParserFactory;
+import org.comicwiki.model.Instant;
+import org.comicwiki.model.TemporalEntity;
 import org.comicwiki.model.schema.Country;
 import org.comicwiki.model.schema.Language;
 import org.comicwiki.model.schema.Organization;
 import org.comicwiki.model.schema.bib.ComicSeries;
 
 import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 
-@Join(value = LanguageTable.class, withRule = SeriesAndLanguageRule.class)
-@Join(value = PublisherTable.class, withRule = SeriesAndPublisherRule.class)
-@Join(value = CountryTable.class, withRule = SeriesAndCountryRule.class)
-@Join(value = SeriesPublicationTypeTable.class, withRule = SeriesAndPublicationTypeRule.class)
+@Join(value = LanguageTable.class, leftKey = "fkLanguageId", leftField = "language")
+@Join(value = CountryTable.class, leftKey = "fkCountryId", leftField = "country")
+@Join(value = PublisherTable.class, leftKey = "fkPublisherId", leftField = "publisher")
+@Join(value = SeriesPublicationTypeTable.class, leftKey = "fkPublicationTypeId", leftField = "publicationType", rightField = "name")
 public class SeriesTable extends BaseTable<SeriesTable.SeriesRow> {
 
 	public static class Columns {
@@ -71,7 +71,7 @@ public class SeriesTable extends BaseTable<SeriesTable.SeriesRow> {
 		public static final int NOTES = 10;
 		public static final int PAPER_STOCK = 16;
 		public static final int PUBLICATION_DATES = 5;
-		public static final int PUBLICATION_NOTES = 11;
+		public static final int PUBLICATION_NOTES = 11;// unused
 		public static final int PUBLISHER_ID = 6;
 		public static final int PUBLISHING_FORMAT = 18;
 		public static final int PUBLICATION_TYPE_ID = 19;
@@ -105,12 +105,12 @@ public class SeriesTable extends BaseTable<SeriesTable.SeriesRow> {
 		 * gcd_publisher.id
 		 */
 		public int fkPublisherId;
-		
+
 		/**
 		 * gcd_publication_type.id
 		 */
 		public int fkPublicationTypeId;
-		
+
 		public String publicationType;
 
 		public Collection<String> format = new HashSet<>(3);
@@ -127,7 +127,7 @@ public class SeriesTable extends BaseTable<SeriesTable.SeriesRow> {
 
 		public Collection<String> paperStock = new HashSet<>(3);
 
-		public String publicationDates;
+		public TemporalEntity publicationDates;
 
 		public String publicationNotes;
 
@@ -137,9 +137,9 @@ public class SeriesTable extends BaseTable<SeriesTable.SeriesRow> {
 
 		public String trackingNotes;
 
-		public int yearBegan;
+		public Integer yearBegan;
 
-		public int yearEnded;
+		public Integer yearEnded;
 
 	}
 
@@ -154,10 +154,14 @@ public class SeriesTable extends BaseTable<SeriesTable.SeriesRow> {
 				.omitEmptyStrings().split(r.getString(position)));
 	}
 
+	private FieldParserFactory parserFactory;
+
 	@Inject
-	public SeriesTable(SQLContext sqlContext, ThingFactory thingFactory) {
+	public SeriesTable(SQLContext sqlContext, ThingFactory thingFactory,
+			FieldParserFactory parserFactory) {
 		super(sqlContext, sParquetName);
 		this.thingFactory = thingFactory;
+		this.parserFactory = parserFactory;
 	}
 
 	public SeriesRow createRow() {
@@ -177,9 +181,15 @@ public class SeriesTable extends BaseTable<SeriesTable.SeriesRow> {
 
 		seriesRow.modified = row.getTimestamp(Columns.MODIFIED);
 		seriesRow.name = row.getString(Columns.NAME);
+		seriesRow.instance.name =  row.getString(Columns.NAME);
+		
 		seriesRow.notes = row.getString(Columns.NOTES);
-		seriesRow.publicationDates = row.getString(Columns.PUBLICATION_DATES);
 		seriesRow.publicationNotes = row.getString(Columns.PUBLICATION_NOTES);
+
+		if (!row.isNullAt(Columns.PUBLICATION_DATES)) {
+			seriesRow.publicationDates = parseField(Columns.PUBLICATION_DATES, row,
+					parserFactory.publishDate());
+		}
 
 		if (!row.isNullAt(Columns.PUBLISHER_ID)) {
 			seriesRow.fkPublisherId = row.getInt(Columns.PUBLISHER_ID);
@@ -239,6 +249,49 @@ public class SeriesTable extends BaseTable<SeriesTable.SeriesRow> {
 	@Override
 	protected void transform(SeriesRow row) {
 		super.transform(row);
-	}
+		//volume partOf???
+		ComicSeries series = row.instance;
+		series.name = row.name;
+		// series.authors
+		series.binding.addAll(row.binding);
+		series.binding.addAll(row.format);
+		series.colors.addAll(row.color);
+		series.dimensions.addAll(row.dimensions);
+		series.format.addAll(row.publishingFormat);
+		series.paperStock.addAll(row.paperStock);
+		if (!Strings.isNullOrEmpty(row.publicationType)) {
+			series.periodicalType = row.publicationType;
+		}
+		if (row.country != null) {
+			series.locationCreated = row.country.instanceId;
+		}
 
+		if (row.language != null) {
+			series.inLanguage = row.language.instanceId;
+		}
+
+		if (row.publisher != null) {
+			series.publishers.add(row.publisher.instanceId);
+		}
+
+		if(row.publicationDates != null) {
+			series.datePublished = row.publicationDates.instanceId;
+		}
+		
+		if (row.yearBegan != null) {
+			Instant begin = thingFactory.create(Instant.class);
+			begin.year = row.yearBegan;
+			row.instance.startDate = begin.instanceId;
+		}
+
+		if (row.yearEnded != null) {
+			Instant end = thingFactory.create(Instant.class);
+			end.year = row.yearEnded;
+			row.instance.endDate = end.instanceId;
+		}
+
+		if (!Strings.isNullOrEmpty(row.notes)) {
+			row.instance.description.add(row.notes);
+		}
+	}
 }

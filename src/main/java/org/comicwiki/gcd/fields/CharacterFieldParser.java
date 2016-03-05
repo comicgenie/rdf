@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package org.comicwiki.gcd;
+package org.comicwiki.gcd.fields;
 
 import static org.comicwiki.gcd.CharacterFieldCleaner.cleanAll;
 
@@ -28,6 +28,8 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.spark.sql.Row;
 import org.comicwiki.IRI;
 import org.comicwiki.ThingFactory;
+import org.comicwiki.gcd.FieldParser;
+import org.comicwiki.gcd.OrgLookupService;
 import org.comicwiki.gcd.parser.CharacterFieldLexer;
 import org.comicwiki.gcd.parser.CharacterFieldParser.CharactersContext;
 import org.comicwiki.gcd.parser.CharacterFieldParser.OrganizationContext;
@@ -74,7 +76,7 @@ public final class CharacterFieldParser implements
 
 	private final ThingFactory thingFactory;
 
-	public CharacterFieldParser(ThingFactory thingFactory,
+	protected CharacterFieldParser(ThingFactory thingFactory,
 			OrgLookupService comicOrganizations, ComicStory comicStory) {
 		this.thingFactory = thingFactory;
 		this.comicStory = comicStory;
@@ -199,7 +201,7 @@ public final class CharacterFieldParser implements
 		return parser(row.getString(field));
 	}
 
-	public StoryTable.Fields.Character parser(String text) {
+	protected StoryTable.Fields.Character parser(String text) {
 		if (Strings.isNullOrEmpty(text)) {
 			return characterFields;
 		}
@@ -224,7 +226,6 @@ public final class CharacterFieldParser implements
 		String orgName = e.WORD().getText();
 		ComicOrganization organization = createOrganization(orgName);
 		state.organizationState(organization);
-		//System.out.println("Org: " + orgName);
 		e.characters().organizationOrCharacter()
 				.forEach(e1 -> processOrganizationOrCharacter(e1));
 

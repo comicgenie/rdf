@@ -15,9 +15,12 @@
  *******************************************************************************/
 package org.comicwiki.model.schema;
 
+import org.comicwiki.IRI;
+import org.comicwiki.rdf.annotations.ObjectIRI;
 import org.comicwiki.rdf.annotations.ObjectNumber;
 import org.comicwiki.rdf.annotations.ObjectString;
 import org.comicwiki.rdf.annotations.Predicate;
+import org.comicwiki.rdf.annotations.SchemaComicWiki;
 import org.comicwiki.rdf.annotations.Subject;
 
 @Subject(value = "http://schema.org/PublicationIssue", compositeKey= {"name", "issueNumber"})
@@ -44,4 +47,10 @@ public class PublicationIssue extends CreativeWork {
 	@ObjectString
 	public String pagination;
 	
+	@Predicate("dateOnSale")
+	@ObjectIRI
+	@SchemaComicWiki
+	public IRI dateOnSale;
+	
+
 }

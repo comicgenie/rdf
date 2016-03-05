@@ -16,6 +16,7 @@
 package org.comicwiki.gcd.tables;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.Date;
 
 import org.apache.spark.sql.Column;
@@ -23,8 +24,12 @@ import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 import org.comicwiki.BaseTable;
 import org.comicwiki.TableRow;
+import org.comicwiki.ThingFactory;
+import org.comicwiki.model.Instant;
+import org.comicwiki.model.schema.Country;
 import org.comicwiki.model.schema.Organization;
 
+import com.google.common.base.Strings;
 import com.google.inject.Inject;
 
 public class PublisherTable extends BaseTable<PublisherTable.PublisherRow> {
@@ -45,16 +50,21 @@ public class PublisherTable extends BaseTable<PublisherTable.PublisherRow> {
 		public static final int NOTES = 5;
 
 		public static final int URL = 6;
+		
 		public static final int YEAR_BEGAN = 3;
+		
 		public static final int YEAR_ENDED = 4;
 	}
 
 	public static class PublisherRow extends TableRow<Organization> {
 
+		public Organization instance = create(thingFactory);
 		/**
 		 * gcd_country.id
 		 */
-		public int countryId;
+		public Integer fkCountryId;
+		
+		public Country country;
 
 		public Date modified;
 
@@ -64,29 +74,33 @@ public class PublisherTable extends BaseTable<PublisherTable.PublisherRow> {
 
 		public String url;
 
-		public int yearBegan;
+		public Integer yearBegan;
 
-		public int yearEnded;
+		public Integer yearEnded;
 	}
 
 	private static final String sInputTable = "gcd_publisher";
 
 	private static final String sParquetName = sInputTable + ".parquet";
 
+	private static ThingFactory thingFactory;
+
 	@Inject
-	public PublisherTable(SQLContext sqlContext) {
+	public PublisherTable(SQLContext sqlContext, ThingFactory thingFactory) {
 		super(sqlContext, sParquetName);
+		this.thingFactory = thingFactory;
 	}
 
 	@Override
 	public PublisherRow process(Row row) throws IOException {
 		PublisherRow publisherRow = new PublisherRow();
 		if (!row.isNullAt(Columns.COUNTRY_ID)) {
-			publisherRow.countryId = row.getInt(Columns.COUNTRY_ID);
+			publisherRow.fkCountryId = row.getInt(Columns.COUNTRY_ID);
 		}
 
 		publisherRow.modified = row.getTimestamp(Columns.MODIFIED);
 		publisherRow.name = row.getString(Columns.NAME);
+		publisherRow.instance.name = publisherRow.name;
 		publisherRow.notes = row.getString(Columns.NOTES);
 		publisherRow.url = row.getString(Columns.URL);
 		if (!row.isNullAt(Columns.YEAR_BEGAN)) {
@@ -99,7 +113,6 @@ public class PublisherTable extends BaseTable<PublisherTable.PublisherRow> {
 
 		if (!row.isNullAt(Columns.ID)) {
 			publisherRow.id = row.getInt(Columns.ID);
-			;
 			add(publisherRow);
 		}
 		return publisherRow;
@@ -108,5 +121,41 @@ public class PublisherTable extends BaseTable<PublisherTable.PublisherRow> {
 	@Override
 	public void saveToParquetFormat(String jdbcUrl) {
 		super.saveToParquetFormat(sInputTable, Columns.ALL_COLUMNS, jdbcUrl);
+	}
+	
+	@Override
+	protected void transform(PublisherRow row) {
+		super.transform(row);		
+		Organization publisher = row.instance;
+		
+		publisher.name = row.name;
+		if(row.country != null) {
+			publisher.location = row.country.instanceId;
+		}
+			
+		if(row.yearBegan != null) {
+			Instant began = thingFactory.create(Instant.class);
+			began.year = row.yearBegan;
+			publisher.foundingDate = began.instanceId;			
+		}
+
+		if(row.yearEnded != null) {
+			Instant ended = thingFactory.create(Instant.class);
+			ended.year = row.yearBegan;
+			publisher.foundingDate = ended.instanceId;		
+		}
+		
+		if(!Strings.isNullOrEmpty(row.notes)) {
+			publisher.description.add(row.notes);
+		}
+		
+		//if(row.parentOrganization != null) {
+		//	publisher.parentOrganization = row.parentOrganization.instanceId;
+		//}
+		
+		if(!Strings.isNullOrEmpty(row.url)) {
+			publisher.urls.add(URI.create(row.url));
+		}
+		
 	}
 }

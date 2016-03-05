@@ -24,14 +24,30 @@ import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 import org.comicwiki.BaseTable;
+import org.comicwiki.IRI;
+import org.comicwiki.Join;
 import org.comicwiki.TableRow;
+import org.comicwiki.ThingFactory;
+import org.comicwiki.gcd.fields.FieldParserFactory;
+import org.comicwiki.gcd.tables.joinrules.IssueAndSeriesRule;
+import org.comicwiki.model.ComicIssueNumber;
+import org.comicwiki.model.Instant;
+import org.comicwiki.model.Price;
+import org.comicwiki.model.schema.Brand;
+import org.comicwiki.model.schema.Organization;
 import org.comicwiki.model.schema.Person;
+import org.comicwiki.model.schema.PublicationVolume;
 import org.comicwiki.model.schema.bib.ComicIssue;
+import org.comicwiki.model.schema.bib.ComicSeries;
 
-import com.google.common.base.Splitter;
-import com.google.common.collect.Sets;
+import com.google.common.base.Strings;
 import com.google.inject.Inject;
 
+@Join(value = SeriesTable.class, withRule = IssueAndSeriesRule.class)
+@Join(value = BrandTable.class, leftKey = "fkBrandId", leftField = "brand")
+@Join(value = IndiciaPublisherTable.class, leftKey = "fkIndiciaPublisherId", leftField = "indiciaPublisher")
+@Join(value = SeriesTable.class, leftKey = "fkSeriesId", leftField = "series")
+@Join(value = PublisherTable.class, leftKey = "fkPublisherId", leftField = "publisher")
 public class IssueTable extends BaseTable<IssueTable.IssueRow> {
 
 	public static final class Columns {
@@ -66,7 +82,7 @@ public class IssueTable extends BaseTable<IssueTable.IssueRow> {
 		public static final int SERIES_ID = 3;
 		public static final int TITLE = 17;
 		public static final int VARIANT_NAME = 15;
-		public static final int VOLUMN = 2;
+		public static final int VOLUME = 2;
 	}
 
 	public static class Fields {
@@ -77,23 +93,35 @@ public class IssueTable extends BaseTable<IssueTable.IssueRow> {
 
 		public String barcode;
 
-		/**
-		 * gcd_brand.id
-		 */
-		public int brandId;
-
-		public String brand;
+		public Brand brand;
 
 		public Collection<Person> editors = new HashSet<>(3);
 
-		public String indiciaFrequency;
+		/**
+		 * gcd_brand.id
+		 */
+		public int fkBrandId;
 
 		/**
 		 * gcd_indicia_publisher.id
 		 */
-		public int indiciaPublisherId;
+		public int fkIndiciaPublisherId;
 
-		public String indiciaPublisher;
+		/**
+		 * gcd_series.id
+		 */
+		public int fkSeriesId;
+		
+		/**
+		 * 
+		 */
+		public int fkPublisherId;
+
+		public String indiciaFrequency;
+
+		public Organization indiciaPublisher;
+		
+		public ComicIssue instance = create(thingFactory);
 
 		public String isbn;
 
@@ -103,24 +131,21 @@ public class IssueTable extends BaseTable<IssueTable.IssueRow> {
 
 		public String note;
 
-		public String number;
+		public ComicIssueNumber number;
 
-		public String onSaleDate;
+		public Instant onSaleDate;
 
 		public int pageCount;
 
-		public Collection<String> price = new HashSet<>(3);
+		public Collection<Price> price = new HashSet<>(3);
 
 		public String publicationDate;
 
+		public Organization publisher;
+
 		public String rating;
 
-		/**
-		 * gcd_series.id
-		 */
-		public int seriesId;
-
-		public String series;// Is this unique???
+		public ComicSeries series;
 
 		public String title;
 
@@ -134,45 +159,51 @@ public class IssueTable extends BaseTable<IssueTable.IssueRow> {
 
 	private static final String sParquetName = sInputTable + ".parquet";
 
+	private static ThingFactory thingFactory;
+
+	private FieldParserFactory parserFactory;
+
 	@Inject
-	public IssueTable(SQLContext sqlContext) {
+	public IssueTable(SQLContext sqlContext, ThingFactory thingFactory,
+			FieldParserFactory parserFactory) {
 		super(sqlContext, sParquetName);
+		IssueTable.thingFactory = thingFactory;
+		this.parserFactory = parserFactory;
 	}
 
-	@Override
-	public void join(BaseTable<?>... tables) {
-		super.join(tables);
-		// Join with IssueReprintTable
-
+	private IRI createInstant(String keyDate, String datePublished) {
+		Instant datePublisher = thingFactory.create(Instant.class);
+		return datePublisher.instanceId;
 	}
-
-	@Override
-	protected void join(BaseTable<?> table) {
-		super.join(table);
-		// indiciaPublisherId
-		// brandId
-		// series
-	}
+	/**
+	 * 
+	 barcode; 
+	 isbn; 
+	 pageCount; 
+	 ComicSeries series
+	 */
 
 	@Override
 	public IssueRow process(Row row) throws IOException {
 		IssueRow issueRow = new IssueRow();
 		issueRow.barcode = row.getString(Columns.BARCODE);
 		if (!row.isNullAt(Columns.BRAND_ID)) {
-			issueRow.brandId = row.getInt(Columns.BRAND_ID);
+			issueRow.fkBrandId = row.getInt(Columns.BRAND_ID);
 		}
 
 		issueRow.indiciaFrequency = row.getString(Columns.INDICIA_FREQUENCY);
 		if (!row.isNullAt(Columns.INDICIA_PUBLISHER_ID)) {
-			issueRow.indiciaPublisherId = row
+			issueRow.fkIndiciaPublisherId = row
 					.getInt(Columns.INDICIA_PUBLISHER_ID);
 		}
 		issueRow.isbn = row.getString(Columns.ISBN);
 		issueRow.keyDate = row.getString(Columns.KEY_DATE);
 		issueRow.modified = row.getTimestamp(Columns.MODIFIED);
 		issueRow.note = row.getString(Columns.NOTES);
-		issueRow.number = row.getString(Columns.NUMBER);
-		issueRow.onSaleDate = row.getString(Columns.ON_SALE_DATE);
+		if (!row.isNullAt(Columns.ON_SALE_DATE)) {
+			issueRow.onSaleDate = parseField(Columns.ON_SALE_DATE, row,
+					parserFactory.saleDate());
+		}
 
 		if (!row.isNullAt(Columns.PAGE_COUNT)) {
 			issueRow.pageCount = row.getInt(Columns.PAGE_COUNT);
@@ -181,25 +212,28 @@ public class IssueTable extends BaseTable<IssueTable.IssueRow> {
 		issueRow.publicationDate = row.getString(Columns.PUBLICATION_DATE);
 		issueRow.rating = row.getString(Columns.RATING);
 		if (!row.isNullAt(Columns.SERIES_ID)) {
-			issueRow.seriesId = row.getInt(Columns.SERIES_ID);
+			issueRow.fkSeriesId = row.getInt(Columns.SERIES_ID);
 		}
 
 		issueRow.title = row.getString(Columns.TITLE);
 		issueRow.variantName = row.getString(Columns.VARIANT_NAME);
-		issueRow.volume = row.getString(Columns.VOLUMN);
+		issueRow.volume = row.getString(Columns.VOLUME);
+
+		if (!row.isNullAt(Columns.EDITING)) {
+			issueRow.editors.addAll(parseField(Columns.EDITING, row,
+					parserFactory.creator()));
+		}
 
 		if (!row.isNullAt(Columns.PRICE)) {
-			issueRow.price = parseField(
-					Columns.PRICE,
-					row,
-					(f, r) -> {
-						return Sets.newHashSet(Splitter.on(';').trimResults()
-								.omitEmptyStrings().split(r.getString(f)));
-					});
+			issueRow.price.addAll(parseField(Columns.PRICE, row,
+					parserFactory.price()));
 		}
-		if (!row.isNullAt(Columns.EDITING)) {
-			// issueRow.editors
+
+		if (!row.isNullAt(Columns.NUMBER)) {
+			issueRow.number = parseField(Columns.NUMBER, row,
+					parserFactory.issueNumber());
 		}
+
 		if (!row.isNullAt(Columns.ID)) {
 			issueRow.id = row.getInt(Columns.ID);
 			add(issueRow);
@@ -215,8 +249,62 @@ public class IssueTable extends BaseTable<IssueTable.IssueRow> {
 
 	@Override
 	protected void transform(IssueRow row) {
-		// TODO Auto-generated method stub
 		super.transform(row);
+		ComicIssue issue = row.instance;		
+		issue.headline = row.title;
+		issue.frequency = row.indiciaFrequency;
+		
+		if (!Strings.isNullOrEmpty(row.variantName)) {
+			issue.alternateNames.add(row.variantName);
+		}
+		issue.contentRating = row.rating;
+		if (row.brand != null) {
+			issue.brands.add(row.brand.instanceId);
+		}
+		if (row.editors != null && !row.editors.isEmpty()) {
+			row.editors.forEach(e -> issue.editors.add(e.instanceId));
+		}
+
+		if (row.indiciaPublisher != null) {
+			issue.publisherImprints.add(row.indiciaPublisher.instanceId);
+		}
+		if (row.series != null) {
+			issue.name = row.series.name;
+			row.series.hasParts.add(issue.instanceId);
+			issue.isPartOf.add(row.series.instanceId);
+		}
+
+		if (!Strings.isNullOrEmpty(row.note)) {
+			issue.description.add(row.note);
+		}
+
+		if (row.onSaleDate != null) {
+			issue.dateOnSale = row.onSaleDate.instanceId;
+		}
+
+		issue.datePublished = createInstant(row.keyDate, row.publicationDate);
+		row.price.forEach(p -> issue.price.add(p.instanceId));
+
+		if(!Strings.isNullOrEmpty(row.volume)) {
+			PublicationVolume publicationVolume = thingFactory.create(PublicationVolume.class);
+			publicationVolume.name = row.series.name;
+			publicationVolume.volumeNumber = row.volume;
+			publicationVolume.alternateNames.addAll(issue.alternateNames);
+			publicationVolume.hasParts.add(issue.instanceId);
+			issue.isPartOf.add(publicationVolume.instanceId);
+		}
+		if(row.number != null) {
+			issue.issueNumber = row.number.instanceId;
+		}
+		
+		if(row.publisher != null) {
+			issue.publishers.add(row.publisher.instanceId);
+		}
+
+		// issue.reprintOf
+		// issue.inLanguage
+		// issue.locationCreated
+
 	}
 
 }

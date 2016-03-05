@@ -23,6 +23,7 @@ import org.comicwiki.model.schema.CreativeWork;
 import org.comicwiki.rdf.annotations.ObjectBoolean;
 import org.comicwiki.rdf.annotations.ObjectIRI;
 import org.comicwiki.rdf.annotations.ObjectNumber;
+import org.comicwiki.rdf.annotations.ObjectString;
 import org.comicwiki.rdf.annotations.Predicate;
 import org.comicwiki.rdf.annotations.SchemaBib;
 import org.comicwiki.rdf.annotations.SchemaComicWiki;
@@ -36,21 +37,37 @@ public class ComicStory extends CreativeWork {
 	@ObjectIRI
 	public Collection<IRI> artists  = new HashSet<>(3);
 	
+	@Predicate("characterNote")
+	@ObjectIRI
+	@SchemaComicWiki
+	public Collection<IRI> characterNote = new HashSet<>(3);
+	
+	@Predicate("storyNote")
+	@ObjectIRI
+	@SchemaComicWiki
+	public Collection<IRI> storyNote = new HashSet<>(3);
+	
 	@Predicate("colorist")
 	@ObjectIRI
 	public Collection<IRI> colorists  = new HashSet<>(3);
+	
+	@Predicate("inker")
+	@ObjectIRI
+	public Collection<IRI> inkers  = new HashSet<>(3);
 	
 	@Predicate("letterer")
 	@ObjectIRI
 	public Collection<IRI> letterers  = new HashSet<>(3);
 	
-	@Predicate("penciler")
+	@Predicate("organization")
 	@ObjectIRI
-	public Collection<IRI> pencilers  = new HashSet<>(3);
+	@SchemaComicWiki
+	public Collection<IRI> organizations = new HashSet<>(1);
 	
-	@Predicate("inker")
-	@ObjectIRI
-	public Collection<IRI> inkers  = new HashSet<>(3);
+	@Predicate("pageCountUncertain")
+	@ObjectBoolean
+	@SchemaComicWiki
+	public Boolean pageCountUncertain;
 	
 	@Predicate("pageEnd")
 	@ObjectNumber
@@ -62,19 +79,23 @@ public class ComicStory extends CreativeWork {
 	@SchemaComicWiki
 	public int pageStart;
 	
-	@Predicate("organization")
+	@Predicate("penciler")
 	@ObjectIRI
-	@SchemaComicWiki
-	public Collection<IRI> organizations = new HashSet<>(1);
+	public Collection<IRI> pencilers  = new HashSet<>(3);
 	
-	@Predicate("characterNote")
-	@ObjectIRI
+	@Predicate("storyType")
+	@ObjectString
 	@SchemaComicWiki
-	public Collection<IRI> characterNote = new HashSet<>(3);
+	public String storyType;
 	
-	@Predicate("pageCountUncertain")
-	@ObjectBoolean
+	@Predicate("jobCode")
+	@ObjectString
 	@SchemaComicWiki
-	public Boolean pageCountUncertain;
+	public String jobCode;
+	
+	@Predicate("pageCount")
+	@ObjectNumber
+	@SchemaComicWiki
+	public int pageCount;
 	
 }

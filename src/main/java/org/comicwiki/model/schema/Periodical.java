@@ -17,6 +17,7 @@ package org.comicwiki.model.schema;
 
 import org.comicwiki.rdf.annotations.ObjectString;
 import org.comicwiki.rdf.annotations.Predicate;
+import org.comicwiki.rdf.annotations.SchemaComicWiki;
 import org.comicwiki.rdf.annotations.Subject;
 
 @Subject(value = "http://schema.org/Periodical", key= "name")
@@ -25,6 +26,11 @@ public class Periodical extends CreativeWorkSeries {
 	@Predicate("issn")
 	@ObjectString
 	public String issn;
+	
+	@Predicate("periodicalType")
+	@ObjectString
+	@SchemaComicWiki
+	public String periodicalType;
 	
 	//use hasPart for PublicationVolume
 	

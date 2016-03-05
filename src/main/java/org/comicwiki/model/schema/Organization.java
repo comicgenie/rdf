@@ -61,5 +61,5 @@ public class Organization extends Thing {
 	
 	@Predicate("founder")
 	public Collection<IRI> founders = new HashSet<>();
-
+	
 }

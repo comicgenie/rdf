@@ -13,8 +13,9 @@ public class StoryAndIssueRule implements
 	public void join(StoryRow left, IssueRow right) {
 		if (left.fkIssueId == right.id) {
 			left.editing.addAll(right.editors);
-			left.fkIndiciaPublisherId = right.indiciaPublisherId;
-			left.fkSeriesId = right.seriesId;
+			left.fkIndiciaPublisherId = right.fkIndiciaPublisherId;
+			left.fkSeriesId = right.fkSeriesId;
+			left.issue = right.instance;
 		}
 	}
 }

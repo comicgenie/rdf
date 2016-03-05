@@ -6,26 +6,28 @@ import org.comicwiki.ResourceIDCache;
 import org.comicwiki.ThingCache;
 import org.comicwiki.ThingFactory;
 import org.comicwiki.gcd.OrgLookupService;
+import org.comicwiki.gcd.fields.FieldParserFactory;
 
 public class TableTestUtils {
 
-	public static StoryTable createStoryTable(ThingFactory thingFactory) {
-		return new StoryTable(null, thingFactory, new IRICache(),
-				new OrgLookupService());
-	}
-	
 	public static SeriesTable createSeriesTable(ThingFactory thingFactory) {
-		return new SeriesTable(null, thingFactory);
+		return new SeriesTable(null, thingFactory, new FieldParserFactory(
+				thingFactory));
 	}
-	
+
+	public static StoryTable createStoryTable(ThingFactory thingFactory) {
+		return new StoryTable(null, thingFactory, new FieldParserFactory(
+				thingFactory), new OrgLookupService());
+	}
+
 	public static StoryTypeTable createStoryTypeTable(ThingFactory thingFactory) {
 		return new StoryTypeTable(null);
 	}
-	
+
 	public static ThingFactory createThingFactory() {
 		ThingCache thingCache = new ThingCache(new Repositories(),
 				new IRICache(), new ResourceIDCache());
 		return new ThingFactory(thingCache);
 	}
-	
+
 }

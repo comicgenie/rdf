@@ -1,4 +1,4 @@
-package org.comicwiki.gcd;
+package org.comicwiki.gcd.fields;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -19,6 +19,7 @@ import org.comicwiki.Repositories;
 import org.comicwiki.ResourceIDCache;
 import org.comicwiki.ThingCache;
 import org.comicwiki.ThingFactory;
+import org.comicwiki.gcd.OrgLookupService;
 import org.comicwiki.gcd.parser.CharacterFieldLexer;
 import org.comicwiki.gcd.parser.CharacterFieldParser;
 import org.comicwiki.gcd.tables.StoryTable;
@@ -68,12 +69,12 @@ public class CharacterFieldParserTest {
 		return iri;
 	}
 
-	private static org.comicwiki.gcd.CharacterFieldParser createParser(
+	private static org.comicwiki.gcd.fields.CharacterFieldParser createParser(
 			String input, OrgLookupService service) {
 		return createParser(input, service, createThingFactory(), null);
 	}
 
-	private static org.comicwiki.gcd.CharacterFieldParser createParser(
+	private static org.comicwiki.gcd.fields.CharacterFieldParser createParser(
 			String input, OrgLookupService service, ThingFactory thingFactory,
 			ComicStory comicStory) {
 		CharacterFieldLexer lexer = new CharacterFieldLexer(
@@ -82,7 +83,7 @@ public class CharacterFieldParserTest {
 		CharacterFieldParser parser = new CharacterFieldParser(tokens);
 		parser.setErrorHandler(new BailErrorStrategy());
 
-		return new org.comicwiki.gcd.CharacterFieldParser(thingFactory,
+		return new org.comicwiki.gcd.fields.CharacterFieldParser(thingFactory,
 				service, comicStory);
 
 	}
@@ -96,7 +97,7 @@ public class CharacterFieldParserTest {
 	@Test
 	public void altOrganization() throws Exception {
 		String input = "X-Men--Jean Grey; Rogue;";
-		org.comicwiki.gcd.CharacterFieldParser parser = createParser(input,
+		org.comicwiki.gcd.fields.CharacterFieldParser parser = createParser(input,
 				new OrgLookupService());
 
 		StoryTable.Fields.Character field = parser.parser(input);
@@ -123,7 +124,7 @@ public class CharacterFieldParserTest {
 	public void altOrganizationsTwo() throws Exception {
 		String input = "X-Men--Jean Grey; Rogue;Y-Men--A;B";
 		ThingFactory thingFactory = createThingFactory();
-		org.comicwiki.gcd.CharacterFieldParser parser = createParser(input,
+		org.comicwiki.gcd.fields.CharacterFieldParser parser = createParser(input,
 				new OrgLookupService(), thingFactory, null);
 
 		StoryTable.Fields.Character field = parser.parser(input);
@@ -172,7 +173,7 @@ public class CharacterFieldParserTest {
 	@Test
 	public void embedded() throws Exception {
 		String input = "Robin [Dick Grayson [NAME] ]";
-		org.comicwiki.gcd.CharacterFieldParser parser = createParser(input,
+		org.comicwiki.gcd.fields.CharacterFieldParser parser = createParser(input,
 				new OrgLookupService());
 
 		StoryTable.Fields.Character field = parser.parser(input);
@@ -202,7 +203,7 @@ public class CharacterFieldParserTest {
 		String input = "Mr. Fantastic [X";
 		OrgLookupService orgService = new OrgLookupService();
 		
-		org.comicwiki.gcd.CharacterFieldParser parser = createParser(input,
+		org.comicwiki.gcd.fields.CharacterFieldParser parser = createParser(input,
 				orgService);
 		StoryTable.Fields.Character field  = parser.parser(input);
 		assertEquals(2, field.comicCharacters.size());
@@ -212,7 +213,7 @@ public class CharacterFieldParserTest {
 	public void noteInAlias() {
 		String input = "Mr. Fantastic [WORD (note)]";
 		
-		org.comicwiki.gcd.CharacterFieldParser parser = createParser(input,
+		org.comicwiki.gcd.fields.CharacterFieldParser parser = createParser(input,
 				new OrgLookupService());
 		StoryTable.Fields.Character field  = parser.parser(input);
 	}
@@ -222,7 +223,7 @@ public class CharacterFieldParserTest {
 		String input = "Fantastic Four [X";
 		OrgLookupService orgService = new OrgLookupService(Lists.newArrayList("Fantastic Four"));
 		
-		org.comicwiki.gcd.CharacterFieldParser parser = createParser(input,
+		org.comicwiki.gcd.fields.CharacterFieldParser parser = createParser(input,
 				orgService);
 		StoryTable.Fields.Character field  = parser.parser(input);
 		assertEquals(1, field.comicOrganizations.size());
@@ -236,7 +237,7 @@ public class CharacterFieldParserTest {
 
 		OrgLookupService service = new OrgLookupService();
 
-		org.comicwiki.gcd.CharacterFieldParser parser = createParser(input,
+		org.comicwiki.gcd.fields.CharacterFieldParser parser = createParser(input,
 				service, thingFactory, null);
 
 		parser.parser(input);
@@ -253,7 +254,7 @@ public class CharacterFieldParserTest {
 		while (s.hasNextLine()) {
 			String input = s.nextLine();
 			
-			org.comicwiki.gcd.CharacterFieldParser parser = createParser(input,
+			org.comicwiki.gcd.fields.CharacterFieldParser parser = createParser(input,
 					new OrgLookupService(), thingFactory, story);
 			try {
 				StoryTable.Fields.Character field = parser.parser(input);
@@ -288,7 +289,7 @@ public class CharacterFieldParserTest {
 	public void simple() throws Exception {
 		String input = "Robin [Dick Grayson]";
 
-		org.comicwiki.gcd.CharacterFieldParser parser = createParser(input,
+		org.comicwiki.gcd.fields.CharacterFieldParser parser = createParser(input,
 				new OrgLookupService());
 
 		StoryTable.Fields.Character field = parser.parser(input);
@@ -314,7 +315,7 @@ public class CharacterFieldParserTest {
 		OrgLookupService orgService = new OrgLookupService();
 		ThingFactory thingFactory = createThingFactory();
 		ComicStory story = thingFactory.create(ComicStory.class);
-		org.comicwiki.gcd.CharacterFieldParser parser = createParser(input,
+		org.comicwiki.gcd.fields.CharacterFieldParser parser = createParser(input,
 				orgService, thingFactory, story);
 		
 		StoryTable.Fields.Character field  = parser.parser(input);
@@ -336,7 +337,7 @@ public class CharacterFieldParserTest {
 		ThingFactory thingFactory = createThingFactory();
 
 		ComicStory story = thingFactory.create(ComicStory.class);
-		org.comicwiki.gcd.CharacterFieldParser parser = createParser(input,
+		org.comicwiki.gcd.fields.CharacterFieldParser parser = createParser(input,
 				new OrgLookupService(), thingFactory, story);
 
 		StoryTable.Fields.Character field = parser.parser(input);
@@ -362,7 +363,7 @@ public class CharacterFieldParserTest {
 		ThingFactory thingFactory = createThingFactory();
 
 		ComicStory story = thingFactory.create(ComicStory.class);
-		org.comicwiki.gcd.CharacterFieldParser parser = createParser(input,
+		org.comicwiki.gcd.fields.CharacterFieldParser parser = createParser(input,
 				new OrgLookupService(), thingFactory, story);
 
 		StoryTable.Fields.Character field = parser.parser(input);
@@ -413,7 +414,7 @@ public class CharacterFieldParserTest {
 		ThingFactory thingFactory = createThingFactory();
 
 		ComicStory story = thingFactory.create(ComicStory.class);
-		org.comicwiki.gcd.CharacterFieldParser parser = createParser(input,
+		org.comicwiki.gcd.fields.CharacterFieldParser parser = createParser(input,
 				new OrgLookupService(), thingFactory, story);
 
 		StoryTable.Fields.Character field = parser.parser(input);
@@ -468,7 +469,7 @@ public class CharacterFieldParserTest {
 		ThingFactory thingFactory = createThingFactory();
 
 		ComicStory story = thingFactory.create(ComicStory.class);
-		org.comicwiki.gcd.CharacterFieldParser parser = createParser(input,
+		org.comicwiki.gcd.fields.CharacterFieldParser parser = createParser(input,
 				new OrgLookupService(), thingFactory, story);
 
 		StoryTable.Fields.Character field = parser.parser(input);
@@ -521,7 +522,7 @@ public class CharacterFieldParserTest {
 		OrgLookupService service = new OrgLookupService(
 				Lists.newArrayList("Legion"));
 
-		org.comicwiki.gcd.CharacterFieldParser parser = createParser(input,
+		org.comicwiki.gcd.fields.CharacterFieldParser parser = createParser(input,
 				service, thingFactory, null);
 
 		StoryTable.Fields.Character field = parser.parser(input);
@@ -536,7 +537,7 @@ public class CharacterFieldParserTest {
 		ThingFactory thingFactory = createThingFactory();
 
 		ComicStory story = thingFactory.create(ComicStory.class);
-		org.comicwiki.gcd.CharacterFieldParser parser = createParser(input,
+		org.comicwiki.gcd.fields.CharacterFieldParser parser = createParser(input,
 				new OrgLookupService(), thingFactory, story);
 
 		StoryTable.Fields.Character field = parser.parser(input);
@@ -583,7 +584,7 @@ public class CharacterFieldParserTest {
 		ThingFactory thingFactory = createThingFactory();
 
 		ComicStory story = thingFactory.create(ComicStory.class);
-		org.comicwiki.gcd.CharacterFieldParser parser = createParser(input,
+		org.comicwiki.gcd.fields.CharacterFieldParser parser = createParser(input,
 				new OrgLookupService(), thingFactory, story);
 
 		StoryTable.Fields.Character field = parser.parser(input);

@@ -1,11 +1,11 @@
 package org.comicwiki.model;
 
-import org.comicwiki.model.schema.Intangible;
+import org.comicwiki.model.schema.Thing;
 import org.comicwiki.rdf.annotations.SchemaComicWiki;
 import org.comicwiki.rdf.annotations.Subject;
 
 @SchemaComicWiki
-@Subject(value = "TemporalEntity", isBlankNode = true)
-public class TemporalEntity extends Intangible {
+@Subject(value = "ThingInItself", key = "name")
+public class ThingInItself extends Thing {
 
 }

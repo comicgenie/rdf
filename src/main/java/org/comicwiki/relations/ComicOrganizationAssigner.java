@@ -59,13 +59,12 @@ public final class ComicOrganizationAssigner {
 
 		Stream<Person> creators = Stream.of(colors, inks, letters, pencils,
 				script, editors).flatMap(Collection::stream);
-		
-		creators.forEach(c -> {
-			checkNotNull(c.instanceId, "creator instanceId is null: " + c.name);
-		});
-		
-		creators = Stream.of(colors, inks, letters, pencils,
-				script, editors).flatMap(Collection::stream);
+
+		creators.forEach(c -> checkNotNull(c.instanceId,
+				"creator instanceId is null: " + c.name));
+
+		creators = Stream.of(colors, inks, letters, pencils, script, editors)
+				.flatMap(Collection::stream);
 		creators.forEach(c -> c.workedOn.add(organization.instanceId));
 		colors.forEach(e -> organization.creativeWork.colorists
 				.add(e.instanceId));
@@ -84,8 +83,7 @@ public final class ComicOrganizationAssigner {
 	 * ComicOrganization -> ComicStory.genres
 	 */
 	public void genres(Collection<Genre> genres) {
-		genres.forEach(g -> organization.creativeWork.genres
-				.add(g.instanceId));
+		genres.forEach(g -> organization.creativeWork.genres.add(g.instanceId));
 	}
 
 	/**

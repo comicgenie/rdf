@@ -24,6 +24,7 @@ import org.apache.spark.sql.SQLContext;
 import org.comicwiki.BaseTable;
 import org.comicwiki.TableRow;
 import org.comicwiki.ThingFactory;
+import org.comicwiki.model.Instant;
 import org.comicwiki.model.schema.Brand;
 
 import com.google.inject.Inject;
@@ -86,6 +87,8 @@ public class BrandTable extends BaseTable<BrandTable.BrandRow> {
 
 		brandRow.modified = row.getTimestamp(Columns.MODIFIED);
 		brandRow.name = row.getString(Columns.NAME);
+		brandRow.instance.name = row.getString(Columns.NAME);
+		
 		brandRow.notes = row.getString(Columns.NOTES);
 		brandRow.url = row.getString(Columns.URL);
 		if (!row.isNullAt(Columns.YEAR_BEGAN)) {
@@ -106,4 +109,21 @@ public class BrandTable extends BaseTable<BrandTable.BrandRow> {
 	public void saveToParquetFormat(String jdbcUrl) {
 		super.saveToParquetFormat(sInputTable, Columns.ALL_COLUMNS, jdbcUrl);
 	}
+
+	@Override
+	protected void transform(BrandRow row) {
+		super.transform(row);
+
+		if (row.yearBegan != 0) {
+			Instant begin = thingFactory.create(Instant.class);
+			begin.year = row.yearBegan;
+			row.instance.startUseDate = begin.instanceId;
+		}
+
+		if (row.yearEnded != 0) {
+			Instant end = thingFactory.create(Instant.class);
+			end.year = row.yearEnded;
+			row.instance.endUseDate = end.instanceId;
+		}
+	}	
 }

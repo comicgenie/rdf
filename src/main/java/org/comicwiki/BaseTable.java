@@ -16,6 +16,7 @@
 package org.comicwiki;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -74,6 +75,9 @@ public abstract class BaseTable<ROW extends TableRow<?>> {
 	}
 
 	public final void extract() throws IOException {
+		if (sqlContext == null) {
+			return;// noop
+		}
 		if (TableFormat.RDB.equals(tableFormat)) {
 			frame = sqlContext.read().load(datasourceName);
 		} else if (TableFormat.JSON.equals(tableFormat)) {
@@ -99,10 +103,10 @@ public abstract class BaseTable<ROW extends TableRow<?>> {
 	public HashMap<Integer, ROW> getCache() {
 		return cache;
 	}
-	
+
 	private static BaseTable getTable(BaseTable[] tables, Class<?> clazz) {
-		for(BaseTable baseTable : tables) {
-			if(baseTable.getClass().isAssignableFrom(clazz)) {
+		for (BaseTable baseTable : tables) {
+			if (baseTable.getClass().isAssignableFrom(clazz)) {
 				return baseTable;
 			}
 		}
@@ -127,24 +131,46 @@ public abstract class BaseTable<ROW extends TableRow<?>> {
 
 	protected void join(BaseTable<?> table) {
 		Join[] joins = this.getClass().getAnnotationsByType(Join.class);
-		for(Join join : joins) {
-			if(table.getClass().isAssignableFrom(join.value())) {
+		for (Join join : joins) {
+			if (table.getClass().isAssignableFrom(join.value())) {
 				try {
-					join(this, table, join.withRule().newInstance());
+					if (join.withRule().isAssignableFrom(NoOpJoinRule.class)) {						 
+						for (TableRow<?> rightRow : table.getCache().values()) {
+							for (ROW leftRow : getCache().values()) {
+								join(join.leftKey(), join.rightKey(), join.leftField(),
+											join.rightField(), leftRow, rightRow);	
+							}					
+						}						
+					} else {					
+						join(this, table, join.withRule().newInstance());
+					}
 				} catch (Exception e) {
-					
-				} 
+					e.printStackTrace();
+				}
 			}
 		}
 	}
 
-	protected final <LT extends BaseTable<ROW>, RT extends BaseTable<?>, 
-		JR extends JoinRule> void join(LT left, RT right, JR rule) {
-			for (TableRow<?> rightRow : right.getCache().values()) {
-				left.getCache().values().forEach(leftJoinedRow -> 
-					rule.join(leftJoinedRow, rightRow)
-				);
-			}
+	protected final <LT extends ROW, RT extends TableRow<?>> void join(
+			String leftKey, String rightKey, String leftField,
+			String rightField, LT left, RT right) throws Exception {
+		Field fk = left.getClass().getField(leftKey);
+		Field rk = right.getClass().getField(rightKey);
+		Field lf = left.getClass().getField(leftField);
+		Field rf = right.getClass().getField(rightField);
+		if (fk.getInt(left) == rk.getInt(right)) {
+			lf.set(left, rf.get(right));
+		}
+	}
+
+	protected final <LT extends BaseTable<ROW>, RT extends BaseTable<?>, JR extends JoinRule> void join(
+			LT left, RT right, JR rule) {
+		for (TableRow<?> rightRow : right.getCache().values()) {
+			left.getCache()
+					.values()
+					.forEach(
+							leftJoinedRow -> rule.join(leftJoinedRow, rightRow));
+		}
 	}
 
 	protected final <T> T parseField(int field, Row row,
@@ -194,9 +220,11 @@ public abstract class BaseTable<ROW extends TableRow<?>> {
 	}
 
 	public final void tranform() {
-		cache.values().forEach(r -> {
-			transform(r);
-		});
+		if (cache != null) {
+			cache.values().forEach(r -> {
+				transform(r);
+			});
+		}
 	}
 
 	protected void transform(ROW row) {

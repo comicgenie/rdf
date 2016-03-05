@@ -1,4 +1,4 @@
-package org.comicwiki.gcd;
+package org.comicwiki.gcd.fields;
 
 import org.junit.Test;
 

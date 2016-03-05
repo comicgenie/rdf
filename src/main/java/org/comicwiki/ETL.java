@@ -22,7 +22,6 @@ import org.comicwiki.gcd.tables.BrandGroupTable;
 import org.comicwiki.gcd.tables.BrandTable;
 import org.comicwiki.gcd.tables.BrandUseTable;
 import org.comicwiki.gcd.tables.CountryTable;
-import org.comicwiki.gcd.tables.GenresTable;
 import org.comicwiki.gcd.tables.IndiciaPublisherTable;
 import org.comicwiki.gcd.tables.IssueReprintTable;
 import org.comicwiki.gcd.tables.IssueTable;
@@ -42,18 +41,17 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 
 public class ETL {
- 
+
 	@SuppressWarnings("unchecked")
-	private static final Class<? extends BaseTable<?>>[] tableClasses = new Class[] {
+	protected static final Class<? extends BaseTable<?>>[] tableClasses = new Class[] {
 			BrandEmblemGroupTable.class, BrandGroupTable.class,
 			BrandTable.class, BrandUseTable.class, CountryTable.class,
-			GenresTable.class, IndiciaPublisherTable.class,
-			IssueReprintTable.class, IssueTable.class, LanguageTable.class,
-			PublisherTable.class, ReprintFromIssueTable.class,
-			ReprintTable.class, ReprintToIssueTable.class,
-			SeriesBondTable.class, SeriesBondTypeTable.class,
-			SeriesPublicationTypeTable.class, SeriesTable.class,
-			StoryTable.class, StoryTypeTable.class };
+			IndiciaPublisherTable.class, IssueReprintTable.class,
+			IssueTable.class, LanguageTable.class, PublisherTable.class,
+			ReprintFromIssueTable.class, ReprintTable.class,
+			ReprintToIssueTable.class, SeriesBondTable.class,
+			SeriesBondTypeTable.class, SeriesPublicationTypeTable.class,
+			SeriesTable.class, StoryTable.class, StoryTypeTable.class };
 
 	private ThingCache thingCache;
 	private Repositories repositories;
@@ -68,7 +66,8 @@ public class ETL {
 		this.resourceIDCache = resourceIDCache;
 	}
 
-	private static BaseTable<?>[] getTables(Injector injector) throws Exception {
+	protected static BaseTable<?>[] getTables(Injector injector)
+			throws Exception {
 		BaseTable<?>[] tables = new BaseTable<?>[tableClasses.length];
 		for (int i = 0; i < tableClasses.length; i++) {
 			tables[i] = injector.getInstance(tableClasses[i]);
@@ -82,11 +81,21 @@ public class ETL {
 
 	public void fromRDB(String jdbcUrl) throws Exception {
 		for (BaseTable<?> table : getTables(injector)) {
-			table.saveToParquetFormat(jdbcUrl);
+			if (table != null) {
+				table.saveToParquetFormat(jdbcUrl);
+			}
 		}
 	}
 
 	public void process(File resourceIds, File outputDir) throws Exception {
+		if (resourceIds == null) {
+			throw new IllegalArgumentException("resourceIds file not specified");
+		}
+
+		if (outputDir == null) {
+			throw new IllegalArgumentException("outputDir not specified");
+		}
+
 		if (resourceIds.exists()) {
 			resourceIDCache.loadResourceIDs(resourceIds);
 		}
@@ -94,9 +103,11 @@ public class ETL {
 		BaseTable<?>[] tables = getTables(injector);
 
 		for (BaseTable<?> table : tables) {
-			table.extract();
-			table.join(tables);
-			table.tranform();
+			if (table != null) {
+				table.extract();
+				table.join(tables);
+				table.tranform();
+			}
 		}
 
 		thingCache.assignResourceIDs();
