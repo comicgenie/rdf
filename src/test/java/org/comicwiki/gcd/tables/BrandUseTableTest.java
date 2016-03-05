@@ -1,6 +1,7 @@
 package org.comicwiki.gcd.tables;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
@@ -8,8 +9,6 @@ import org.comicwiki.ThingFactory;
 import org.comicwiki.gcd.tables.BrandUseTable.BrandUseRow;
 import org.comicwiki.model.Instant;
 import org.junit.Test;
-
-import com.google.common.base.Strings;
 
 public class BrandUseTableTest extends TableTestCase<BrandUseTable> {
 

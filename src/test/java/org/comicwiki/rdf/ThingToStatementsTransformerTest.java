@@ -1,5 +1,10 @@
 package org.comicwiki.rdf;
 
+import static org.comicwiki.rdf.DataType.XSD_ANYURI;
+import static org.comicwiki.rdf.DataType.XSD_BOOLEAN;
+import static org.comicwiki.rdf.DataType.XSD_GDAY;
+import static org.comicwiki.rdf.DataType.XSD_LONG;
+import static org.comicwiki.rdf.DataType.XSD_NONNEGATIVEINTEGER;
 import static org.comicwiki.rdf.RdfFactory.BASE_URI;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -29,9 +34,6 @@ import org.comicwiki.rdf.annotations.Subject;
 import org.comicwiki.rdf.values.RdfObject;
 import org.comicwiki.rdf.values.RdfPredicate;
 import org.comicwiki.rdf.values.RdfSubject;
-
-import static org.comicwiki.rdf.DataType.*;
-
 import org.junit.Test;
 
 public class ThingToStatementsTransformerTest {

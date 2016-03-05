@@ -1,6 +1,6 @@
 package org.comicwiki;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
 
 import org.comicwiki.model.ComicCharacter;
 import org.junit.Test;

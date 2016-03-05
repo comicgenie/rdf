@@ -1,7 +1,6 @@
 import org.comicwiki.ETL;
 import org.comicwiki.gcd.SparkUtils;
 import org.comicwiki.guice.ComicWikiModule;
-import org.junit.Test;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;

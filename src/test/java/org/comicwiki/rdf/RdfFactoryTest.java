@@ -1,6 +1,14 @@
 package org.comicwiki.rdf;
 
-import static org.comicwiki.rdf.DataType.*;
+import static org.comicwiki.rdf.DataType.XSD_ANYURI;
+import static org.comicwiki.rdf.DataType.XSD_BOOLEAN;
+import static org.comicwiki.rdf.DataType.XSD_BYTE;
+import static org.comicwiki.rdf.DataType.XSD_DOUBLE;
+import static org.comicwiki.rdf.DataType.XSD_FLOAT;
+import static org.comicwiki.rdf.DataType.XSD_INTEGER;
+import static org.comicwiki.rdf.DataType.XSD_LONG;
+import static org.comicwiki.rdf.DataType.XSD_SHORT;
+import static org.comicwiki.rdf.DataType.XSD_STRING;
 import static org.junit.Assert.assertEquals;
 
 import java.net.URL;

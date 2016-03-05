@@ -1,8 +1,7 @@
 package org.comicwiki.gcd;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
-import org.comicwiki.gcd.CharacterFieldCleaner;
 import org.junit.Test;
 
 public class CharacterFieldCleanerTest {

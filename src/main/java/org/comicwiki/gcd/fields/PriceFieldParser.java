@@ -6,11 +6,7 @@ import java.util.HashSet;
 import org.apache.spark.sql.Row;
 import org.comicwiki.ThingFactory;
 import org.comicwiki.gcd.FieldParser;
-import org.comicwiki.gcd.tables.IssueTable.Columns;
 import org.comicwiki.model.Price;
-
-import com.google.common.base.Splitter;
-import com.google.common.collect.Sets;
 
 public class PriceFieldParser implements FieldParser<Collection<Price>>{
 

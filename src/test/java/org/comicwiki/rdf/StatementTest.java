@@ -16,7 +16,8 @@
 package org.comicwiki.rdf;
 
 import static org.comicwiki.rdf.RdfFactory.BASE_URI;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -26,9 +27,6 @@ import org.comicwiki.rdf.annotations.ObjectNonNegativeInteger;
 import org.comicwiki.rdf.values.RdfPredicate;
 import org.comicwiki.rdf.values.RdfSubject;
 import org.junit.Test;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class StatementTest {
 

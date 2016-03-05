@@ -3,6 +3,10 @@ package org.comicwiki.gcd.tables;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
@@ -18,10 +22,6 @@ import org.comicwiki.model.schema.Country;
 import org.comicwiki.model.schema.Language;
 import org.comicwiki.model.schema.Organization;
 import org.junit.Test;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.mockito.Matchers.*;
 
 public class SeriesTableTest extends TableTestCase<SeriesTable> {
 

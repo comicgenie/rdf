@@ -1,7 +1,6 @@
 package org.comicwiki.gcd.fields;
 
 import org.comicwiki.ThingFactory;
-import org.comicwiki.gcd.FieldParser;
 import org.comicwiki.gcd.OrgLookupService;
 import org.comicwiki.model.schema.bib.ComicStory;
 

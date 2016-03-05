@@ -8,7 +8,6 @@ import org.apache.spark.sql.RowFactory;
 import org.comicwiki.BaseTable;
 import org.comicwiki.ThingFactory;
 import org.comicwiki.gcd.tables.PublisherTable.PublisherRow;
-import org.comicwiki.gcd.tables.SeriesTable.SeriesRow;
 import org.comicwiki.model.Instant;
 import org.junit.Test;
 
