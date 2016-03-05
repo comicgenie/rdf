@@ -143,17 +143,13 @@ public class PublisherTable extends BaseTable<PublisherTable.PublisherRow> {
 
 		if(row.yearEnded != null) {
 			Instant ended = thingFactory.create(Instant.class);
-			ended.year = row.yearBegan;
-			publisher.foundingDate = ended.instanceId;		
+			ended.year = row.yearEnded;
+			publisher.dissolutionDate = ended.instanceId;		
 		}
 		
 		if(!Strings.isNullOrEmpty(row.notes)) {
 			publisher.description.add(row.notes);
 		}
-		
-		//if(row.parentOrganization != null) {
-		//	publisher.parentOrganization = row.parentOrganization.instanceId;
-		//}
 		
 		if(!Strings.isNullOrEmpty(row.url)) {
 			publisher.urls.add(URI.create(row.url));

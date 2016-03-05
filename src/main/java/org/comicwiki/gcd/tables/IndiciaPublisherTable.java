@@ -97,9 +97,9 @@ public class IndiciaPublisherTable extends
 
 		public String url;
 
-		public int yearBegan;
+		public Integer yearBegan;
 
-		public int yearEnded;
+		public Integer yearEnded;
 	}
 
 	private static final String sInputTable = "gcd_publisher";
@@ -158,16 +158,16 @@ public class IndiciaPublisherTable extends
 			publisher.location = row.country.instanceId;
 		}
 			
-		if(row.yearBegan != 0) {
+		if(row.yearBegan != null) {
 			Instant began = thingFactory.create(Instant.class);
 			began.year = row.yearBegan;
 			publisher.foundingDate = began.instanceId;			
 		}
 
-		if(row.yearEnded != 0) {
+		if(row.yearEnded != null) {
 			Instant ended = thingFactory.create(Instant.class);
-			ended.year = row.yearBegan;
-			publisher.foundingDate = ended.instanceId;		
+			ended.year = row.yearEnded;
+			publisher.dissolutionDate = ended.instanceId;		
 		}
 		
 		if(!Strings.isNullOrEmpty(row.notes)) {

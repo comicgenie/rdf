@@ -7,15 +7,16 @@ import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
 import org.comicwiki.BaseTable;
 import org.comicwiki.ThingFactory;
-import org.comicwiki.gcd.tables.IndiciaPublisherTable.IndiciaPublisherRow;
 import org.comicwiki.gcd.tables.PublisherTable.PublisherRow;
+import org.comicwiki.gcd.tables.SeriesTable.SeriesRow;
+import org.comicwiki.model.Instant;
 import org.junit.Test;
 
 public class PublisherTableTest extends TableTestCase<PublisherTable> {
 
 	@Override
 	protected PublisherTable createTable(ThingFactory thingFactory) {
-		return new PublisherTable(null, createThingFactory());
+		return new PublisherTable(null, thingFactory);
 	}
 
 	@Test
@@ -47,6 +48,42 @@ public class PublisherTableTest extends TableTestCase<PublisherTable> {
 		assertNotNull(row2.instance.location);
 		assertEquals("United States", row2.country.name);
 		assertEquals("us", row2.country.countryCode.iterator().next());
+	}
+	
+	@Test
+	public void yearBegin() throws Exception {
+
+		ThingFactory thingFactory = createThingFactory();
+		PublisherTable table = createTable(thingFactory);
+
+		Row row = RowFactory.create(1, null, null, 1940, null, null, null,
+				null, null);
+		PublisherRow row2 = table.process(row);
+		table.tranform();
+
+		assertEquals(new Integer(1940), row2.yearBegan);
+
+		Instant begin = (Instant) thingFactory.getCache().get(
+				row2.instance.foundingDate);
+		assertEquals(1940, begin.year);
+	}
+
+	@Test
+	public void yearEnd() throws Exception {
+
+		ThingFactory thingFactory = createThingFactory();
+		PublisherTable table = createTable(thingFactory);
+
+		Row row = RowFactory.create(1, null, null, null, 2016, null, null,
+				null, null);
+		PublisherRow row2 = table.process(row);
+		table.tranform();
+
+		assertEquals(new Integer(2016), row2.yearEnded);
+
+		Instant end = (Instant) thingFactory.getCache().get(
+				row2.instance.dissolutionDate);
+		assertEquals(2016, end.year);
 	}
 
 }

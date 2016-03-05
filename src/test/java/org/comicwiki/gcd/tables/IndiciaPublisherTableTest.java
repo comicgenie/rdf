@@ -9,7 +9,7 @@ import org.comicwiki.BaseTable;
 import org.comicwiki.IRI;
 import org.comicwiki.ThingFactory;
 import org.comicwiki.gcd.tables.IndiciaPublisherTable.IndiciaPublisherRow;
-import org.comicwiki.gcd.tables.SeriesTable.SeriesRow;
+import org.comicwiki.model.Instant;
 import org.comicwiki.model.schema.Organization;
 import org.junit.Test;
 
@@ -84,8 +84,42 @@ public class IndiciaPublisherTableTest extends
 		assertEquals("Marvel Comics", publisher.name);
 	}
 
+	@Test
+	public void yearBegin() throws Exception {
 
+		ThingFactory thingFactory = createThingFactory();
+		IndiciaPublisherTable table = createTable(thingFactory);
+
+		Row row = RowFactory.create(1, null, null, 1940, null, null, null,
+				null, null);
+		IndiciaPublisherRow row2 = table.process(row);
+		table.tranform();
+
+		assertEquals(new Integer(1940), row2.yearBegan);
+
+		Instant begin = (Instant) thingFactory.getCache().get(
+				row2.instance.foundingDate);
+		assertEquals(1940, begin.year);
+	}
+
+	@Test
+	public void yearEnd() throws Exception {
+
+		ThingFactory thingFactory = createThingFactory();
+		IndiciaPublisherTable table = createTable(thingFactory);
+
+		Row row = RowFactory.create(1, null, null, null, 2016, null, null,
+				null, null);
+		IndiciaPublisherRow row2 = table.process(row);
+		table.tranform();
+
+		assertEquals(new Integer(2016), row2.yearEnded);
+
+		Instant end = (Instant) thingFactory.getCache().get(
+				row2.instance.dissolutionDate);
+		assertEquals(2016, end.year);
+	}
 	protected IndiciaPublisherTable createTable(ThingFactory thingFactory) {
-		return new IndiciaPublisherTable(null, createThingFactory());
+		return new IndiciaPublisherTable(null, thingFactory);
 	}
 }
