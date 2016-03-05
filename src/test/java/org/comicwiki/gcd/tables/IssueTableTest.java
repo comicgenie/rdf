@@ -8,6 +8,8 @@ import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.Iterator;
+
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
 import org.comicwiki.BaseTable;
@@ -21,6 +23,7 @@ import org.comicwiki.model.Price;
 import org.comicwiki.model.schema.Brand;
 import org.comicwiki.model.schema.Organization;
 import org.comicwiki.model.schema.PublicationVolume;
+import org.comicwiki.model.schema.Thing;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
@@ -199,7 +202,16 @@ public class IssueTableTest extends TableTestCase<IssueTable> {
 		table.join(new BaseTable[] { seriesTable });
 		table.tranform();
 
-		IRI iri = issueRow.instance.isPartOf.iterator().next();
+		Iterator<IRI> it = issueRow.instance.isPartOf.iterator();
+		IRI iri = null;
+		while(it.hasNext()) {
+			Thing thing = thingFactory.getCache().get(
+					it.next());
+			if(thing instanceof PublicationVolume) {
+				iri = thing.instanceId;
+			}		
+		}
+
 		PublicationVolume pv = (PublicationVolume) thingFactory.getCache().get(
 				iri);
 		assertEquals("3", pv.volumeNumber);

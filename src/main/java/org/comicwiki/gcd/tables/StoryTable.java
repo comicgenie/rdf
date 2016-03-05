@@ -309,9 +309,13 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 	public void transform(StoryRow row) {
 		super.transform(row);
 		ComicStory story = row.instance;
-		for (Genre g : row.genre) {
-			story.genres.add(g.instanceId);
-			row.series.genres.addAll(story.genres);
+		if(row.genre != null) {
+			for (Genre g : row.genre) {
+				story.genres.add(g.instanceId);
+				if(row.series != null) {
+					row.series.genres.addAll(story.genres);
+				}			
+			}		
 		}
 
 		if (row.characters != null) {
