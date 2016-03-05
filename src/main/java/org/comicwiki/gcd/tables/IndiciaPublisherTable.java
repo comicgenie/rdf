@@ -34,6 +34,7 @@ import com.google.common.base.Strings;
 import com.google.inject.Inject;
 
 @Join(value = CountryTable.class, leftKey = "fkCountryId", leftField = "country")
+@Join(value = PublisherTable.class, leftKey = "fkParentId", leftField = "parentOrganization")
 public class IndiciaPublisherTable extends
 		BaseTable<IndiciaPublisherTable.IndiciaPublisherRow> {
 
@@ -175,6 +176,7 @@ public class IndiciaPublisherTable extends
 		
 		if(row.parentOrganization != null) {
 			publisher.parentOrganization = row.parentOrganization.instanceId;
+			row.parentOrganization.subOrganization.add(row.instance.instanceId);
 		}
 		
 		if(!Strings.isNullOrEmpty(row.url)) {

@@ -6,9 +6,11 @@ import static org.junit.Assert.assertNotNull;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
 import org.comicwiki.BaseTable;
+import org.comicwiki.IRI;
 import org.comicwiki.ThingFactory;
 import org.comicwiki.gcd.tables.IndiciaPublisherTable.IndiciaPublisherRow;
 import org.comicwiki.gcd.tables.SeriesTable.SeriesRow;
+import org.comicwiki.model.schema.Organization;
 import org.junit.Test;
 
 public class IndiciaPublisherTableTest extends
@@ -57,6 +59,30 @@ public class IndiciaPublisherTableTest extends
 		assertEquals("us", row2.country.countryCode.iterator().next());
 	}
 
+	@Test
+	public void transformPublisherTable() throws Exception {
+		ThingFactory thingFactory = createThingFactory();
+		Row pubRow = RowFactory.create(20, "Marvel Comics", null, null, null,
+				null, null, null);
+		PublisherTable pubTable = new PublisherTable(null, thingFactory);
+		pubTable.process(pubRow);
+
+		IndiciaPublisherTable table = createTable(thingFactory);
+		Row row = RowFactory.create(1, null, null, null, null, null, null,
+				null, 20);
+
+		IndiciaPublisherRow row2 = table.process(row);
+		table.join(new BaseTable[] { pubTable });
+		table.tranform();
+
+		assertNotNull(row2.instance.parentOrganization);
+
+		IRI publisherIri = row2.instance.parentOrganization;
+		Organization publisher = (Organization) thingFactory.getCache().get(
+				publisherIri);
+
+		assertEquals("Marvel Comics", publisher.name);
+	}
 
 
 	protected IndiciaPublisherTable createTable(ThingFactory thingFactory) {

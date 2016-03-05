@@ -27,30 +27,28 @@ import org.comicwiki.rdf.annotations.Subject;
 @Subject(value = "http://schema.org/Organization", key="name")
 public class Organization extends Thing {
 
-	@Predicate("foundingDate")
+	@Predicate("brand")
 	@ObjectIRI
-	public IRI foundingDate;
+	public Collection<IRI> brands  = new HashSet<>();
 	
 	@Predicate("dissolutionDate")
 	@ObjectIRI
 	public IRI dissolutionDate;
 	
-	@Predicate("location")//should this be collection???
+	@Predicate("founder")
+	public Collection<IRI> founders = new HashSet<>();
+	
+	@Predicate("foundingDate")
 	@ObjectIRI
-	public IRI location;//Place
+	public IRI foundingDate;
 	
 	@Predicate("legalName")
 	@ObjectString
 	public String legalName;
 	
-	//indicia [ point to master publisher]
-	@Predicate("parentOrganization")
+	@Predicate("location")//should this be collection???
 	@ObjectIRI
-	public IRI parentOrganization;
-	
-	@Predicate("brand")
-	@ObjectIRI
-	public Collection<IRI> brands  = new HashSet<>();
+	public IRI location;//Place
 	
 	/**
 	 * ID of person (name:universe:era)
@@ -59,7 +57,12 @@ public class Organization extends Thing {
 	@ObjectIRI
 	public Collection<IRI> members = new HashSet<>();
 	
-	@Predicate("founder")
-	public Collection<IRI> founders = new HashSet<>();
+	@Predicate("parentOrganization")
+	@ObjectIRI
+	public IRI parentOrganization;
+	
+	@Predicate("subOrganization")
+	@ObjectIRI
+	public Collection<IRI> subOrganization = new HashSet<>(3);
 	
 }

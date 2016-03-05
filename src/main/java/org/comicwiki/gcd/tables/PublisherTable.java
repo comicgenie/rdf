@@ -23,6 +23,7 @@ import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 import org.comicwiki.BaseTable;
+import org.comicwiki.Join;
 import org.comicwiki.TableRow;
 import org.comicwiki.ThingFactory;
 import org.comicwiki.model.Instant;
@@ -31,7 +32,8 @@ import org.comicwiki.model.schema.Organization;
 
 import com.google.common.base.Strings;
 import com.google.inject.Inject;
-
+//TODO: Brand
+@Join(value = CountryTable.class, leftKey = "fkCountryId", leftField = "country")
 public class PublisherTable extends BaseTable<PublisherTable.PublisherRow> {
 	private static final class Columns {
 		public static final Column[] ALL_COLUMNS = new Column[] {
@@ -62,7 +64,7 @@ public class PublisherTable extends BaseTable<PublisherTable.PublisherRow> {
 		/**
 		 * gcd_country.id
 		 */
-		public Integer fkCountryId;
+		public int fkCountryId;
 		
 		public Country country;
 
@@ -88,7 +90,7 @@ public class PublisherTable extends BaseTable<PublisherTable.PublisherRow> {
 	@Inject
 	public PublisherTable(SQLContext sqlContext, ThingFactory thingFactory) {
 		super(sqlContext, sParquetName);
-		this.thingFactory = thingFactory;
+		PublisherTable.thingFactory = thingFactory;
 	}
 
 	@Override
