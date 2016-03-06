@@ -17,6 +17,7 @@ package org.comicwiki.gcd.tables;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.net.URI;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -309,6 +310,8 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 	public void transform(StoryRow row) {
 		super.transform(row);
 		ComicStory story = row.instance;
+		//TODO: need series internal id to GCD
+		//story.urls.add(URI.create("http://www.comics.org/series/" + row.series. "#" + row.id));
 		if(row.genre != null) {
 			for (Genre g : row.genre) {
 				story.genres.add(g.instanceId);

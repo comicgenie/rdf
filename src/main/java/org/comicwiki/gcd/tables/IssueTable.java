@@ -16,6 +16,7 @@
 package org.comicwiki.gcd.tables;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -250,6 +251,8 @@ public class IssueTable extends BaseTable<IssueTable.IssueRow> {
 	protected void transform(IssueRow row) {
 		super.transform(row);
 		ComicIssue issue = row.instance;
+		issue.urls.add(URI.create("http://www.comics.org/issue/" + row.id));
+		
 		issue.headline = row.title;
 		issue.frequency = row.indiciaFrequency;
 

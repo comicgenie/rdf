@@ -16,6 +16,7 @@
 package org.comicwiki.gcd.tables;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -181,14 +182,14 @@ public class SeriesTable extends BaseTable<SeriesTable.SeriesRow> {
 
 		seriesRow.modified = row.getTimestamp(Columns.MODIFIED);
 		seriesRow.name = row.getString(Columns.NAME);
-		seriesRow.instance.name =  row.getString(Columns.NAME);
-		
+		seriesRow.instance.name = row.getString(Columns.NAME);
+
 		seriesRow.notes = row.getString(Columns.NOTES);
 		seriesRow.publicationNotes = row.getString(Columns.PUBLICATION_NOTES);
 
 		if (!row.isNullAt(Columns.PUBLICATION_DATES)) {
-			seriesRow.publicationDates = parseField(Columns.PUBLICATION_DATES, row,
-					parserFactory.publishDate());
+			seriesRow.publicationDates = parseField(Columns.PUBLICATION_DATES,
+					row, parserFactory.publishDate());
 		}
 
 		if (!row.isNullAt(Columns.PUBLISHER_ID)) {
@@ -251,6 +252,10 @@ public class SeriesTable extends BaseTable<SeriesTable.SeriesRow> {
 		super.transform(row);
 
 		ComicSeries series = row.instance;
+		series.urls.add(URI.create("http://www.comics.org/series/" + row.id));
+		series.urls.add(URI.create("http://www.comics.org/series/" + row.id
+				+ "/covers"));
+
 		series.name = row.name;
 		// series.authors
 
@@ -275,10 +280,10 @@ public class SeriesTable extends BaseTable<SeriesTable.SeriesRow> {
 			series.publishers.add(row.publisher.instanceId);
 		}
 
-		if(row.publicationDates != null) {
+		if (row.publicationDates != null) {
 			series.datePublished = row.publicationDates.instanceId;
 		}
-		
+
 		if (row.yearBegan != null) {
 			Instant begin = thingFactory.create(Instant.class);
 			begin.year = row.yearBegan;

@@ -32,6 +32,7 @@ import org.comicwiki.model.schema.Organization;
 
 import com.google.common.base.Strings;
 import com.google.inject.Inject;
+
 //TODO: Brand
 @Join(value = CountryTable.class, leftKey = "fkCountryId", leftField = "country")
 public class PublisherTable extends BaseTable<PublisherTable.PublisherRow> {
@@ -52,9 +53,9 @@ public class PublisherTable extends BaseTable<PublisherTable.PublisherRow> {
 		public static final int NOTES = 5;
 
 		public static final int URL = 6;
-		
+
 		public static final int YEAR_BEGAN = 3;
-		
+
 		public static final int YEAR_ENDED = 4;
 	}
 
@@ -65,7 +66,7 @@ public class PublisherTable extends BaseTable<PublisherTable.PublisherRow> {
 		 * gcd_country.id
 		 */
 		public int fkCountryId;
-		
+
 		public Country country;
 
 		public Date modified;
@@ -124,36 +125,40 @@ public class PublisherTable extends BaseTable<PublisherTable.PublisherRow> {
 	public void saveToParquetFormat(String jdbcUrl) {
 		super.saveToParquetFormat(sInputTable, Columns.ALL_COLUMNS, jdbcUrl);
 	}
-	
+
 	@Override
 	protected void transform(PublisherRow row) {
-		super.transform(row);		
+		super.transform(row);
 		Organization publisher = row.instance;
-		
+		publisher.urls.add(URI.create("http://www.comics.org/publisher/"
+				+ row.id));
+		//TODO: has brand? indicia_publishers
+		//publisher.urls.add(URI.create("http://www.comics.org/publisher/"
+		//		+ row.id +"/brands"));
 		publisher.name = row.name;
-		if(row.country != null) {
+		if (row.country != null) {
 			publisher.location = row.country.instanceId;
 		}
-			
-		if(row.yearBegan != null) {
+
+		if (row.yearBegan != null) {
 			Instant began = thingFactory.create(Instant.class);
 			began.year = row.yearBegan;
-			publisher.foundingDate = began.instanceId;			
+			publisher.foundingDate = began.instanceId;
 		}
 
-		if(row.yearEnded != null) {
+		if (row.yearEnded != null) {
 			Instant ended = thingFactory.create(Instant.class);
 			ended.year = row.yearEnded;
-			publisher.dissolutionDate = ended.instanceId;		
+			publisher.dissolutionDate = ended.instanceId;
 		}
-		
-		if(!Strings.isNullOrEmpty(row.notes)) {
+
+		if (!Strings.isNullOrEmpty(row.notes)) {
 			publisher.description.add(row.notes);
 		}
-		
-		if(!Strings.isNullOrEmpty(row.url)) {
+
+		if (!Strings.isNullOrEmpty(row.url)) {
 			publisher.urls.add(URI.create(row.url));
 		}
-		
+
 	}
 }
