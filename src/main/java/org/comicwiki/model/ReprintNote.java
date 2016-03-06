@@ -21,7 +21,7 @@ public class ReprintNote extends Intangible {
 
 	@Predicate("print")
 	@ObjectIRI
-	public IRI print;
+	public IRI firstPrint;
 	
 	@Predicate("reprint")
 	@ObjectIRI

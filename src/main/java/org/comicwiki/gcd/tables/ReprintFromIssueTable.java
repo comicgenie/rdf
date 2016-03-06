@@ -21,14 +21,21 @@ import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 import org.comicwiki.BaseTable;
+import org.comicwiki.Join;
 import org.comicwiki.TableRow;
+import org.comicwiki.ThingFactory;
 import org.comicwiki.model.ReprintNote;
+import org.comicwiki.model.schema.bib.ComicIssue;
+import org.comicwiki.model.schema.bib.ComicStory;
 
+import com.google.common.base.Strings;
 import com.google.inject.Inject;
 
 /**
  * Issue has one of it's stories reprinted
  */
+@Join(value = IssueTable.class, leftKey = "fkOriginIssueId", leftField = "originalIssue")
+@Join(value = StoryTable.class, leftKey = "fkTargetStoryId", leftField = "reprintStory")
 public class ReprintFromIssueTable extends
 		BaseTable<ReprintFromIssueTable.ReprintFromIssueRow> {
 	public static class Columns {
@@ -57,16 +64,25 @@ public class ReprintFromIssueTable extends
 
 		public int fkOriginIssueId;
 
-		public int fkTargetId;
+		public int fkTargetStoryId;
+		
+		public ReprintNote instance = create(thingFactory);
+		
+		public ComicIssue originalIssue;
+		
+		public ComicStory reprintStory;
 	}
 
 	private static final String sInputTable = "gcd_reprint_from_issue";
 
 	private static final String sParquetName = sInputTable + ".parquet";
 
+	private static ThingFactory thingFactory;
+
 	@Inject
-	public ReprintFromIssueTable(SQLContext sqlContext) {
+	public ReprintFromIssueTable(SQLContext sqlContext, ThingFactory thingFactory) {
 		super(sqlContext, sParquetName);
+		ReprintFromIssueTable.thingFactory = thingFactory;		
 	}
 
 	@Override
@@ -77,7 +93,7 @@ public class ReprintFromIssueTable extends
 			issueRow.fkOriginIssueId = row.getInt(Columns.ORIGIN_ISSUE_ID);
 		}
 		if (!row.isNullAt(Columns.TARGET_ID)) {
-			issueRow.fkTargetId = row.getInt(Columns.TARGET_ID);
+			issueRow.fkTargetStoryId = row.getInt(Columns.TARGET_ID);
 		}	
 		if (!row.isNullAt(Columns.ID)) {
 			issueRow.id = row.getInt(Columns.ID);
@@ -89,5 +105,25 @@ public class ReprintFromIssueTable extends
 	@Override
 	public void saveToParquetFormat(String jdbcUrl) {
 		super.saveToParquetFormat(sInputTable, Columns.ALL_COLUMNS, jdbcUrl);
+	}
+
+	@Override
+	protected void transform(ReprintFromIssueRow row) {
+		super.transform(row);
+		ReprintNote reprintNote = row.instance;
+		
+		if(row.originalIssue != null) {
+			reprintNote.firstPrint = row.originalIssue.instanceId;
+			row.originalIssue.reprintNote.add(reprintNote.instanceId);
+		}
+		
+		if(row.reprintStory!= null) {
+			reprintNote.reprint = row.reprintStory.instanceId;
+			row.reprintStory.reprintNote.add(reprintNote.instanceId);
+		}
+		
+		if(!Strings.isNullOrEmpty(row.notes)) {
+			reprintNote.note.add(row.notes);
+		}
 	}
 }

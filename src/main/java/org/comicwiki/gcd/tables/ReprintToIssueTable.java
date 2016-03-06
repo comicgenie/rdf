@@ -21,14 +21,21 @@ import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 import org.comicwiki.BaseTable;
+import org.comicwiki.Join;
 import org.comicwiki.TableRow;
+import org.comicwiki.ThingFactory;
 import org.comicwiki.model.ReprintNote;
+import org.comicwiki.model.schema.bib.ComicIssue;
+import org.comicwiki.model.schema.bib.ComicStory;
 
+import com.google.common.base.Strings;
 import com.google.inject.Inject;
 
 /**
  * Reprint of story in another issue
  */
+@Join(value = StoryTable.class, leftKey = "fkOriginStoryId", leftField = "originalStory")
+@Join(value = IssueTable.class, leftKey = "fkTargetIssueId", leftField = "reprintIssue")
 public class ReprintToIssueTable extends
 		BaseTable<ReprintToIssueTable.ReprintToIssueRow> {
 
@@ -55,18 +62,27 @@ public class ReprintToIssueTable extends
 	public static class ReprintToIssueRow extends TableRow<ReprintNote> {
 		public String notes;
 
-		public int fkOriginId;
+		public int fkOriginStoryId;
 
 		public int fkTargetIssueId;
+		
+		public ReprintNote instance = create(thingFactory);
+		
+		public ComicStory originalStory;
+		
+		public ComicIssue reprintIssue;
 	}
 
 	private static final String sInputTable = "gcd_reprint_to_issue";
 
 	private static final String sParquetName = sInputTable + ".parquet";
 
+	private static ThingFactory thingFactory;
+
 	@Inject
-	public ReprintToIssueTable(SQLContext sqlContext) {
+	public ReprintToIssueTable(SQLContext sqlContext, ThingFactory thingFactory) {
 		super(sqlContext, sParquetName);
+		this.thingFactory = thingFactory;
 	}
 
 	@Override
@@ -74,7 +90,7 @@ public class ReprintToIssueTable extends
 		ReprintToIssueRow issueRow = new ReprintToIssueRow();
 		issueRow.notes = row.getString(Columns.NOTES);
 		if (!row.isNullAt(Columns.ORIGIN_ID)) {
-			issueRow.fkOriginId = row.getInt(Columns.ORIGIN_ID);
+			issueRow.fkOriginStoryId = row.getInt(Columns.ORIGIN_ID);
 		}
 		if (!row.isNullAt(Columns.TARGET_ISSUE_ID)) {
 			issueRow.fkTargetIssueId = row.getInt(Columns.TARGET_ISSUE_ID);
@@ -90,4 +106,24 @@ public class ReprintToIssueTable extends
 	public void saveToParquetFormat(String jdbcUrl) {
 		super.saveToParquetFormat(sInputTable, Columns.ALL_COLUMNS, jdbcUrl);
 	}
+
+	@Override
+	protected void transform(ReprintToIssueRow row) {
+		super.transform(row);
+		ReprintNote reprintNote = row.instance;
+		
+		if(row.originalStory != null) {
+			reprintNote.firstPrint = row.originalStory.instanceId;
+			row.originalStory.reprintNote.add(reprintNote.instanceId);
+		}
+		
+		if(row.reprintIssue != null) {
+			reprintNote.reprint = row.reprintIssue.instanceId;
+			row.reprintIssue.reprintNote.add(reprintNote.instanceId);
+		}
+		
+		if(!Strings.isNullOrEmpty(row.notes)) {
+			reprintNote.note.add(row.notes);
+		}
+	}	
 }

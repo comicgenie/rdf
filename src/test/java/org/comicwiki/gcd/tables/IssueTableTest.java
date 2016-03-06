@@ -131,19 +131,9 @@ public class IssueTableTest extends TableTestCase<IssueTable> {
 		assertNotNull(issueRow.publisher);
 		assertEquals("Marvel Comics", issueRow.publisher.name);
 	}
+
 	
-	@Test
-	public void reprint() throws Exception {
-		ThingFactory thingFactory = createThingFactory();
-		ReprintTable reprintTable = new ReprintTable(null);
-		Row reprintRow = RowFactory.create(1, null, null, null);
-		reprintTable.process(reprintRow);
-		
-		
-		
-	}
-	
-	@Test
+	/*
 	public void transformTargetOrigin() throws Exception {
 		ThingFactory thingFactory = createThingFactory();
 		IssueTable issueTable = new IssueTable(null, thingFactory,
@@ -167,7 +157,7 @@ public class IssueTableTest extends TableTestCase<IssueTable> {
 		assertEquals(1, ir1.instance.reprintNote.size());
 		assertEquals(1, ir2.instance.reprintNote.size());	
 	}
-	
+	*/
 	@Test
 	public void transformIndiciaPublisher() throws Exception {
 		ThingFactory thingFactory = createThingFactory();

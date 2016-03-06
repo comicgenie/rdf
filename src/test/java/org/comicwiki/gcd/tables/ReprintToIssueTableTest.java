@@ -11,7 +11,7 @@ public class ReprintToIssueTableTest extends TableTestCase<ReprintToIssueTable>{
 
 	@Override
 	protected ReprintToIssueTable createTable(ThingFactory thingFactory) {
-		return new ReprintToIssueTable(null);
+		return new ReprintToIssueTable(null, thingFactory);
 	}
 
 	@Test

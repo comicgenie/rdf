@@ -118,17 +118,17 @@ public class IssueReprintTable extends
 		ReprintNote reprintNote = row.instance;
 		
 		if(row.original != null) {
-			reprintNote.print = row.original.instanceId;
+			reprintNote.firstPrint = row.original.instanceId;
+			row.original.reprintNote.add(reprintNote.instanceId);
 		}
 		
 		if(row.reprint != null) {
 			reprintNote.reprint = row.reprint.instanceId;
+			row.reprint.reprintNote.add(reprintNote.instanceId);
 		}
 		
 		if(!Strings.isNullOrEmpty(row.notes)) {
 			reprintNote.note.add(row.notes);
 		}
 	}
-	
-	
 }

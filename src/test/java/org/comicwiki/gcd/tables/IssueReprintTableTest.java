@@ -11,6 +11,8 @@ import org.comicwiki.IRI;
 import org.comicwiki.ThingFactory;
 import org.comicwiki.gcd.fields.FieldParserFactory;
 import org.comicwiki.gcd.tables.IssueReprintTable.IssueReprintRow;
+import org.comicwiki.gcd.tables.IssueTable.IssueRow;
+import org.comicwiki.model.ReprintNote;
 import org.comicwiki.model.schema.bib.ComicIssue;
 import org.junit.Test;
 
@@ -91,12 +93,12 @@ public class IssueReprintTableTest extends TableTestCase<IssueReprintTable> {
 		Row issueRow = RowFactory.create(5, null, null, null, null, null, null, null,
 				null, null, null, null, null, null, null, null, null, "MyOriginal",
 				null, null);
-		issueTable.process(issueRow);
+		IssueRow ir1 = issueTable.process(issueRow);
 		
 		Row issueRow2 = RowFactory.create(6, null, null, null, null, null, null, null,
 				null, null, null, null, null, null, null, null, null, "MyReprint",
 				null, null);
-		issueTable.process(issueRow2);
+		IssueRow ir2 = issueTable.process(issueRow2);
 		
 		IssueReprintTable table = createTable(thingFactory);
 		Row row = RowFactory.create(1, 5, 6, "MyNote");
@@ -105,14 +107,24 @@ public class IssueReprintTableTest extends TableTestCase<IssueReprintTable> {
 		table.tranform();
 		
 		IRI iriReprint = row2.instance.reprint;
-		IRI iriOriginal = row2.instance.print;
+		IRI iriOriginal = row2.instance.firstPrint;
 		
-		ComicIssue rn1 = (ComicIssue) thingFactory.getCache().get(iriReprint);
-		ComicIssue  rn2 = (ComicIssue) thingFactory.getCache().get(iriOriginal);
+		ComicIssue ci1 = (ComicIssue) thingFactory.getCache().get(iriReprint);
+		ComicIssue  ci2 = (ComicIssue) thingFactory.getCache().get(iriOriginal);
 				
 		assertTrue(row2.instance.note.contains("MyNote"));
-		assertEquals("MyOriginal", rn2.name);
-		assertEquals("MyReprint", rn1.name);
-
+		assertEquals("MyOriginal", ci2.name);
+		assertEquals("MyReprint", ci1.name);
+		
+		IRI reprintNote1IRI = ir1.instance.reprintNote.iterator().next();
+		IRI reprintNote2IRI = ir2.instance.reprintNote.iterator().next();
+		ReprintNote rn1 = (ReprintNote) thingFactory.getCache().get(reprintNote1IRI);
+		ReprintNote rn2 = (ReprintNote)thingFactory.getCache().get(reprintNote2IRI);
+		
+		assertEquals(rn1.firstPrint, ir1.instance.instanceId);
+		assertEquals(rn1.reprint, ir2.instance.instanceId);
+		
+		assertEquals(rn2.firstPrint, ir1.instance.instanceId);
+		assertEquals(rn2.reprint, ir2.instance.instanceId);
 	}
 }

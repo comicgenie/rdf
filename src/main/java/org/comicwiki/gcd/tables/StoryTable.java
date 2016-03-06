@@ -51,6 +51,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 
+//@Join(value = ReprintTable.class, withRule = StoryReprintRule.class)
 @Join(value = IssueTable.class, withRule = StoryAndIssueRule.class)
 @Join(value = SeriesTable.class, withRule = StoryAndSeriesRule.class)
 @Join(value = PublisherTable.class, leftKey = "fkPublisherId", leftField = "publisher")
@@ -147,11 +148,13 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 
 		public ComicStory instance = create(thingFactory);
 
+		public ComicIssue issue;
+
 		public String jobNumber;
 
-		public Collection<Person> letters;
+		public Collection<Person> letters;;
 
-		public Date modified;;
+		public Date modified;
 
 		public Collection<String> notes;
 
@@ -176,10 +179,8 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 		public String storyType;
 
 		public String synopsis;
-
-		public String title;
 		
-		public ComicIssue issue;
+		public String title;
 
 	}
 

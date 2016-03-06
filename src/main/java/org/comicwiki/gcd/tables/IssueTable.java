@@ -30,7 +30,6 @@ import org.comicwiki.TableRow;
 import org.comicwiki.ThingFactory;
 import org.comicwiki.gcd.fields.FieldParserFactory;
 import org.comicwiki.gcd.tables.joinrules.IssueAndSeriesRule;
-import org.comicwiki.gcd.tables.joinrules.IssueReprintRule;
 import org.comicwiki.model.ComicIssueNumber;
 import org.comicwiki.model.Instant;
 import org.comicwiki.model.Price;
@@ -44,7 +43,7 @@ import org.comicwiki.model.schema.bib.ComicSeries;
 import com.google.common.base.Strings;
 import com.google.inject.Inject;
 
-@Join(value = IssueReprintTable.class, withRule = IssueReprintRule.class)
+//@Join(value = IssueReprintTable.class, withRule = IssueReprintRule.class)
 @Join(value = SeriesTable.class, withRule = IssueAndSeriesRule.class)
 @Join(value = BrandTable.class, leftKey = "fkBrandId", leftField = "brand")
 @Join(value = IndiciaPublisherTable.class, leftKey = "fkIndiciaPublisherId", leftField = "indiciaPublisher")

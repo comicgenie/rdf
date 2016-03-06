@@ -23,14 +23,18 @@ import org.apache.spark.sql.SQLContext;
 import org.comicwiki.BaseTable;
 import org.comicwiki.Join;
 import org.comicwiki.TableRow;
+import org.comicwiki.ThingFactory;
 import org.comicwiki.model.ReprintNote;
-import org.comicwiki.model.schema.bib.ComicIssue;
+import org.comicwiki.model.schema.bib.ComicStory;
 
+import com.google.common.base.Strings;
 import com.google.inject.Inject;
 
 /**
  * Reprints of stories
  */
+@Join(value = StoryTable.class, leftKey = "fkOriginId", leftField = "original")
+@Join(value = StoryTable.class, leftKey = "fkTargetId", leftField = "reprint")
 public class ReprintTable extends BaseTable<ReprintTable.ReprintRow> {
 
 	public static class Columns {
@@ -54,20 +58,30 @@ public class ReprintTable extends BaseTable<ReprintTable.ReprintRow> {
 	}
 
 	public static class ReprintRow extends TableRow<ReprintNote> {
-		public String notes;
 		
 		public int fkOriginId;
-
+		
 		public int fkTargetId;
+		
+		public ReprintNote instance = create(thingFactory);
+
+		public String notes;
+		
+		public ComicStory original;
+		
+		public ComicStory reprint;
 	}
 
 	private static final String sInputTable = "gcd_reprint";
 
 	private static final String sParquetName = sInputTable + ".parquet";
 
+	private static ThingFactory thingFactory;
+
 	@Inject
-	public ReprintTable(SQLContext sqlContext) {
+	public ReprintTable(SQLContext sqlContext, ThingFactory thingFactory) {
 		super(sqlContext, sParquetName);
+		ReprintTable.thingFactory = thingFactory;
 	}
 
 	@Override
@@ -92,4 +106,24 @@ public class ReprintTable extends BaseTable<ReprintTable.ReprintRow> {
 	public void saveToParquetFormat(String jdbcUrl) {
 		super.saveToParquetFormat(sInputTable, Columns.ALL_COLUMNS, jdbcUrl);
 	}
+
+	@Override
+	protected void transform(ReprintRow row) {
+		super.transform(row);
+		ReprintNote reprintNote = row.instance;
+		
+		if(row.original != null) {
+			reprintNote.firstPrint = row.original.instanceId;
+		}
+		
+		if(row.reprint != null) {
+			reprintNote.reprint = row.reprint.instanceId;
+		}
+		
+		if(!Strings.isNullOrEmpty(row.notes)) {
+			reprintNote.note.add(row.notes);
+		}
+	}
+	
+	
 }
