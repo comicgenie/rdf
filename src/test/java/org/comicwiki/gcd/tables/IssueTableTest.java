@@ -18,12 +18,15 @@ import org.comicwiki.ThingFactory;
 import org.comicwiki.gcd.fields.FieldParserFactory;
 import org.comicwiki.gcd.fields.PriceFieldParser;
 import org.comicwiki.gcd.tables.BrandTable.BrandRow;
+import org.comicwiki.gcd.tables.IssueReprintTable.IssueReprintRow;
 import org.comicwiki.gcd.tables.IssueTable.IssueRow;
 import org.comicwiki.model.Price;
+import org.comicwiki.model.ReprintNote;
 import org.comicwiki.model.schema.Brand;
 import org.comicwiki.model.schema.Organization;
 import org.comicwiki.model.schema.PublicationVolume;
 import org.comicwiki.model.schema.Thing;
+import org.comicwiki.model.schema.bib.ComicIssue;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
@@ -127,6 +130,42 @@ public class IssueTableTest extends TableTestCase<IssueTable> {
 		
 		assertNotNull(issueRow.publisher);
 		assertEquals("Marvel Comics", issueRow.publisher.name);
+	}
+	
+	@Test
+	public void reprint() throws Exception {
+		ThingFactory thingFactory = createThingFactory();
+		ReprintTable reprintTable = new ReprintTable(null);
+		Row reprintRow = RowFactory.create(1, null, null, null);
+		reprintTable.process(reprintRow);
+		
+		
+		
+	}
+	
+	@Test
+	public void transformTargetOrigin() throws Exception {
+		ThingFactory thingFactory = createThingFactory();
+		IssueTable issueTable = new IssueTable(null, thingFactory,
+				new FieldParserFactory(thingFactory));
+
+		Row issueRow = RowFactory.create(5, null, null, null, null, null, null, null,
+				null, null, null, null, null, null, null, null, null, "MyOriginal",
+				null, null);
+		IssueRow ir1 = issueTable.process(issueRow);
+		
+		Row issueRow2 = RowFactory.create(6, null, null, null, null, null, null, null,
+				null, null, null, null, null, null, null, null, null, "MyReprint",
+				null, null);
+		IssueRow ir2 =issueTable.process(issueRow2);
+		
+		IssueReprintTable reprintTable = new IssueReprintTable(null, thingFactory);
+		Row row = RowFactory.create(1, 5, 6, "MyNote");
+		reprintTable.process(row);		
+		
+		issueTable.join(new BaseTable[]{reprintTable});
+		assertEquals(1, ir1.instance.reprintNote.size());
+		assertEquals(1, ir2.instance.reprintNote.size());	
 	}
 	
 	@Test

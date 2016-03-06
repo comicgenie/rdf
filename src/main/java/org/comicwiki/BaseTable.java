@@ -100,7 +100,7 @@ public abstract class BaseTable<ROW extends TableRow<?>> {
 		return cache.get(id);
 	}
 
-	public HashMap<Integer, ROW> getCache() {
+	public final HashMap<Integer, ROW> getCache() {
 		return cache;
 	}
 

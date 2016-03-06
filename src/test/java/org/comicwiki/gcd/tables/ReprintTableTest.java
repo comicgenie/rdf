@@ -24,4 +24,5 @@ public class ReprintTableTest extends TableTestCase<ReprintTable>{
 		assertEquals(0, table.cache.size());
 	}
 
+
 }

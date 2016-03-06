@@ -30,6 +30,7 @@ import org.comicwiki.TableRow;
 import org.comicwiki.ThingFactory;
 import org.comicwiki.gcd.fields.FieldParserFactory;
 import org.comicwiki.gcd.tables.joinrules.IssueAndSeriesRule;
+import org.comicwiki.gcd.tables.joinrules.IssueReprintRule;
 import org.comicwiki.model.ComicIssueNumber;
 import org.comicwiki.model.Instant;
 import org.comicwiki.model.Price;
@@ -43,6 +44,7 @@ import org.comicwiki.model.schema.bib.ComicSeries;
 import com.google.common.base.Strings;
 import com.google.inject.Inject;
 
+@Join(value = IssueReprintTable.class, withRule = IssueReprintRule.class)
 @Join(value = SeriesTable.class, withRule = IssueAndSeriesRule.class)
 @Join(value = BrandTable.class, leftKey = "fkBrandId", leftField = "brand")
 @Join(value = IndiciaPublisherTable.class, leftKey = "fkIndiciaPublisherId", leftField = "indiciaPublisher")
@@ -108,19 +110,19 @@ public class IssueTable extends BaseTable<IssueTable.IssueRow> {
 		public int fkIndiciaPublisherId;
 
 		/**
-		 * gcd_series.id
-		 */
-		public int fkSeriesId;
-		
-		/**
 		 * 
 		 */
 		public int fkPublisherId;
 
+		/**
+		 * gcd_series.id
+		 */
+		public int fkSeriesId;
+
 		public String indiciaFrequency;
 
 		public Organization indiciaPublisher;
-		
+
 		public ComicIssue instance = create(thingFactory);
 
 		public String isbn;
@@ -175,12 +177,10 @@ public class IssueTable extends BaseTable<IssueTable.IssueRow> {
 		Instant datePublisher = thingFactory.create(Instant.class);
 		return datePublisher.instanceId;
 	}
+
 	/**
 	 * 
-	 barcode; 
-	 isbn; 
-	 pageCount; 
-	 ComicSeries series
+	 isbn; ComicSeries series
 	 */
 
 	@Override
@@ -216,6 +216,7 @@ public class IssueTable extends BaseTable<IssueTable.IssueRow> {
 		}
 
 		issueRow.title = row.getString(Columns.TITLE);
+		issueRow.instance.name = row.getString(Columns.TITLE);
 		issueRow.variantName = row.getString(Columns.VARIANT_NAME);
 		issueRow.volume = row.getString(Columns.VOLUME);
 
@@ -250,10 +251,10 @@ public class IssueTable extends BaseTable<IssueTable.IssueRow> {
 	@Override
 	protected void transform(IssueRow row) {
 		super.transform(row);
-		ComicIssue issue = row.instance;		
+		ComicIssue issue = row.instance;
 		issue.headline = row.title;
 		issue.frequency = row.indiciaFrequency;
-		
+
 		if (!Strings.isNullOrEmpty(row.variantName)) {
 			issue.alternateNames.add(row.variantName);
 		}
@@ -285,26 +286,25 @@ public class IssueTable extends BaseTable<IssueTable.IssueRow> {
 		issue.datePublished = createInstant(row.keyDate, row.publicationDate);
 		row.price.forEach(p -> issue.price.add(p.instanceId));
 
-		if(!Strings.isNullOrEmpty(row.volume)) {
-			PublicationVolume publicationVolume = thingFactory.create(PublicationVolume.class);
+		if (!Strings.isNullOrEmpty(row.volume)) {
+			PublicationVolume publicationVolume = thingFactory
+					.create(PublicationVolume.class);
 			publicationVolume.name = row.series.name;
 			publicationVolume.volumeNumber = row.volume;
 			publicationVolume.alternateNames.addAll(issue.alternateNames);
 			publicationVolume.hasParts.add(issue.instanceId);
 			issue.isPartOf.add(publicationVolume.instanceId);
 		}
-		if(row.number != null) {
+		if (row.number != null) {
 			issue.issueNumber = row.number.instanceId;
 		}
-		
-		if(row.publisher != null) {
+
+		if (row.publisher != null) {
 			issue.publishers.add(row.publisher.instanceId);
 		}
 
-		// issue.reprintOf
 		// issue.inLanguage
 		// issue.locationCreated
-
 	}
 
 }

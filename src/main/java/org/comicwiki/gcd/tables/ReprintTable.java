@@ -21,8 +21,10 @@ import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 import org.comicwiki.BaseTable;
+import org.comicwiki.Join;
 import org.comicwiki.TableRow;
 import org.comicwiki.model.ReprintNote;
+import org.comicwiki.model.schema.bib.ComicIssue;
 
 import com.google.inject.Inject;
 
@@ -53,7 +55,7 @@ public class ReprintTable extends BaseTable<ReprintTable.ReprintRow> {
 
 	public static class ReprintRow extends TableRow<ReprintNote> {
 		public String notes;
-
+		
 		public int fkOriginId;
 
 		public int fkTargetId;
