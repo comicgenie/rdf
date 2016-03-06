@@ -51,7 +51,6 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 
-//@Join(value = ReprintTable.class, withRule = StoryReprintRule.class)
 @Join(value = IssueTable.class, withRule = StoryAndIssueRule.class)
 @Join(value = SeriesTable.class, withRule = StoryAndSeriesRule.class)
 @Join(value = PublisherTable.class, leftKey = "fkPublisherId", leftField = "publisher")

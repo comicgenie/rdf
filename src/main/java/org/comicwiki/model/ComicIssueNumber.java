@@ -35,9 +35,11 @@ public class ComicIssueNumber extends Intangible {
 	
 	public String year;
 	
-	public Collection<String> indicia = new HashSet<>();
+	public Collection<String> issueNumbers = new HashSet<>();
 	
-	public String note;
+	public String label;
+	
+	public Boolean isNonStandardGCDFormat;
 	
 	
 }
