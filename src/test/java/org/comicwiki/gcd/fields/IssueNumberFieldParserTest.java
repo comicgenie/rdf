@@ -15,7 +15,7 @@ public class IssueNumberFieldParserTest extends BaseFieldTest {
 		IssueNumberFieldParser parser = new IssueNumberFieldParser(thingFactory);
 		String input = "1";
 		ComicIssueNumber number = parser.parser(input);
-		assertEquals("1",number.issueNumbers.iterator().next());
+		assertEquals(Integer.valueOf(1), number.issueNumbers.iterator().next());
 	}
 	
 	@Test
@@ -24,8 +24,8 @@ public class IssueNumberFieldParserTest extends BaseFieldTest {
 		IssueNumberFieldParser parser = new IssueNumberFieldParser(thingFactory);
 		String input = "41/1984";
 		ComicIssueNumber number = parser.parser(input);
-		assertEquals("1984", number.year);
-		assertEquals("41", number.issueNumbers.iterator().next());
+		assertEquals(Integer.valueOf(1984), number.year);
+		assertEquals(Integer.valueOf(41), number.issueNumbers.iterator().next());
 	}
 	
 	@Test
@@ -34,9 +34,9 @@ public class IssueNumberFieldParserTest extends BaseFieldTest {
 		IssueNumberFieldParser parser = new IssueNumberFieldParser(thingFactory);
 		String input = "5/2015 (#191)";
 		ComicIssueNumber number = parser.parser(input);
-		assertEquals("2015", number.year);
-		assertEquals("5", number.issueNumbers.iterator().next());
-		assertEquals("#191", number.cover);
+		assertEquals(Integer.valueOf(2015), number.year);
+		assertEquals(Integer.valueOf(5), number.issueNumbers.iterator().next());
+		assertEquals(Integer.valueOf(191), number.cover);
 	}
 	
 	@Test
@@ -45,8 +45,8 @@ public class IssueNumberFieldParserTest extends BaseFieldTest {
 		IssueNumberFieldParser parser = new IssueNumberFieldParser(thingFactory);
 		String input = "34 (132)";
 		ComicIssueNumber number = parser.parser(input);
-		assertEquals("132", number.cover);
-		assertEquals("34", number.issueNumbers.iterator().next());
+		assertEquals(Integer.valueOf(132), number.cover);
+		assertEquals(Integer.valueOf(34), number.issueNumbers.iterator().next());
 	}
 	
 	@Test
@@ -55,8 +55,8 @@ public class IssueNumberFieldParserTest extends BaseFieldTest {
 		IssueNumberFieldParser parser = new IssueNumberFieldParser(thingFactory);
 		String input = "34 [191]";
 		ComicIssueNumber number = parser.parser(input);
-		assertEquals("34", number.issueNumbers.iterator().next());
-		assertEquals("191", number.assigned);
+		assertEquals(Integer.valueOf(34), number.issueNumbers.iterator().next());
+		assertEquals(Integer.valueOf(191), number.assigned);
 	}
 	
 	@Test
@@ -66,8 +66,8 @@ public class IssueNumberFieldParserTest extends BaseFieldTest {
 		String input = "69 / 9";
 		ComicIssueNumber number = parser.parser(input);
 		
-		assertTrue(number.issueNumbers.contains("69"));
-		assertTrue(number.issueNumbers.contains("9"));
+		assertTrue(number.issueNumbers.contains(69));
+		assertTrue(number.issueNumbers.contains(9));
 	}
 	
 	@Test
@@ -86,6 +86,6 @@ public class IssueNumberFieldParserTest extends BaseFieldTest {
 		IssueNumberFieldParser parser = new IssueNumberFieldParser(thingFactory);
 		String input = "[2]";
 		ComicIssueNumber number = parser.parser(input);
-		assertEquals("2", number.assigned);
+		assertEquals(Integer.valueOf(2), number.assigned);
 	}
 }

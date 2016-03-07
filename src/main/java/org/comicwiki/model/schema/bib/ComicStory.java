@@ -22,7 +22,7 @@ import org.comicwiki.IRI;
 import org.comicwiki.model.schema.CreativeWork;
 import org.comicwiki.rdf.annotations.ObjectBoolean;
 import org.comicwiki.rdf.annotations.ObjectIRI;
-import org.comicwiki.rdf.annotations.ObjectNumber;
+import org.comicwiki.rdf.annotations.ObjectNonNegativeInteger;
 import org.comicwiki.rdf.annotations.ObjectString;
 import org.comicwiki.rdf.annotations.Predicate;
 import org.comicwiki.rdf.annotations.SchemaBib;
@@ -70,12 +70,12 @@ public class ComicStory extends CreativeWork {
 	public Boolean pageCountUncertain;
 	
 	@Predicate("pageEnd")
-	@ObjectNumber
+	@ObjectNonNegativeInteger
 	@SchemaComicWiki
 	public int pageEnd;
 	
 	@Predicate("pageStart")
-	@ObjectNumber
+	@ObjectNonNegativeInteger
 	@SchemaComicWiki
 	public int pageStart;
 	
@@ -94,7 +94,7 @@ public class ComicStory extends CreativeWork {
 	public String jobCode;
 	
 	@Predicate("pageCount")
-	@ObjectNumber
+	@ObjectNonNegativeInteger
 	@SchemaComicWiki
 	public int pageCount;
 	

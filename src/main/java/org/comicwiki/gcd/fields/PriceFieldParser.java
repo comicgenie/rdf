@@ -18,6 +18,7 @@ public class PriceFieldParser implements FieldParser<Collection<Price>>{
 	
 	@Override
 	public Collection<Price> parse(int field, Row row) {
+		String price = row.getString(field);
 		/*
 		issueRow.price = parseField(
 				Columns.PRICE,

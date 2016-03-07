@@ -12,12 +12,12 @@ NO_NUMBER
 	;
 ASSIGNED
 	: LEFT_BRACKET .*? RIGHT_BRACKET
-	{ setText(getText().substring(1, getText().length() -1).trim());}
+	{ setText(getText().substring(1, getText().length() -1).replaceAll("#", "").trim());}
 	;
 	
 COVER
 	: LEFT_PAREN .*? RIGHT_PAREN
-	{ setText(getText().substring(1, getText().length() -1).trim());}
+	{ setText(getText().substring(1, getText().length() - 1 ).replaceAll("#", "").trim());}
 	;
 	
 YEAR
@@ -26,6 +26,7 @@ YEAR
 
 ISSUE_NUMBER
 	:   DIGIT+
+		{ setText(getText().replaceAll("#", "").trim());}
 	;
 	
 DIGIT   

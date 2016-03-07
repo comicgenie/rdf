@@ -15,7 +15,9 @@ public class PublishDateFieldParser implements FieldParser<TemporalEntity> {
 	
 	@Override
 	public TemporalEntity parse(int field, Row row) {
-		return null;
+		TemporalEntity temporalEntity = thingFactory.create(TemporalEntity.class);
+		temporalEntity.label = row.getString(field);
+		return temporalEntity;
 	}
 
 }

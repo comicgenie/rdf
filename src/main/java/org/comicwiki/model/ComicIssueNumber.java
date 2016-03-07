@@ -15,10 +15,18 @@
  *******************************************************************************/
 package org.comicwiki.model;
 
+import static org.comicwiki.rdf.DataType.XSD_GYEAR;
+
 import java.util.Collection;
 import java.util.HashSet;
 
 import org.comicwiki.model.schema.Intangible;
+import org.comicwiki.rdf.annotations.ObjectBoolean;
+import org.comicwiki.rdf.annotations.ObjectIRI;
+import org.comicwiki.rdf.annotations.ObjectNonNegativeInteger;
+import org.comicwiki.rdf.annotations.ObjectNumber;
+import org.comicwiki.rdf.annotations.ObjectXSD;
+import org.comicwiki.rdf.annotations.Predicate;
 import org.comicwiki.rdf.annotations.SchemaComicWiki;
 import org.comicwiki.rdf.annotations.Subject;
 
@@ -29,16 +37,28 @@ public class ComicIssueNumber extends Intangible {
 	/**
 	 * Assigned by indexer
 	 */
-	public String assigned;
+	@Predicate("assigned")
+	@ObjectNonNegativeInteger
+	public Integer assigned;
 	
-	public String cover;
+	@Predicate("cover")
+	@ObjectNonNegativeInteger
+	public Integer cover;
 	
-	public String year;
+	@Predicate("year")
+	@ObjectXSD(XSD_GYEAR)
+	public Integer year;
 	
-	public Collection<String> issueNumbers = new HashSet<>();
+	@Predicate("issueNumber")
+	@ObjectNonNegativeInteger
+	public Collection<Integer> issueNumbers = new HashSet<>();
 	
+	@Predicate("label")
+	@ObjectIRI
 	public String label;
 	
+	@Predicate("isNonStandardGCDFormat")
+	@ObjectBoolean
 	public Boolean isNonStandardGCDFormat;
 	
 	

@@ -38,8 +38,8 @@ public class Instant extends TemporalEntity {
 		@ObjectNonNegativeInteger
 		public int minute;
 		
-		@Predicate("day")
-		@ObjectNumber
+		@Predicate("second")
+		@ObjectNonNegativeInteger
 		public int second;
 		
 		//tzont;TimeZone

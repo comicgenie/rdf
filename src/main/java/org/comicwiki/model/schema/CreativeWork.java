@@ -21,6 +21,7 @@ import java.util.HashSet;
 import org.comicwiki.IRI;
 import org.comicwiki.rdf.annotations.ObjectBoolean;
 import org.comicwiki.rdf.annotations.ObjectIRI;
+import org.comicwiki.rdf.annotations.ObjectNonNegativeInteger;
 import org.comicwiki.rdf.annotations.ObjectNumber;
 import org.comicwiki.rdf.annotations.ObjectString;
 import org.comicwiki.rdf.annotations.Predicate;
@@ -123,7 +124,7 @@ public class CreativeWork extends Thing {
 	 * The position of an item in a series or sequence of items.
 	 */
 	@Predicate("position")
-	@ObjectNumber
+	@ObjectNonNegativeInteger
 	public int position;
 
 	/*

@@ -7,5 +7,6 @@ import org.comicwiki.rdf.annotations.Subject;
 @SchemaComicWiki
 @Subject(value = "TemporalEntity", isBlankNode = true)
 public class TemporalEntity extends Intangible {
-
+	
+	public String label;
 }

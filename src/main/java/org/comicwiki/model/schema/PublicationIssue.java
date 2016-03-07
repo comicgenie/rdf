@@ -17,6 +17,7 @@ package org.comicwiki.model.schema;
 
 import org.comicwiki.IRI;
 import org.comicwiki.rdf.annotations.ObjectIRI;
+import org.comicwiki.rdf.annotations.ObjectNonNegativeInteger;
 import org.comicwiki.rdf.annotations.ObjectNumber;
 import org.comicwiki.rdf.annotations.ObjectString;
 import org.comicwiki.rdf.annotations.Predicate;
@@ -36,11 +37,11 @@ public class PublicationIssue extends CreativeWork {
 	public String issueNumber;
 	
 	@Predicate("pageEnd")
-	@ObjectNumber
+	@ObjectNonNegativeInteger
 	public int pageEnd;
 	
 	@Predicate("pageStart")
-	@ObjectNumber
+	@ObjectNonNegativeInteger
 	public int pageStart;
 	
 	@Predicate("pagination")

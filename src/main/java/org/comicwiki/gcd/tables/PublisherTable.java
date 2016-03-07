@@ -132,7 +132,7 @@ public class PublisherTable extends BaseTable<PublisherTable.PublisherRow> {
 		Organization publisher = row.instance;
 		publisher.urls.add(URI.create("http://www.comics.org/publisher/"
 				+ row.id));
-		//TODO: has brand? indicia_publishers
+		//TODO: has brand? indicia_publishers?
 		//publisher.urls.add(URI.create("http://www.comics.org/publisher/"
 		//		+ row.id +"/brands"));
 		publisher.name = row.name;

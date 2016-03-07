@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.comicwiki.model.schema;
 
+import org.comicwiki.rdf.annotations.ObjectNonNegativeInteger;
 import org.comicwiki.rdf.annotations.ObjectNumber;
 import org.comicwiki.rdf.annotations.ObjectString;
 import org.comicwiki.rdf.annotations.Predicate;
@@ -34,14 +35,14 @@ public class PublicationVolume extends CreativeWork {
 	 * The page on which the work ends; for example "138" or "xvi".
 	 */
 	@Predicate("pageEnd")
-	@ObjectNumber
+	@ObjectNonNegativeInteger
 	public int pageEnd;
 
 	/**
 	 * The page on which the work starts; for example "135" or "xiii".
 	 */
 	@Predicate("pageStart")
-	@ObjectNumber
+	@ObjectNonNegativeInteger
 	public int pageStart;
 
 	/**

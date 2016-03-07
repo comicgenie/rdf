@@ -52,14 +52,15 @@ public class SeriesTable extends BaseTable<SeriesTable.SeriesRow> {
 		public static final Column[] ALL_COLUMNS = new Column[] {
 				new Column("id"), new Column("name"), new Column("format"),
 				new Column("year_began"), new Column("year_ended"),
-				new Column("publication_dates"), new Column("publisher_id"),
+				new Column("publication_date"), new Column("publisher_id"),
 				new Column("country_id"), new Column("language_id"),
 				new Column("tracking_notes"), new Column("notes"),
 				new Column("publication_notes"), new Column("modified"),
 				new Column("color"), new Column("dimensions"),
 				new Column("paper_stock"), new Column("binding"),
 				new Column("publishing_format"),
-				new Column("publication_type_id") };
+				new Column("publication_type_id"),
+				new Column("key_date")};
 		public static final int BINDING = 17;
 		public static final int COLOR = 13;
 		public static final int COUNTRY_ID = 7;
@@ -71,7 +72,7 @@ public class SeriesTable extends BaseTable<SeriesTable.SeriesRow> {
 		public static final int NAME = 1;
 		public static final int NOTES = 10;
 		public static final int PAPER_STOCK = 16;
-		public static final int PUBLICATION_DATES = 5;
+		public static final int PUBLICATION_DATE = 5;
 		public static final int PUBLICATION_NOTES = 11;// unused
 		public static final int PUBLISHER_ID = 6;
 		public static final int PUBLISHING_FORMAT = 18;
@@ -80,6 +81,7 @@ public class SeriesTable extends BaseTable<SeriesTable.SeriesRow> {
 		public static final int TRACKING_NOTES = 9;
 		public static final int YEAR_BEGAN = 3;
 		public static final int YEAR_ENDED = 4;
+		public static final int KEY_DATE = 20;
 	}
 
 	public static class SeriesRow extends TableRow<ComicSeries> {
@@ -128,7 +130,7 @@ public class SeriesTable extends BaseTable<SeriesTable.SeriesRow> {
 
 		public Collection<String> paperStock = new HashSet<>(3);
 
-		public TemporalEntity publicationDates;
+		public TemporalEntity publicationDate;
 
 		public String publicationNotes;
 
@@ -187,10 +189,18 @@ public class SeriesTable extends BaseTable<SeriesTable.SeriesRow> {
 		seriesRow.notes = row.getString(Columns.NOTES);
 		seriesRow.publicationNotes = row.getString(Columns.PUBLICATION_NOTES);
 
-		if (!row.isNullAt(Columns.PUBLICATION_DATES)) {
-			seriesRow.publicationDates = parseField(Columns.PUBLICATION_DATES,
+		if (!row.isNullAt(Columns.PUBLICATION_DATE)) {
+			seriesRow.publicationDate = parseField(Columns.PUBLICATION_DATE,
 					row, parserFactory.publishDate());
 		}
+		
+
+		if (!row.isNullAt(Columns.KEY_DATE)) {
+		//	seriesRow.publicationDates = parseField(Columns.PUBLICATION_DATES,
+		//			row, parserFactory.publishDate());
+		}
+		
+		//TODO: xdsf
 
 		if (!row.isNullAt(Columns.PUBLISHER_ID)) {
 			seriesRow.fkPublisherId = row.getInt(Columns.PUBLISHER_ID);
@@ -280,8 +290,8 @@ public class SeriesTable extends BaseTable<SeriesTable.SeriesRow> {
 			series.publishers.add(row.publisher.instanceId);
 		}
 
-		if (row.publicationDates != null) {
-			series.datePublished = row.publicationDates.instanceId;
+		if (row.publicationDate != null) {
+			series.datePublished = row.publicationDate.instanceId;
 		}
 
 		if (row.yearBegan != null) {

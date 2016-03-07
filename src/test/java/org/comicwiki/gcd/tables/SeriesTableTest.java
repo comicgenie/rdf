@@ -55,7 +55,7 @@ public class SeriesTableTest extends TableTestCase<SeriesTable> {
 				null, null, null, null, null, null);
 		SeriesRow seriesRow = table.process(row);
 		assertEquals(1, table.cache.size());
-		assertTrue(seriesRow.publicationDates.equals(result));
+		assertTrue(seriesRow.publicationDate.equals(result));
 		;
 	}
 

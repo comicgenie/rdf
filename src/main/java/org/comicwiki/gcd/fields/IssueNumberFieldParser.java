@@ -56,7 +56,7 @@ public class IssueNumberFieldParser implements FieldParser<ComicIssueNumber> {
 
 		try {
 			IssueContext issueContext = getContextOf(textField, true);
-			if(issueContext.NO_NUMBER() != null) {
+			if (issueContext.NO_NUMBER() != null) {
 				return issueNumber;
 			}
 			String assigned = getValue(issueContext.ASSIGNED());
@@ -64,21 +64,33 @@ public class IssueNumberFieldParser implements FieldParser<ComicIssueNumber> {
 			String year = getValue(issueContext.YEAR());
 
 			if (!Strings.isNullOrEmpty(assigned)) {
-				issueNumber.assigned = assigned;
+				try {
+					issueNumber.assigned = Integer.valueOf(assigned);
+				} catch (Exception e) {
+					issueNumber.isNonStandardGCDFormat = true;
+				}
 			}
 
 			if (!Strings.isNullOrEmpty(cover)) {
-				issueNumber.cover = cover;
+				try {
+					issueNumber.cover = Integer.valueOf(cover);
+				} catch (Exception e) {
+					issueNumber.isNonStandardGCDFormat = true;
+				}
 			}
 
 			if (!Strings.isNullOrEmpty(year)) {
-				issueNumber.year = year;
+				try {
+					issueNumber.year = Integer.valueOf(year);
+				} catch (Exception e) {
+					issueNumber.isNonStandardGCDFormat = true;
+				}
 			}
 
 			if (issueContext.ISSUE_NUMBER() != null) {
 				for (int i = 0; i < issueContext.ISSUE_NUMBER().size(); i++) {
-					issueNumber.issueNumbers.add(issueContext.ISSUE_NUMBER()
-							.get(i).getText());
+					issueNumber.issueNumbers.add(Integer.valueOf(issueContext
+							.ISSUE_NUMBER().get(i).getText()));
 				}
 			}
 		} catch (Exception e) {
