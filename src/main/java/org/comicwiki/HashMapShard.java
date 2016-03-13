@@ -13,7 +13,7 @@ public class HashMapShard {
 	public HashMapShard(int shards) {
 		maps = new HashMap[shards];
 		for (int i = 0; i < shards; i++) {
-			maps[i] = new HashMap<>(Integer.MAX_VALUE);
+			maps[i] = new HashMap<>();//Integer.MAX_VALUE
 		}
 	}
 

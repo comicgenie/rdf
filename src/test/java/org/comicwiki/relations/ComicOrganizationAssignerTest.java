@@ -2,6 +2,7 @@ package org.comicwiki.relations;
 
 import static org.junit.Assert.assertTrue;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.stream.Stream;
 
@@ -68,7 +69,7 @@ public class ComicOrganizationAssignerTest {
 		ComicStory story = factory.create(ComicStory.class);
 		assigner.story(story);
 
-		assertTrue(story.organizations.contains(org.instanceId));
+		assertTrue(Arrays.asList(story.organizations).contains(org.instanceId));
 	}
 
 	@Test(expected = NullPointerException.class)

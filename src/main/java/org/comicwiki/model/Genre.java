@@ -19,8 +19,22 @@ import org.comicwiki.model.schema.Thing;
 import org.comicwiki.rdf.annotations.SchemaComicWiki;
 import org.comicwiki.rdf.annotations.Subject;
 
+import com.google.common.collect.ObjectArrays;
+
 @SchemaComicWiki
 @Subject(value = "Genre", key = "name")
 public class Genre extends Thing {
 
+	public static Genre[] addGenre(Genre[] genres, Genre genre) {
+		return ObjectArrays.concat(genres, genre);
+		/*
+		if (!Arrays.asList(genres).contains(genre)) {
+			
+		} else {
+			return genres;
+		}
+		*/
+	}
+	
+	
 }

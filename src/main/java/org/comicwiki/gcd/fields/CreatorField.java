@@ -8,10 +8,10 @@ import org.comicwiki.model.schema.Person;
 
 public class CreatorField {
 
-	public Collection<Person> creators = new HashSet<>(5);
+	public Person[] creators;
 	
-	public Collection<Person> aliases = new HashSet<>(5);
+	public Person[] aliases;
 	
-	public Collection<CreatorAlias> creatorAliases = new HashSet<>(5);
+	public CreatorAlias[] creatorAliases;
 	
 }

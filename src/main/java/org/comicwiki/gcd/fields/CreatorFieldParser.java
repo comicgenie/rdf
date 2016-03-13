@@ -15,9 +15,12 @@
  *******************************************************************************/
 package org.comicwiki.gcd.fields;
 
+import java.util.ArrayList;
+
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.apache.spark.sql.Row;
+import org.comicwiki.Add;
 import org.comicwiki.FieldParser;
 import org.comicwiki.ThingFactory;
 import org.comicwiki.gcd.parser.CreatorLexer;
@@ -135,7 +138,9 @@ public final class CreatorFieldParser extends BaseFieldParser implements
 	}
 
 	public CreatorField parse(String field) {
-		CreatorField creatorField = new CreatorField();
+		ArrayList<Person> creators = new ArrayList<>(5);
+		ArrayList<Person> aliases = new ArrayList<>(5);
+		ArrayList<CreatorAlias> creatorAliases = new ArrayList<>(5);
 
 		CreatorsContext creatorsContext = getContextOf(field, true);
 		for (CreatorContext ctx : creatorsContext.creator()) {
@@ -145,7 +150,7 @@ public final class CreatorFieldParser extends BaseFieldParser implements
 			if (!Strings.isNullOrEmpty(name)) {
 				if (!name.equals("?")) {
 					creatorPerson = thingFactory.create(Person.class);
-					creatorField.creators.add(creatorPerson);
+					creators.add(creatorPerson);
 					if (name.contains("?")) {
 						isCreatorUncertain = true;
 						name = name.replaceAll("\\?", "").trim();
@@ -161,12 +166,12 @@ public final class CreatorFieldParser extends BaseFieldParser implements
 				// remove as
 				aliasPerson = thingFactory.create(Person.class);
 				aliasPerson.name = alias;
-				creatorField.aliases.add(aliasPerson);
+				aliases.add(aliasPerson);
 				CreatorAlias ca = comicStory != null ? addAlias(creatorPerson,
 						aliasPerson, comicStory) : addAlias(creatorPerson,
 						aliasPerson, comicIssue);
 				if (ca != null) {
-					creatorField.creatorAliases.add(ca);
+					creatorAliases.add(ca);
 				}
 			}
 
@@ -175,22 +180,27 @@ public final class CreatorFieldParser extends BaseFieldParser implements
 				if (comicStory != null) {
 					CreatorStoryNote storyNote = addCreatorNote(notes,
 							creatorPerson, comicStory);
-					if(storyNote != null) {
+					if (storyNote != null) {
 						storyNote.isCreatorUncertain = isCreatorUncertain;
-						addCreatorNote(notes, aliasPerson, comicStory);						
+						addCreatorNote(notes, aliasPerson, comicStory);
 					}
 
 				} else {
 					CreatorIssueNote storyNote = addCreatorNote(notes,
 							creatorPerson, comicIssue);
-					if(storyNote != null) {
+					if (storyNote != null) {
 						storyNote.isCreatorUncertain = isCreatorUncertain;
-						addCreatorNote(notes, aliasPerson, comicIssue);						
+						addCreatorNote(notes, aliasPerson, comicIssue);
 					}
 				}
 			}
 
 		}
+		CreatorField creatorField = new CreatorField();
+		creatorField.aliases = Add.toArray(aliases, Person.class);
+		creatorField.creators = Add.toArray(creators, Person.class);
+		creatorField.creatorAliases = Add.toArray(creatorAliases,
+				CreatorAlias.class);
 		return creatorField;
 		// remove typeset
 	}

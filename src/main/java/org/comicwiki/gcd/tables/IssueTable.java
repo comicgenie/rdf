@@ -100,15 +100,15 @@ public class IssueTable extends BaseTable<IssueTable.IssueRow> {
 
 	public static class IssueRow extends TableRow<ComicIssue> {
 
-		public Collection<Person> alaises;
+		public Person[] alaises;
 
 		public String barcode;
 
 		public Brand brand;
 
-		public Collection<CreatorAlias> creatorAliases;
+		public CreatorAlias[] creatorAliases;
 
-		public Collection<Person> editors;
+		public Person[] editors;
 
 		/**
 		 * gcd_brand.id
@@ -237,11 +237,12 @@ public class IssueTable extends BaseTable<IssueTable.IssueRow> {
 					parserFactory.creator(issueRow.instance));
 			issueRow.editors = creatorField.creators;
 			issueRow.alaises = creatorField.aliases;//TODO - not doing anything with these
-			
+			 
 			if (creatorField.creatorAliases != null) {
 				issueRow.creatorAliases = creatorField.creatorAliases;
-				issueRow.creatorAliases
-						.forEach(c -> c.role = CreatorRole.editor);
+				//TODO
+				//issueRow.creatorAliases
+				//		.forEach(c -> c.role = CreatorRole.editor);
 			}
 
 		}
@@ -288,8 +289,9 @@ public class IssueTable extends BaseTable<IssueTable.IssueRow> {
 		if (row.brand != null) {
 			issue.addBrand(row.brand.instanceId);
 		}
-		if (row.editors != null && !row.editors.isEmpty()) {
-			row.editors.forEach(e -> issue.addEditor(e.instanceId));
+		if (row.editors != null && row.editors.length != 0) {
+			//TODO
+		//	row.editors.forEach(e -> issue.addEditor(e.instanceId));
 		}
 
 		if (row.indiciaPublisher != null) {

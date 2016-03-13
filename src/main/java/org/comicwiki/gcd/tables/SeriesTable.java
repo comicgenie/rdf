@@ -17,15 +17,16 @@ package org.comicwiki.gcd.tables;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 
+import org.apache.avro.ipc.specific.Person;
 import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
+import org.comicwiki.Add;
 import org.comicwiki.BaseTable;
 import org.comicwiki.Join;
 import org.comicwiki.TableRow;
@@ -38,9 +39,7 @@ import org.comicwiki.model.schema.Language;
 import org.comicwiki.model.schema.Organization;
 import org.comicwiki.model.schema.bib.ComicSeries;
 
-import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -89,13 +88,13 @@ public class SeriesTable extends BaseTable<SeriesTable.SeriesRow> {
 
 	public static class SeriesRow extends TableRow<ComicSeries> {
 
-		public Collection<String> binding = new HashSet<>(3);
+		public String[] binding;
 
-		public Collection<String> color = new HashSet<>(3);
+		public String[] color;
 
 		public Country country;
 
-		public Collection<String> dimensions = new HashSet<>(3);
+		public String[] dimensions;
 
 		/**
 		 * gcd_country.id
@@ -119,7 +118,7 @@ public class SeriesTable extends BaseTable<SeriesTable.SeriesRow> {
 
 		public String publicationType;
 
-		public Collection<String> format = new HashSet<>(3);
+		public String[] format;
 
 		public ComicSeries instance = create(thingFactory);
 
@@ -131,7 +130,7 @@ public class SeriesTable extends BaseTable<SeriesTable.SeriesRow> {
 
 		public String notes;
 
-		public Collection<String> paperStock = new HashSet<>(3);
+		public String[] paperStock;
 
 		public TemporalEntity publicationDate;
 
@@ -139,7 +138,7 @@ public class SeriesTable extends BaseTable<SeriesTable.SeriesRow> {
 
 		public Organization publisher;
 
-		public Collection<String> publishingFormat = new HashSet<>(3);
+		public String[] publishingFormat;
 
 		public String trackingNotes;
 
@@ -154,11 +153,6 @@ public class SeriesTable extends BaseTable<SeriesTable.SeriesRow> {
 	private static final String sParquetName = sInputTable + ".parquet";
 
 	private static ThingFactory thingFactory;
-
-	private static Collection<String> split(int position, Row r) {
-		return Sets.newHashSet(Splitter.on(';').trimResults()
-				.omitEmptyStrings().split(r.getString(position)));
-	}
 
 	private FieldParserFactory parserFactory;
 
@@ -221,54 +215,42 @@ public class SeriesTable extends BaseTable<SeriesTable.SeriesRow> {
 		}
 
 		if (!row.isNullAt(Columns.FORMAT)) {
-			seriesRow.format = parseField(Columns.FORMAT, row,
-					parserFactory.string(false));
-			if (seriesRow.format == null) {
-				seriesRow.format = Sets.newHashSet();
-			}
+			seriesRow.format = Add
+					.toArray(
+							parseField(Columns.FORMAT, row,
+									parserFactory.string(false)), String.class);
 		}
 
 		if (!row.isNullAt(Columns.COLOR)) {
-			seriesRow.color = parseField(Columns.COLOR, row,
-					parserFactory.string(false));
-			if (seriesRow.color == null) {
-				seriesRow.color = Sets.newHashSet();
-			}
+			seriesRow.color = Add
+					.toArray(
+							parseField(Columns.COLOR, row,
+									parserFactory.string(false)), String.class);
 		}
 
 		if (!row.isNullAt(Columns.BINDING)) {
-			seriesRow.binding = parseField(Columns.BINDING, row,
-					parserFactory.string(false));
-
-			if (seriesRow.binding == null) {
-				seriesRow.binding = Sets.newHashSet();
-			}
+			seriesRow.binding = Add.toArray(
+					parseField(Columns.BINDING, row,
+							parserFactory.string(false)), String.class);
 		}
 
 		if (!row.isNullAt(Columns.DIMENSIONS)) {
-			seriesRow.dimensions = parseField(Columns.DIMENSIONS, row,
-					parserFactory.string(false));
-			if (seriesRow.dimensions == null) {
-				seriesRow.dimensions = Sets.newHashSet();
-			}
+			seriesRow.dimensions = Add.toArray(
+					parseField(Columns.DIMENSIONS, row,
+							parserFactory.string(false)), String.class);
 		}
 
 		if (!row.isNullAt(Columns.PAPER_STOCK)) {
-			seriesRow.paperStock = parseField(Columns.PAPER_STOCK, row,
-					parserFactory.string(false));
-			if (seriesRow.paperStock == null) {
-				seriesRow.paperStock = Sets.newHashSet();
-			}
+			seriesRow.paperStock = Add.toArray(
+					parseField(Columns.PAPER_STOCK, row,
+							parserFactory.string(false)), String.class);
 		}
 
 		if (!row.isNullAt(Columns.PUBLISHING_FORMAT)) {
 			try {
-				seriesRow.publishingFormat = parseField(
-						Columns.PUBLISHING_FORMAT, row,
-						parserFactory.string(false));
-				if (seriesRow.publishingFormat == null) {
-					seriesRow.publishingFormat = Sets.newHashSet();
-				}
+				seriesRow.publishingFormat = Add.toArray(
+						parseField(Columns.PUBLISHING_FORMAT, row,
+								parserFactory.string(false)), String.class);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -302,12 +284,15 @@ public class SeriesTable extends BaseTable<SeriesTable.SeriesRow> {
 		}
 		// series.authors
 
-		series.binding.addAll(row.binding);
-		series.binding.addAll(row.format);
-		series.colors.addAll(row.color);
-		series.dimensions.addAll(row.dimensions);
-		series.format.addAll(row.publishingFormat);
-		series.paperStock.addAll(row.paperStock);
+		series.binding = Add.both(series.binding, row.binding, String.class);
+		series.binding = Add.both(series.binding, row.format, String.class);
+		series.colors = Add.both(series.colors, row.color, String.class);
+		series.dimensions = Add.both(series.dimensions, row.dimensions,
+				String.class);
+		series.format = Add.both(series.format, row.publishingFormat,
+				String.class);
+		series.paperStock = Add.both(series.paperStock, row.paperStock,
+				String.class);
 		if (!Strings.isNullOrEmpty(row.publicationType)) {
 			series.periodicalType = row.publicationType;
 		}

@@ -8,6 +8,8 @@ import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.Arrays;
+
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
 import org.comicwiki.BaseTable;
@@ -56,7 +58,6 @@ public class SeriesTableTest extends TableTestCase<SeriesTable> {
 		SeriesRow seriesRow = table.process(row);
 		assertEquals(1, table.rowCache.size());
 		assertTrue(seriesRow.publicationDate.equals(result));
-		;
 	}
 
 	@Test
@@ -65,13 +66,16 @@ public class SeriesTableTest extends TableTestCase<SeriesTable> {
 		SeriesTable table = createTable(thingFactory);
 
 		Row row = RowFactory.create(1, null, null, null, null, null, null,
-				null, null, null, null, null, null, null, null, null, 
+				null, null, null, null, null, null, null, null, null,
 				"squarebound (#1-14); saddle-stitched (#15-46)", null, null,
 				null, null);
 		SeriesRow seriesRow = table.process(row);
 		assertEquals(1, table.rowCache.size());
-		assertTrue(seriesRow.binding.contains("squarebound (#1-14)"));
-		assertTrue(seriesRow.binding.contains("saddle-stitched (#15-46)"));
+
+		assertTrue(Arrays.asList(seriesRow.binding).contains(
+				"squarebound (#1-14)"));
+		assertTrue(Arrays.asList(seriesRow.binding).contains(
+				"saddle-stitched (#15-46)"));
 	}
 
 	@Test
@@ -110,7 +114,8 @@ public class SeriesTableTest extends TableTestCase<SeriesTable> {
 				null);
 		SeriesRow seriesRow = table.process(row);
 		assertEquals(1, table.rowCache.size());
-		assertTrue(seriesRow.dimensions.contains("Standard Modern Age US"));
+		assertTrue(Arrays.asList(seriesRow.dimensions).contains(
+				"Standard Modern Age US"));
 	}
 
 	@Test
@@ -165,8 +170,9 @@ public class SeriesTableTest extends TableTestCase<SeriesTable> {
 				null);
 		SeriesRow seriesRow = table.process(row);
 		assertEquals(1, table.rowCache.size());
-		assertTrue(seriesRow.paperStock.contains("Glossy cover"));
-		assertTrue(seriesRow.paperStock.contains("Newsprint interior"));
+		assertTrue(Arrays.asList(seriesRow.paperStock).contains("Glossy cover"));
+		assertTrue(Arrays.asList(seriesRow.paperStock).contains(
+				"Newsprint interior"));
 	}
 
 	@Test
@@ -179,6 +185,7 @@ public class SeriesTableTest extends TableTestCase<SeriesTable> {
 		SeriesTable seriesTable = createTable(thingFactory);
 
 		Row row = RowFactory.create(1, null, null, null, null, null, null, 225/**
+		 * 
 		 * 
 		 * 
 		 * 
@@ -209,8 +216,8 @@ public class SeriesTableTest extends TableTestCase<SeriesTable> {
 		SeriesRow seriesRow = table.process(row);
 		table.tranform();
 
-		assertTrue(seriesRow.instance.dimensions
-				.contains("Standard Modern Age US"));
+		assertTrue(Arrays.asList(seriesRow.instance.dimensions).contains(
+				"Standard Modern Age US"));
 	}
 
 	@Test
@@ -224,8 +231,10 @@ public class SeriesTableTest extends TableTestCase<SeriesTable> {
 		SeriesRow seriesRow = table.process(row);
 		table.tranform();
 
-		assertTrue(seriesRow.instance.colors.contains("color cover"));
-		assertTrue(seriesRow.instance.colors.contains("black & white interior"));
+		assertTrue(Arrays.asList(seriesRow.instance.colors).contains(
+				"color cover"));
+		assertTrue(Arrays.asList(seriesRow.instance.colors).contains(
+				"black & white interior"));
 	}
 
 	// hardcover; 222x158mm; farger
@@ -239,7 +248,8 @@ public class SeriesTableTest extends TableTestCase<SeriesTable> {
 		SeriesRow seriesRow = table.process(row);
 		table.tranform();
 
-		assertTrue(seriesRow.instance.binding.contains("hardcover"));
+		assertTrue(Arrays.asList(seriesRow.instance.binding).contains(
+				"hardcover"));
 	}
 
 	@Test
@@ -247,12 +257,12 @@ public class SeriesTableTest extends TableTestCase<SeriesTable> {
 		ThingFactory thingFactory = createThingFactory();
 		SeriesTable table = createTable(thingFactory);
 		Row row = RowFactory.create(1, null, null, null, null, null, null,
-				null, null, null, null, null, null, null, null, null, 
-				null, "Limited Series", null, null, null);
+				null, null, null, null, null, null, null, null, null, null,
+				"Limited Series", null, null, null);
 		SeriesRow seriesRow = table.process(row);
 		table.tranform();
 
-		assertTrue(seriesRow.instance.format.contains("Limited Series"));
+		assertEquals(seriesRow.instance.format[0], "Limited Series");
 	}
 
 	@Test

@@ -17,6 +17,7 @@ package org.comicwiki.gcd.tables;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -25,6 +26,7 @@ import java.util.HashSet;
 import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
+import org.comicwiki.Add;
 import org.comicwiki.BaseTable;
 import org.comicwiki.Join;
 import org.comicwiki.OrgLookupService;
@@ -32,7 +34,6 @@ import org.comicwiki.TableRow;
 import org.comicwiki.ThingFactory;
 import org.comicwiki.gcd.fields.CreatorField;
 import org.comicwiki.gcd.fields.FieldParserFactory;
-import org.comicwiki.gcd.tables.StoryTable.StoryRow;
 import org.comicwiki.gcd.tables.joinrules.StoryAndIssueRule;
 import org.comicwiki.gcd.tables.joinrules.StoryAndSeriesRule;
 import org.comicwiki.model.ComicCharacter;
@@ -50,9 +51,8 @@ import org.comicwiki.model.schema.bib.ComicStory;
 import org.comicwiki.relations.ComicCharactersAssigner;
 import org.comicwiki.relations.ComicCreatorAssigner;
 
-import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
-import com.google.common.collect.Sets;
+import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -112,15 +112,15 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 
 	public static final class StoryRow extends TableRow<ComicStory> {
 
-		public Collection<Person> alaises;
+		public Person[] alaises;
 
-		public Collection<ComicCharacter> characters;
+		public ComicCharacter[] characters;
 
-		public Collection<Person> colors;
+		public Person[] colors;
 
-		public Collection<CreatorAlias> creatorAliases = new HashSet<>(3);
+		public CreatorAlias[] creatorAliases;
 
-		public Collection<Person> editing;
+		public Person[] editing;
 
 		public String feature;
 
@@ -163,11 +163,11 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 		 */
 		public int fkTypeId;
 
-		public Collection<Genre> genre = new HashSet<>(3);
+		public Genre[] genre;
 
 		public Organization indiciaPublisher;
 
-		public Collection<Person> inks;
+		public Person[] inks;
 
 		public ComicStory instance = create(thingFactory);
 
@@ -175,25 +175,25 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 
 		public String jobNumber;
 
-		public Collection<Person> letters;
+		public Person[] letters;
 
 		public Date modified;;
 
-		public Collection<String> notes;
+		public String[] notes;
 
-		public Collection<ComicOrganization> organizations;
+		public ComicOrganization[] organizations;
 
 		public int pageCount;
 
 		public boolean pageCountUncertain;
 
-		public Collection<Person> pencils;
+		public Person[] pencils;
 
 		public Organization publisher;
 
 		public Collection<String> reprintNotes;
 
-		public Collection<Person> script;
+		public Person[] script;
 
 		public int sequenceNumber;
 
@@ -204,16 +204,6 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 		public String synopsis;
 
 		public String title;
-
-		public void addAliases(Collection<Person> a) {
-			if (a == null) {
-				return;
-			}
-			if (alaises == null) {
-				alaises = new HashSet<>(3);
-			}
-			alaises.addAll(a);
-		}
 
 	}
 
@@ -247,10 +237,14 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 							comicOrganizations, storyRow.instance));
 
 			if (characterField != null) {
-				storyRow.characters = characterField.comicCharacters;
-				storyRow.organizations = characterField.comicOrganizations;
+				storyRow.characters = Add.toArray(
+						characterField.comicCharacters, ComicCharacter.class);
+				storyRow.organizations = Add.toArray(
+						characterField.comicOrganizations,
+						ComicOrganization.class);
 				characterField = null;
 			}
+			storyRow.field_characters = null;
 		}
 
 		if (!Strings.isNullOrEmpty(storyRow.field_colors)) {
@@ -259,12 +253,18 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 					parserFactory.creator(storyRow.instance));
 			if (colorCreatorField != null) {
 				storyRow.colors = colorCreatorField.creators;
-				storyRow.addAliases(colorCreatorField.aliases);
-				storyRow.creatorAliases
-						.addAll(colorCreatorField.creatorAliases);
-				colorCreatorField.creatorAliases
-						.forEach(c -> c.role = CreatorRole.colorist);
+
+				storyRow.alaises = Add.both(storyRow.alaises,
+						colorCreatorField.aliases, Person.class);
+
+				storyRow.creatorAliases = Add.both(storyRow.creatorAliases,
+						colorCreatorField.creatorAliases, CreatorAlias.class);
+				if (colorCreatorField.creatorAliases != null) {
+				//	colorCreatorField.creatorAliases
+				//			.forEach(c -> c.role = CreatorRole.colorist);
+				}
 			}
+			storyRow.field_colors = null;
 		}
 
 		if (!Strings.isNullOrEmpty(storyRow.field_editing)) {
@@ -273,12 +273,16 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 					parserFactory.creator(storyRow.instance));
 			if (editingCreatorField != null) {
 				storyRow.editing = editingCreatorField.creators;
-				storyRow.addAliases(editingCreatorField.aliases);
-				storyRow.creatorAliases
-						.addAll(editingCreatorField.creatorAliases);
-				editingCreatorField.creatorAliases
-						.forEach(c -> c.role = CreatorRole.editor);
+				storyRow.alaises = Add.both(storyRow.alaises,
+						editingCreatorField.aliases, Person.class);
+				storyRow.creatorAliases = Add.both(storyRow.creatorAliases,
+						editingCreatorField.creatorAliases, CreatorAlias.class);
+				if (editingCreatorField.creatorAliases != null) {
+				//	editingCreatorField.creatorAliases
+				//			.forEach(c -> c.role = CreatorRole.editor);
+				}
 			}
+			storyRow.field_editing = null;
 		}
 
 		if (!Strings.isNullOrEmpty(storyRow.field_inks)) {
@@ -286,11 +290,17 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 					parserFactory.creator(storyRow.instance));
 			if (inksCreatorField != null) {
 				storyRow.inks = inksCreatorField.creators;
-				storyRow.addAliases(inksCreatorField.aliases);
-				storyRow.creatorAliases.addAll(inksCreatorField.creatorAliases);
-				inksCreatorField.creatorAliases
-						.forEach(c -> c.role = CreatorRole.inker);
+
+				storyRow.alaises = Add.both(storyRow.alaises,
+						inksCreatorField.aliases, Person.class);
+				storyRow.creatorAliases = Add.both(storyRow.creatorAliases,
+						inksCreatorField.creatorAliases, CreatorAlias.class);
+				if (inksCreatorField.creatorAliases != null) {
+				//	inksCreatorField.creatorAliases
+				//			.forEach(c -> c.role = CreatorRole.inker);
+				}
 			}
+			storyRow.field_inks = null;
 		}
 
 		if (!Strings.isNullOrEmpty(storyRow.field_letters)) {
@@ -299,12 +309,16 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 					parserFactory.creator(storyRow.instance));
 			if (lettersCreatorField != null) {
 				storyRow.letters = lettersCreatorField.creators;
-				storyRow.addAliases(lettersCreatorField.aliases);
-				storyRow.creatorAliases
-						.addAll(lettersCreatorField.creatorAliases);
-				lettersCreatorField.creatorAliases
-						.forEach(c -> c.role = CreatorRole.letterist);
+				storyRow.alaises = Add.both(storyRow.alaises,
+						lettersCreatorField.aliases, Person.class);
+				storyRow.creatorAliases = Add.both(storyRow.creatorAliases,
+						lettersCreatorField.creatorAliases, CreatorAlias.class);
+				if (lettersCreatorField.creatorAliases != null) {
+				//	lettersCreatorField.creatorAliases
+				//			.forEach(c -> c.role = CreatorRole.letterist);
+				}
 			}
+			storyRow.field_letters = null;
 		}
 
 		if (!Strings.isNullOrEmpty(storyRow.field_pencils)) {
@@ -313,24 +327,34 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 					parserFactory.creator(storyRow.instance));
 			if (pencilsCreatorField != null) {
 				storyRow.pencils = pencilsCreatorField.creators;
-				storyRow.addAliases(pencilsCreatorField.aliases);
-				storyRow.creatorAliases
-						.addAll(pencilsCreatorField.creatorAliases);
-				pencilsCreatorField.creatorAliases
-						.forEach(c -> c.role = CreatorRole.penciller);
+
+				storyRow.alaises = Add.both(storyRow.alaises,
+						pencilsCreatorField.aliases, Person.class);
+				storyRow.creatorAliases = Add.both(storyRow.creatorAliases,
+						pencilsCreatorField.creatorAliases, CreatorAlias.class);
+				if (pencilsCreatorField.creatorAliases != null) {
+				//	pencilsCreatorField.creatorAliases
+				//			.forEach(c -> c.role = CreatorRole.penciller);
+				}
 			}
+			storyRow.field_pencils = null;
 		}
 		if (!Strings.isNullOrEmpty(storyRow.field_script)) {
 			CreatorField scriptCreatorField = parseField(storyRow.field_script,
 					parserFactory.creator(storyRow.instance));
 			if (scriptCreatorField != null) {
 				storyRow.script = scriptCreatorField.creators;
-				storyRow.addAliases(scriptCreatorField.aliases);
-				storyRow.creatorAliases
-						.addAll(scriptCreatorField.creatorAliases);
-				scriptCreatorField.creatorAliases
-						.forEach(c -> c.role = CreatorRole.writer);
+				storyRow.alaises = Add.both(storyRow.alaises,
+						scriptCreatorField.aliases, Person.class);
+				storyRow.creatorAliases = Add.both(storyRow.creatorAliases,
+						scriptCreatorField.creatorAliases, CreatorAlias.class);
+				if (scriptCreatorField.creatorAliases != null) {
+					for(int i = 0; i < scriptCreatorField.creatorAliases.length; i++) {
+						scriptCreatorField.creatorAliases[i].role = CreatorRole.writer;
+					}
+				}
 			}
+			storyRow.field_script = null;
 		}
 	}
 
@@ -365,13 +389,14 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 					genre.name = name;
 					genreCache.put(name, genre);
 				}
-				storyRow.genre.add(genreCache.get(name));
+				storyRow.genre = Add.one(storyRow.genre, genreCache.get(name));
 			}
 		}
 
 		if (!row.isNullAt(Columns.NOTES)) {
-			storyRow.notes = parseField(Columns.NOTES, row,
+			Collection<String> notes = parseField(Columns.NOTES, row,
 					parserFactory.string(false));
+			storyRow.notes = Add.toArray(notes, String.class);
 		}
 		if (!row.isNullAt(Columns.REPRINT_NOTES)) {
 			storyRow.reprintNotes = parseField(Columns.REPRINT_NOTES, row,
@@ -424,29 +449,31 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 
 		if (row.characters != null) {
 			ComicCharactersAssigner charAssign = new ComicCharactersAssigner(
-					row.characters);
+					Arrays.asList(row.characters));
 			if (row.genre != null) {
-				charAssign.genres(row.genre);
+				charAssign.genres(Arrays.asList(row.genre));
 			}
 			charAssign.story(story);
 		}
-
+/*
 		ComicCreatorAssigner creatorAssigner = new ComicCreatorAssigner(
 				row.colors, row.inks, row.letters, row.pencils, row.script,
 				row.editing);
 		creatorAssigner.colleagues();
 		creatorAssigner.jobTitles();
-		creatorAssigner.characters(row.characters);
+		if (row.characters != null) {
+			creatorAssigner.characters(Arrays.asList(row.characters));
+		}
 		creatorAssigner.comicOrganizations(row.organizations);
-
+*/		
 		if (row.publisher != null) {
 			story.addPublisher(row.publisher.instanceId);
-			creatorAssigner.organization(row.publisher);
+			//creatorAssigner.organization(row.publisher);
 
 		}
 		if (row.indiciaPublisher != null) {
 			story.addPublisherImprints(row.indiciaPublisher.instanceId);
-			creatorAssigner.organization(row.indiciaPublisher);
+			//creatorAssigner.organization(row.indiciaPublisher);
 		}
 
 		if (row.reprintNotes != null && !row.reprintNotes.isEmpty()) {
@@ -455,9 +482,9 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 			story.addReprintNote(rn.instanceId);
 		}
 
-		if (row.notes != null && !row.notes.isEmpty()) {
+		if (row.notes != null && row.notes.length != 0) {
 			StoryNote storyNote = thingFactory.create(StoryNote.class);
-			storyNote.note.addAll(row.notes);
+			storyNote.note.addAll(Arrays.asList(row.notes));
 			story.addStoryNote(storyNote.instanceId);
 		}
 
@@ -482,14 +509,14 @@ public class StoryTable extends BaseTable<StoryTable.StoryRow> {
 		story.position = row.sequenceNumber;
 		story.pageCountUncertain = row.pageCountUncertain;
 		story.pageCount = row.pageCount;
-		// story.pageStart - requires more than one row...
-		/**
-		 * We can take sequences + page counts to determine pageStart and
-		 * pageEnd
-		 */
+
+		// story.pageStart - requires more than one row... /** We can take
+		// sequences + page counts to determine pageStart and pageEnd
+
 		if (row.organizations != null) {
-			row.organizations.forEach(e -> story
-					.addFictionalOrganization(e.instanceId));
+			for (int i = 0; i < row.organizations.length; i++) {
+				story.addFictionalOrganization(row.organizations[i].instanceId);
+			}
 		}
 	}
 }

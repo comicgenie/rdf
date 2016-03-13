@@ -18,6 +18,7 @@ package org.comicwiki.model.schema.bib;
 import java.util.Collection;
 import java.util.HashSet;
 
+import org.comicwiki.Add;
 import org.comicwiki.IRI;
 import org.comicwiki.model.schema.PublicationIssue;
 import org.comicwiki.rdf.annotations.ObjectIRI;
@@ -36,17 +37,17 @@ public class ComicIssue extends PublicationIssue {
 	@Predicate("artist")
 	@ObjectIRI
 	@SchemaBib
-	public Collection<IRI> artists;
+	public IRI[] artists;
 	
 	@Predicate("brand")
 	@ObjectIRI
 	@SchemaComicWiki
-	public Collection<IRI> brands;
+	public IRI[] brands;
 	
 	@Predicate("colorist")
 	@ObjectIRI
 	@SchemaBib
-	public Collection<IRI> colorists;
+	public IRI[] colorists;
 	
 	@Predicate("frequency")
 	@ObjectString
@@ -56,12 +57,12 @@ public class ComicIssue extends PublicationIssue {
 	@Predicate("inker")
 	@ObjectIRI
 	@SchemaBib
-	public Collection<IRI> inkers;
+	public IRI[] inkers;
 	
 	@Predicate("issueNote")
 	@ObjectIRI
 	@SchemaComicWiki
-	public Collection<IRI> issueNote;
+	public IRI[] issueNote;
 	
 	@Predicate("issueNumber")
 	@ObjectIRI
@@ -71,78 +72,47 @@ public class ComicIssue extends PublicationIssue {
 	@Predicate("letterer")
 	@ObjectIRI
 	@SchemaBib
-	public Collection<IRI> letterers;
+	public IRI[] letterers;
 	
 	@Predicate("penciler")
 	@ObjectIRI
 	@SchemaBib
-	public Collection<IRI> pencilers;
+	public IRI[] pencilers;
 	
 	@Predicate("price")
 	@ObjectIRI
 	@SchemaComicWiki
-	public Collection<IRI> price;
+	public IRI[] price;
 	
 	public void addArtist(IRI artist) {
-		if(artists == null) {
-			artists = new HashSet<>(3); 
-		}
-		artists.add(artist);
+		artists = Add.one(artists, artist);
 	}
 	
 	public void addBrand(IRI brand) {
-		if(brands == null) {
-			brands = new HashSet<>(3); 
-		}
-		brands.add(brand);
+		brands = Add.one(brands, brand);
 	}
-	
-	public void addColorist(IRI colorist) {
-		if(colorists == null) {
-			colorists = new HashSet<>(3); 
-		}
-		colorists.add(colorist);
-	}
-	
-	public void addCreatorAlias(IRI alias) {
-		if(creatorAlias == null) {
-			creatorAlias = new HashSet<>(1); 
-		}
-		creatorAlias.add(alias);
+
+	public void addColorist(IRI colorist) {	
+		colorists = Add.one(colorists, colorist);
 	}
 	
 	public void addInker(IRI inker) {
-		if(inkers == null) {
-			inkers = new HashSet<>(3); 
-		}
-		inkers.add(inker);
-	}
-	
-	public void addIssueNote(IRI note) {
-		if (issueNote == null) {
-			issueNote = new HashSet<>(3); 
-		}
-		issueNote.add(note);
+		inkers = Add.one(inkers, inker);
 	}
 	
 	public void addLetter(IRI letterer) {
-		if(letterers== null) {
-			letterers = new HashSet<>(3); 
-		}
-		letterers.add(letterer);
+		letterers = Add.one(letterers, letterer);
 	}
 	
 	public void addPenciler(IRI penciler) {
-		if(pencilers== null) {
-			pencilers = new HashSet<>(3); 
-		}
-		pencilers.add(penciler);
+		pencilers = Add.one(pencilers, penciler);
+	}
+	
+	public void addIssueNote(IRI note) {
+		issueNote = Add.one(issueNote, note);
 	}
 	
 	public void addPrice(IRI p) {
-		if(price == null) {
-			price = new HashSet<>(3); 
-		}
-		price.add(p);
+		price = Add.one(price, p);
 	}
 }

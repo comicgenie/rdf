@@ -55,13 +55,14 @@ public abstract class BaseTable<ROW extends TableRow<?>> {
 		}
 		return null;
 	}
-	
-	//public Int2ObjectOpenHashMap<ROW> rowCache2 = new  Int2ObjectOpenHashMap();
-	 
-	//public Map<Integer, ROW> rowCache =  new Int2ObjectOpenHashMap<ROW>();
+
+	// public Int2ObjectOpenHashMap<ROW> rowCache2 = new
+	// Int2ObjectOpenHashMap();
+
+	// public Map<Integer, ROW> rowCache = new Int2ObjectOpenHashMap<ROW>();
 
 	public Map<Integer, ROW> rowCache = new HashMap<>();
-	
+
 	protected final String datasourceName;
 
 	protected final SQLContext sqlContext;
@@ -112,38 +113,38 @@ public abstract class BaseTable<ROW extends TableRow<?>> {
 		}
 
 		frame = sqlContext.read().load(datasourceName);
-		//frame.persist(StorageLevel.MEMORY_AND_DISK_SER());
+		// frame.persist(StorageLevel.MEMORY_AND_DISK_SER());
 		frame.cache();
 		setCacheSize((int) frame.count());
 
-		Row[] rows = frame.collect(); 
+		Row[] rows = frame.collect();
 		frame = null;
-		
-		for(int i = 0; i < rows.length; i++) {
+
+		for (int i = 0; i < rows.length; i++) {
 			process(rows[i]);
 			rows[i] = null;
-			if(i%10000 == 0) {
+			if (i % 10000 == 0) {
 				LOG.info("Processed Rows: " + i);
 			}
 		}
 		LOG.info("Clearing table cache");
 		sqlContext.clearCache();
 	}
-	
+
 	public final void parse() throws IOException {
 		int count = 0;
-		for(ROW row : rowCache.values()) {
+		for (ROW row : rowCache.values()) {
 			parseFields(row);
-			if(count++%10000 == 0) {
+			if (count++ % 10000 == 0) {
 				LOG.info("Parsed Rows: " + count);
-			}		
+			}
 		}
 	}
-	
+
 	protected void parseFields(ROW row) {
-		//noop
+		// noop
 	}
-	
+
 	public final ROW get(int id) {
 		return rowCache.get(id);
 	}
@@ -156,18 +157,18 @@ public abstract class BaseTable<ROW extends TableRow<?>> {
 		ArrayList<ROW> leftRows = cacheToArray();
 		ArrayList<? extends TableRow<?>> rightRows = table.cacheToArray();
 
-		if(leftRows.isEmpty() || rightRows.isEmpty()) {
-			LOG.warning("One of the tables is empty. Unable to do join: LT = " 
+		if (leftRows.isEmpty() || rightRows.isEmpty()) {
+			LOG.warning("One of the tables is empty. Unable to do join: LT = "
 					+ leftRows.size() + ", RT = " + rightRows.size());
 			return;
 		}
 		Join[] joins = this.getClass().getAnnotationsByType(Join.class);
 		for (Join join : joins) {
 			long startTime = System.currentTimeMillis();
-			LOG.info("ETL: Join Table = " + join.getClass().getName()
-					+ ":" + table.getClass().getName() + ", LF ="
-					+ join.leftField() + ", RF =" + join.rightField() + ", LK="
-					+ join.leftKey() + ", RK =" + join.rightKey());
+			LOG.info("ETL: Join Table = " + join.getClass().getName() + ":"
+					+ table.getClass().getName() + ", LF =" + join.leftField()
+					+ ", RF =" + join.rightField() + ", LK=" + join.leftKey()
+					+ ", RK =" + join.rightKey());
 			if (table.getClass().isAssignableFrom(join.value())) {
 				try {
 					if (join.withRule().isAssignableFrom(NoOpJoinRule.class)) {
@@ -183,7 +184,9 @@ public abstract class BaseTable<ROW extends TableRow<?>> {
 						final Field rk = right.getClass().getField(rightKey);
 						Field lf = left.getClass().getField(leftField);
 						Field rf = right.getClass().getField(rightField);
-
+						long startTimeSort = System.currentTimeMillis();
+						LOG.info("Starting sort of left table: "
+								+ getClass().getCanonicalName());
 						Collections.sort(new ArrayList<ROW>(leftRows),
 								new Comparator<ROW>() {
 
@@ -207,7 +210,11 @@ public abstract class BaseTable<ROW extends TableRow<?>> {
 										}
 									}
 								});
-
+						LOG.info("Sort Time: " + (System.currentTimeMillis() - startTimeSort));
+						startTimeSort = System.currentTimeMillis();
+						
+						LOG.info("Starting sort of right table: "
+								+ table.getClass().getCanonicalName());
 						Collections.sort(rightRows,
 								new Comparator<TableRow<?>>() {
 
@@ -233,16 +240,23 @@ public abstract class BaseTable<ROW extends TableRow<?>> {
 									}
 
 								});
-
+						LOG.info("Sort Time: " + (System.currentTimeMillis() - startTimeSort));
+				
 						int start = 0, matchCount = 0;
 						for (ROW leftRow : leftRows) {
 							for (int i = start; i < rightRows.size(); i++) {
+								if (i % 100000 == 0) {
+									LOG.info("Evaluated Rows: " + i + ":" + matchCount);
+								}
 								boolean match = join(leftKey, rightKey,
 										leftField, rightField, leftRow,
 										rightRows.get(i), fk, rk, lf, rf);
 								if (match) {
 									start = i;
 									matchCount++;
+									if (matchCount++ % 100000 == 0) {
+										LOG.info("Joined Rows: " + matchCount);
+									}
 									break;
 								}
 							}
@@ -263,14 +277,24 @@ public abstract class BaseTable<ROW extends TableRow<?>> {
 	@SuppressWarnings("unchecked")
 	protected final <RT extends TableRow<?>, JR extends JoinRule> void join(
 			List<ROW> leftRows, List<RT> rightRows, JR rule) {
+		
+		LOG.info("Starting sort of table");
+		long startTimeSort = System.currentTimeMillis();
 		rule.sort(leftRows, rightRows);
-
+		LOG.info("Sort Time: " + (System.currentTimeMillis() - startTimeSort));
+		
 		int start = 0, matchCount = 0;
 		for (ROW leftJoinedRow : leftRows) {
 			for (int i = start; i < rightRows.size(); i++) {
 				if (rule.join(leftJoinedRow, rightRows.get(i))) {
 					start = i;
+					if (i % 100000 == 0) {
+						LOG.info("Evaluated Rows: " + i + ":" + matchCount);
+					}
 					matchCount++;
+					if (matchCount++ % 100000 == 0) {
+						LOG.info("joined Rows: " + matchCount);
+					}
 					break;
 				}
 			}
@@ -308,7 +332,7 @@ public abstract class BaseTable<ROW extends TableRow<?>> {
 						+ join.value().getName());
 			}
 		}
-		
+
 		LOG.info("Found tables to join: count = " + orderedJoinTables.size());
 		for (BaseTable<? extends TableRow<?>> table : orderedJoinTables) {
 			join(table);
@@ -324,7 +348,7 @@ public abstract class BaseTable<ROW extends TableRow<?>> {
 		}
 		return null;
 	}
-	
+
 	protected final <T> T parseField(String fieldValue,
 			FieldParser<T> fieldParser) {
 		try {

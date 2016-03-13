@@ -171,14 +171,14 @@ public class CreativeWork extends Thing {
 	
 	public void addPublisherImprints(IRI publisher) {
 		if(publisherImprints == null) {
-			publisherImprints = new HashSet<>();
+			publisherImprints = new HashSet<>(2);
 		}
 		publisherImprints.add(publisher);
 	}
 	
 	public void addIsPartOf(IRI part) {
 		if(isPartOf == null) {
-			isPartOf = new HashSet<>();
+			isPartOf = new HashSet<>(2);
 		}
 		isPartOf.add(part);
 	}

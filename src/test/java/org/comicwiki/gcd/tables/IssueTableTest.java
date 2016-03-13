@@ -8,6 +8,7 @@ import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.Arrays;
 import java.util.Iterator;
 
 import org.apache.spark.sql.Row;
@@ -58,10 +59,10 @@ public class IssueTableTest extends TableTestCase<IssueTable> {
 		IssueRow issueRow = table.process(row2);
 		table.joinTables(new BaseTable[] { brandTable });
 		table.tranform();
-		assertEquals(1, issueRow.instance.brands.size());
+		assertEquals(1, Arrays.asList(issueRow.instance.brands).size());
 
 		Brand brand = (Brand) thingFactory.getCache().get(
-				issueRow.instance.brands.iterator().next());
+				issueRow.instance.brands[0]);
 		assertEquals("Marvel", brand.name);
 	}
 

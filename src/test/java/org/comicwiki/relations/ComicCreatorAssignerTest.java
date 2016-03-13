@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -22,6 +23,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 public class ComicCreatorAssignerTest {
@@ -140,8 +142,8 @@ public class ComicCreatorAssignerTest {
 		ComicStory story = factory.create(ComicStory.class);
 		assigner.story(story);
 
-		assertTrue(story.colorists.contains(p1Colorist.instanceId));
-		assertTrue(story.inkers.contains(p2Inker.instanceId));
+		assertTrue(Arrays.asList(story.colorists).contains(p1Colorist.instanceId));
+		assertTrue(Arrays.asList(story.inkers).contains(p2Inker.instanceId));
 	}
 
 	@After

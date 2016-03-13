@@ -19,11 +19,14 @@ import java.util.Collection;
 import java.util.HashSet;
 
 import org.comicwiki.IRI;
+import org.comicwiki.model.Genre;
 import org.comicwiki.rdf.annotations.ObjectIRI;
 import org.comicwiki.rdf.annotations.ObjectString;
 import org.comicwiki.rdf.annotations.Predicate;
 import org.comicwiki.rdf.annotations.SchemaComicWiki;
 import org.comicwiki.rdf.annotations.Subject;
+
+import com.google.common.collect.ObjectArrays;
 
 @Subject(value = "http://schema.org/Person", key = "name")
 public class Person extends Thing {
@@ -170,7 +173,7 @@ public class Person extends Thing {
 		}
 		sibling.add(s);
 	}
-
+	
 	public void makeFemale() {
 		this.gender = "F";
 	}

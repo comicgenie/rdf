@@ -15,9 +15,6 @@
  *******************************************************************************/
 package org.comicwiki.model.schema.bib;
 
-import java.util.Collection;
-import java.util.HashSet;
-
 import org.comicwiki.model.schema.Periodical;
 import org.comicwiki.rdf.annotations.ObjectString;
 import org.comicwiki.rdf.annotations.Predicate;
@@ -34,26 +31,26 @@ public class ComicSeries extends Periodical {
 	@Predicate("binding")
 	@ObjectString
 	@SchemaComicWiki
-	public Collection<String> binding  = new HashSet<>(3);
+	public String[] binding;
 	
 	@Predicate("color")
 	@ObjectString
 	@SchemaComicWiki
-	public Collection<String> colors  = new HashSet<>(3);
+	public String[] colors;
 	
 	@Predicate("dimension")
 	@ObjectString
 	@SchemaComicWiki
-	public Collection<String> dimensions  = new HashSet<>(3);
+	public String[] dimensions;
 	
 	@Predicate("format")
 	@ObjectString
 	@SchemaComicWiki
-	public Collection<String> format  = new HashSet<>(3);
+	public String[] format;
 	
 	@Predicate("paperStock")
 	@ObjectString
 	@SchemaComicWiki
-	public Collection<String> paperStock  = new HashSet<>(3);
+	public String[] paperStock;
 	
 }
