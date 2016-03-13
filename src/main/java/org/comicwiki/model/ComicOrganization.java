@@ -32,21 +32,28 @@ import org.comicwiki.rdf.annotations.Subject;
 //TODO: probably need to add universe/publisher
 public class ComicOrganization extends Organization /*[CreativeWork]*/{
 
-	public ComicOrganization() { }
-	
 	@Predicate("alignment")
 	@ObjectString
 	public Alignment alignment;
-
+	
+	@ParentClass
+	public ComicCreativeWork creativeWork = new ComicCreativeWork();
+	
 	@Predicate("organizationType")
 	@ObjectString
 	public OrganizationType organizationType;
 
 	@Predicate("comicUniverse")
 	@ObjectIRI
-	public Collection<IRI> universes = new HashSet<>(1);
+	public Collection<IRI> universes;
+
+	public ComicOrganization() { }
 	
-	@ParentClass
-	public ComicCreativeWork creativeWork = new ComicCreativeWork();
+	public void addUniverse(IRI universe) {
+		if(universes == null) {
+			universes = new HashSet<>(1);
+		}
+		universes.add(universe);
+	}
 
 }

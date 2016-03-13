@@ -5,8 +5,8 @@ import static org.junit.Assert.*;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
 import org.comicwiki.BaseTable;
+import org.comicwiki.OrgLookupService;
 import org.comicwiki.ThingFactory;
-import org.comicwiki.gcd.OrgLookupService;
 import org.comicwiki.gcd.fields.FieldParserFactory;
 import org.comicwiki.gcd.tables.IssueReprintTable.IssueReprintRow;
 import org.comicwiki.gcd.tables.IssueTable.IssueRow;
@@ -29,7 +29,7 @@ public class ReprintFromIssueTableTest extends
 
 		Row row = RowFactory.create(null, null, null, null);
 		table.process(row);
-		assertEquals(0, table.cache.size());
+		assertEquals(0, table.rowCache.size());
 	}
 
 	@Test
@@ -39,7 +39,7 @@ public class ReprintFromIssueTableTest extends
 
 		Row row = RowFactory.create(1, 2, 3, null);
 		ReprintFromIssueRow row2 = table.process(row);
-		assertEquals(1, table.cache.size());
+		assertEquals(1, table.rowCache.size());
 		assertEquals(2, row2.fkOriginIssueId);
 		assertEquals(3, row2.fkTargetStoryId);
 	}
@@ -51,7 +51,7 @@ public class ReprintFromIssueTableTest extends
 
 		Row row = RowFactory.create(1, null, null, "My note");
 		ReprintFromIssueRow row2 = table.process(row);
-		assertEquals(1, table.cache.size());
+		assertEquals(1, table.rowCache.size());
 		assertEquals("My note", row2.notes);
 	}
 
@@ -77,7 +77,7 @@ public class ReprintFromIssueTableTest extends
 		ReprintFromIssueTable reprintTable = createTable(thingFactory);
 		Row reprintRow = RowFactory.create(1, 5, 6, null);
 		ReprintFromIssueRow reprintFromRow = reprintTable.process(reprintRow);
-		reprintTable.join(new BaseTable[] { issueTable, storyTable });
+		reprintTable.joinTables(new BaseTable[] { issueTable, storyTable });
 		// reprintTable.tranform();
 		assertNotNull(reprintFromRow.originalIssue);
 		assertNotNull(reprintFromRow.reprintStory);
@@ -106,7 +106,7 @@ public class ReprintFromIssueTableTest extends
 		Row reprintRow = RowFactory.create(1, 5, 6, null);
 
 		ReprintFromIssueRow reprintFromRow = reprintTable.process(reprintRow);
-		reprintTable.join(new BaseTable[] { issueTable, storyTable });
+		reprintTable.joinTables(new BaseTable[] { issueTable, storyTable });
 		reprintTable.tranform();
 
 		assertEquals(reprintFromRow.instance.firstPrint,

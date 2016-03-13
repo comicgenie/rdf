@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.comicwiki.rdf.annotations;
 
+import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -22,6 +23,7 @@ import org.comicwiki.rdf.DataType;
 import org.comicwiki.rdf.NodeType;
 
 @Retention(RetentionPolicy.RUNTIME)
+@Inherited
 public @interface ObjectNonNegativeInteger {
 	String datatype() default DataType.XSD_DECIMAL;
 	

@@ -28,6 +28,6 @@ public class TableRow<T extends Thing> {
 		Class<T> clazz = (Class<T>) ((ParameterizedType) getClass()
 				.getGenericSuperclass()).getActualTypeArguments()[0];
 		instance = thingFactory.create(clazz);
-		return thingFactory.create(clazz);
+		return instance;
 	}
 }

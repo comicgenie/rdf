@@ -9,7 +9,7 @@ public class RepositoryTest {
 
 	@Test
 	public void testMergeStringField() throws Exception {
-		Repository<Thing> thingRepo = new Repository<Thing>();
+		Repository<Thing> thingRepo = new Repository<Thing>("");
 		Thing c1 = new Thing();
 		c1.name = "Superman";
 		Thing c2 = new Thing();
@@ -20,7 +20,7 @@ public class RepositoryTest {
 	
 	@Test
 	public void testMergeNoOverrideStringField() throws Exception {
-		Repository<Thing> thingRepo = new Repository<Thing>();
+		Repository<Thing> thingRepo = new Repository<Thing>("");
 		Thing c1 = new Thing();
 		c1.name = "Superman";
 		Thing c2 = new Thing();

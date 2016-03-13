@@ -26,10 +26,12 @@ import org.comicwiki.TableRow;
 import org.comicwiki.model.ThingInItself;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 /**
  * Maps relation between a brand and a brand group
  */
+@Singleton
 public class BrandEmblemGroupTable extends
 		BaseTable<BrandEmblemGroupTable.BrandEmblemGroupRow> {
 

@@ -15,60 +15,183 @@
  *******************************************************************************/
 package org.comicwiki.gcd.fields;
 
-import java.util.Collection;
-import java.util.HashSet;
-
+import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.CommonTokenStream;
 import org.apache.spark.sql.Row;
+import org.comicwiki.FieldParser;
 import org.comicwiki.ThingFactory;
-import org.comicwiki.gcd.FieldParser;
+import org.comicwiki.gcd.parser.CreatorLexer;
+import org.comicwiki.gcd.parser.CreatorParser;
+import org.comicwiki.gcd.parser.CreatorParser.CreatorContext;
+import org.comicwiki.gcd.parser.CreatorParser.CreatorsContext;
+import org.comicwiki.model.CreatorAlias;
+import org.comicwiki.model.notes.CreatorIssueNote;
+import org.comicwiki.model.notes.CreatorStoryNote;
 import org.comicwiki.model.schema.Person;
+import org.comicwiki.model.schema.bib.ComicIssue;
+import org.comicwiki.model.schema.bib.ComicStory;
 
-public final class CreatorFieldParser implements FieldParser<Collection<Person>> {
+import com.google.common.base.Strings;
+
+public final class CreatorFieldParser extends BaseFieldParser implements
+		FieldParser<CreatorField> {
+
+	private static CreatorsContext getContextOf(String textField,
+			boolean failOnError) {
+		CreatorLexer lexer = new CreatorLexer(new ANTLRInputStream(textField));
+		lexer.removeErrorListeners();
+		CommonTokenStream tokens = new CommonTokenStream(lexer);
+		CreatorParser parser = new CreatorParser(tokens);
+		parser.removeErrorListeners();
+		if (failOnError) {
+			// parser.setErrorHandler(new BailErrorStrategy());
+		}
+		return parser.creators();
+	}
+
+	private ComicStory comicStory;
 
 	private final ThingFactory thingFactory;
 
-	protected CreatorFieldParser(ThingFactory thingFactory) {
+	private ComicIssue comicIssue;
+
+	protected CreatorFieldParser(ComicStory comicStory,
+			ThingFactory thingFactory) {
 		this.thingFactory = thingFactory;
-	}
-	
-	@Override
-	public Collection<Person> parse(int field, Row row) {
-		//parse for ;
-		//create a person, create alias(penName), role?
-		Person person = thingFactory.create(Person.class);
-		person.name =  row.getString(field);
-		
-		Collection<Person> creators = new HashSet<Person>();
-		creators.add(person);
-		return creators;
-		//Put into INSTANCE CACHE
-		//remove typeset
-		//return value.replaceAll("\\(.*?\\)", "").replaceAll("?", "").trim();
-	}
-	
-	//Initials of
-	//Variation of name
-	//Differenr name
-	/**
-	 *  Joe Kubert
-* C. C. Beck
-* Joe Kubert ?
-* Gene Colan [as Adam Austin]
-* ? [as A. Nony Mouse]
-* Richard Starkings; Comicraft; Saida Temofonte [as ST]; Eric Eng Wong [as EEW] 
-* Diverse Hands; Frank Giacoia; Mike Esposito; Alan Weiss
-* Vince Colletta; Murphy Anderson (Superman heads)
-* Jack Kirby (page 1, pages 20-22); Alex Toth (pages 2-19)
-* Jack Kirby (p. 1, pp. 20-22); Alex Toth (pp. 2-19)
-* Julius Schwartz; E. Nelson Bridwell (assistant)
-* Wendy Pini; Richard Pini; Wolfgang Hohlbein (translator)
-* Stan Lee (plot); Dennis O'Neil [as Sergius O'Shaugnessy] (script)
-* William Shakespeare (original story); Fred Hembeck (adaptation)
-* Sam Glanzman [as S.J.G] (signed) (real name [as initials] with signature confirmation)
-* Frank Giacoia (see notes)
-	 */
-	protected String parse(String field) {
-		return null;
+		this.comicStory = comicStory;
 	}
 
+	protected CreatorFieldParser(ComicIssue comicIssue,
+			ThingFactory thingFactory) {
+		this.thingFactory = thingFactory;
+		this.comicIssue = comicIssue;
+	}
+
+	private CreatorAlias addAlias(Person creator, Person alias, ComicIssue issue) {
+		CreatorAlias creatorAlias = thingFactory.create(CreatorAlias.class);
+		if (alias != null) {
+			creatorAlias.alias = alias.instanceId;
+		}
+
+		if (creator != null) {
+			creatorAlias.creator = creator.instanceId;
+		}
+
+		creatorAlias.issue = issue.instanceId;
+		issue.addCreatorAlias(creatorAlias.instanceId);
+		return creatorAlias;
+	}
+
+	private CreatorAlias addAlias(Person creator, Person alias, ComicStory story) {
+		CreatorAlias creatorAlias = thingFactory.create(CreatorAlias.class);
+		if (alias != null) {
+			creatorAlias.alias = alias.instanceId;
+		}
+
+		if (creator != null) {
+			creatorAlias.creator = creator.instanceId;
+		}
+
+		creatorAlias.story = story.instanceId;
+		story.addCreatorAlias(creatorAlias.instanceId);
+		return creatorAlias;
+	}
+
+	private CreatorIssueNote addCreatorNote(String note, Person creator,
+			ComicIssue issue) {
+		if (creator == null || Strings.isNullOrEmpty(note)) {
+			return null;
+		}
+		CreatorIssueNote storyNote = thingFactory
+				.create(CreatorIssueNote.class);
+		storyNote.issue = issue.instanceId;
+		storyNote.creator = creator.instanceId;
+		storyNote.note.add(note);
+		issue.addIssueNote(storyNote.instanceId);
+		return storyNote;
+	}
+
+	private CreatorStoryNote addCreatorNote(String note, Person creator,
+			ComicStory story) {
+		if (creator == null || Strings.isNullOrEmpty(note)) {
+			return null;
+		}
+		CreatorStoryNote storyNote = thingFactory
+				.create(CreatorStoryNote.class);
+		storyNote.story = story.instanceId;
+		storyNote.creator = creator.instanceId;
+		storyNote.note.add(note);
+		story.addStoryNote(storyNote.instanceId);
+		return storyNote;
+	}
+
+	@Override
+	public CreatorField parse(int field, Row row) {
+		String input = row.getString(field);
+		if (Strings.isNullOrEmpty(input)) {
+			return null;
+		}
+		return this.parse(input);
+	}
+
+	public CreatorField parse(String field) {
+		CreatorField creatorField = new CreatorField();
+
+		CreatorsContext creatorsContext = getContextOf(field, true);
+		for (CreatorContext ctx : creatorsContext.creator()) {
+			Person creatorPerson = null, aliasPerson = null;
+			boolean isCreatorUncertain = false;
+			String name = getValue(ctx.WORD());
+			if (!Strings.isNullOrEmpty(name)) {
+				if (!name.equals("?")) {
+					creatorPerson = thingFactory.create(Person.class);
+					creatorField.creators.add(creatorPerson);
+					if (name.contains("?")) {
+						isCreatorUncertain = true;
+						name = name.replaceAll("\\?", "").trim();
+					}
+					creatorPerson.name = name;
+				} else {
+					isCreatorUncertain = true;
+				}
+			}
+
+			String alias = getValue(ctx.ALIAS());
+			if (!Strings.isNullOrEmpty(alias)) {
+				// remove as
+				aliasPerson = thingFactory.create(Person.class);
+				aliasPerson.name = alias;
+				creatorField.aliases.add(aliasPerson);
+				CreatorAlias ca = comicStory != null ? addAlias(creatorPerson,
+						aliasPerson, comicStory) : addAlias(creatorPerson,
+						aliasPerson, comicIssue);
+				if (ca != null) {
+					creatorField.creatorAliases.add(ca);
+				}
+			}
+
+			String notes = getValue(ctx.NOTES());
+			if (!Strings.isNullOrEmpty(notes)) {
+				if (comicStory != null) {
+					CreatorStoryNote storyNote = addCreatorNote(notes,
+							creatorPerson, comicStory);
+					if(storyNote != null) {
+						storyNote.isCreatorUncertain = isCreatorUncertain;
+						addCreatorNote(notes, aliasPerson, comicStory);						
+					}
+
+				} else {
+					CreatorIssueNote storyNote = addCreatorNote(notes,
+							creatorPerson, comicIssue);
+					if(storyNote != null) {
+						storyNote.isCreatorUncertain = isCreatorUncertain;
+						addCreatorNote(notes, aliasPerson, comicIssue);						
+					}
+				}
+			}
+
+		}
+		return creatorField;
+		// remove typeset
+	}
 }

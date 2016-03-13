@@ -35,34 +35,38 @@ public class ComicStory extends CreativeWork {
 	
 	@Predicate("artist")
 	@ObjectIRI
-	public Collection<IRI> artists  = new HashSet<>(3);
-	
-	@Predicate("characterNote")
-	@ObjectIRI
-	@SchemaComicWiki
-	public Collection<IRI> characterNote = new HashSet<>(3);
-	
-	@Predicate("storyNote")
-	@ObjectIRI
-	@SchemaComicWiki
-	public Collection<IRI> storyNote = new HashSet<>(3);
+	public Collection<IRI> artists;
 	
 	@Predicate("colorist")
 	@ObjectIRI
-	public Collection<IRI> colorists  = new HashSet<>(3);
+	public Collection<IRI> colorists;
+	
+	@Predicate("creatorAlias")
+	@ObjectIRI
+	public Collection<IRI> creatorAlias;
 	
 	@Predicate("inker")
 	@ObjectIRI
-	public Collection<IRI> inkers  = new HashSet<>(3);
+	public Collection<IRI> inkers;
+	
+	@Predicate("jobCode")
+	@ObjectString
+	@SchemaComicWiki
+	public String jobCode;
 	
 	@Predicate("letterer")
 	@ObjectIRI
-	public Collection<IRI> letterers  = new HashSet<>(3);
+	public Collection<IRI> letterers;
 	
 	@Predicate("organization")
 	@ObjectIRI
 	@SchemaComicWiki
-	public Collection<IRI> organizations = new HashSet<>(1);
+	public Collection<IRI> organizations;
+	
+	@Predicate("pageCount")
+	@ObjectNonNegativeInteger
+	@SchemaComicWiki
+	public int pageCount;
 	
 	@Predicate("pageCountUncertain")
 	@ObjectBoolean
@@ -81,21 +85,72 @@ public class ComicStory extends CreativeWork {
 	
 	@Predicate("penciler")
 	@ObjectIRI
-	public Collection<IRI> pencilers  = new HashSet<>(3);
+	public Collection<IRI> pencilers;
+	
+	@Predicate("storyNote")
+	@ObjectIRI
+	@SchemaComicWiki
+	public Collection<IRI> storyNote;
 	
 	@Predicate("storyType")
 	@ObjectString
 	@SchemaComicWiki
 	public String storyType;
 	
-	@Predicate("jobCode")
-	@ObjectString
-	@SchemaComicWiki
-	public String jobCode;
+	public void addArtist(IRI artist) {
+		if(artists == null) {
+			artists = new HashSet<>(3); 
+		}
+		artists.add(artist);
+	}
 	
-	@Predicate("pageCount")
-	@ObjectNonNegativeInteger
-	@SchemaComicWiki
-	public int pageCount;
+	public void addColorist(IRI colorist) {
+		if(colorists == null) {
+			colorists = new HashSet<>(3); 
+		}
+		colorists.add(colorist);
+	}
+	
+	public void addCreatorAlias(IRI alias) {
+		if(creatorAlias == null) {
+			creatorAlias = new HashSet<>(1); 
+		}
+		creatorAlias.add(alias);
+	}
+	
+	public void addInker(IRI inker) {
+		if(inkers == null) {
+			inkers = new HashSet<>(3); 
+		}
+		inkers.add(inker);
+	}
+	
+	public void addLetter(IRI letterer) {
+		if(letterers== null) {
+			letterers = new HashSet<>(3); 
+		}
+		letterers.add(letterer);
+	}
+	
+	public void addOrganization(IRI org) {
+		if(organizations == null) {
+			organizations = new HashSet<>(1); 
+		}
+		organizations.add(org);
+	}
+	
+	public void addPenciler(IRI penciler) {
+		if(pencilers== null) {
+			pencilers = new HashSet<>(3); 
+		}
+		pencilers.add(penciler);
+	}
+	
+	public void addStoryNote(IRI note) {
+		if(storyNote == null) {
+			storyNote = new HashSet<>(3); 
+		}
+		storyNote.add(note);
+	}
 	
 }

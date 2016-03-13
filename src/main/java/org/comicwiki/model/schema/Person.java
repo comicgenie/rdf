@@ -28,46 +28,49 @@ import org.comicwiki.rdf.annotations.Subject;
 @Subject(value = "http://schema.org/Person", key = "name")
 public class Person extends Thing {
 
-	public Person() { }
-	
-	@Predicate("honorificPrefix")
-	@ObjectString
-	public String honorificPrefix;
-	
-	@Predicate("honorificSuffix")
-	@ObjectString
-	public String honorificSuffix;
-	
-	@Predicate("givenName")
-	@ObjectString
-	public String givenName;
-	
+	@Predicate("areasWorkedIn")
+	@SchemaComicWiki
+	@ObjectIRI
+	public Collection<IRI> areasWorkedIn;
+
+	@Predicate("colleague")
+	@ObjectIRI
+	public Collection<IRI> colleagues;
+
 	@Predicate("familyName")
 	@ObjectString
 	public String familyName;
-	
-	@Predicate("colleague")
-	@ObjectIRI
-	public Collection<IRI> colleagues = new HashSet<>();
 
 	@Predicate("gender")
 	@ObjectString
 	public String gender;
 
+	@Predicate("givenName")
+	@ObjectString
+	public String givenName;
+
+	@Predicate("honorificPrefix")
+	@ObjectString
+	public String honorificPrefix;
+
+	@Predicate("honorificSuffix")
+	@ObjectString
+	public String honorificSuffix;
+
 	@Predicate("jobTitle")
 	@ObjectString
-	public Collection<String> jobTitle = new HashSet<>(2);
+	public Collection<String> jobTitle;
 
 	/*
 	 * The most generic bi-directional social/work relation.
 	 */
 	@Predicate("knows")
 	@ObjectIRI
-	public Collection<IRI> knows = new HashSet<>();
+	public Collection<IRI> knows;
 
 	@Predicate("memberOf")
 	@ObjectIRI
-	public Collection<IRI> memberOf = new HashSet<>(5);// Organization
+	public Collection<IRI> memberOf;// Organization
 
 	@Predicate("nationality")
 	@ObjectIRI
@@ -75,38 +78,105 @@ public class Person extends Thing {
 
 	@Predicate("parents")
 	@ObjectIRI
-	public Collection<IRI> parents = new HashSet<>(2);
+	public Collection<IRI> parents;
 
 	@Predicate("relatedTo")
 	@ObjectIRI
-	public Collection<IRI> relatedTo = new HashSet<>(3);
+	public Collection<IRI> relatedTo;
 
 	@Predicate("sibling")
 	@ObjectIRI
-	public Collection<IRI> sibling = new HashSet<>(3);
-
-	@Predicate("worksFor")
-	@ObjectIRI
-	public Collection<IRI> worksFor = new HashSet<>(3);// Organization
-
-	// [non-standard]
-	@Predicate("areasWorkedIn")
-	@SchemaComicWiki
-	@ObjectIRI
-	public Collection<IRI> areasWorkedIn = new HashSet<>(3);// genres
+	public Collection<IRI> sibling;
 
 	@Predicate("workedOn")
 	@SchemaComicWiki
 	@ObjectIRI
-	public Collection<IRI> workedOn = new HashSet<>(3);// creativeWork,
-																// story,
-																// character,															// organization
-	public void makeMale() {
-		this.gender = "M";
+	//creativeWork,story,character,organization
+	public Collection<IRI> workedOn;
+
+	@Predicate("worksFor")
+	@ObjectIRI
+	public Collection<IRI> worksFor;
+
+	public Person() {
+	}
+
+	public void addAreasWorkedIn(IRI workedIn) {
+		if (areasWorkedIn   == null) {
+			areasWorkedIn   = new HashSet<>(3);
+		}
+		areasWorkedIn.add(workedIn);
 	}
 	
+	public void addWorkedOn(IRI worked) {
+		if (workedOn  == null) {
+			workedOn  = new HashSet<>(3);
+		}
+		workedOn.add(worked);
+	}
+	
+	public void addWorksFor(IRI works) {
+		if (worksFor == null) {
+			worksFor = new HashSet<>(3);
+		}
+		worksFor.add(works);
+	}
+	
+	public void addColleague(IRI colleague) {
+		if (colleagues == null) {
+			colleagues = new HashSet<>(3);
+		}
+		colleagues.add(colleague);
+	}
+
+	public void addJobTitle(String title) {
+		if (jobTitle == null) {
+			jobTitle = new HashSet<>(3);
+		}
+		jobTitle.add(title);
+	}
+
+	public void addKnows(IRI know) {
+		if (knows == null) {
+			knows = new HashSet<>(3);
+		}
+		knows.add(know);
+	}
+
+	public void addMemberOf(IRI m) {
+		if (memberOf == null) {
+			memberOf = new HashSet<>(3);
+		}
+		memberOf.add(m);
+	}
+
+	public void addParent(IRI parent) {
+		if (parents == null) {
+			parents = new HashSet<>(2);
+		}
+		parents.add(parent);
+	}
+
+	public void addRelatedTo(IRI related) {
+		if (relatedTo == null) {
+			relatedTo = new HashSet<>(2);
+		}
+		relatedTo.add(related);
+	}
+
+	public void addSibling(IRI s) {
+		if (sibling == null) {
+			sibling = new HashSet<>(2);
+		}
+		sibling.add(s);
+	}
+
 	public void makeFemale() {
 		this.gender = "F";
+	}
+
+	public void makeMale() {
+		this.gender = "M";
 	}
 
 }

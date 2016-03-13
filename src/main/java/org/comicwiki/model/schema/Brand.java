@@ -32,33 +32,33 @@ import org.comicwiki.rdf.annotations.Subject;
 @Subject(value = "http://schema.org/Brand", key = "name")
 public class Brand extends Intangible {
 
-	@Predicate("startUseDate")
+	@Predicate("brandUse")
 	@ObjectIRI
 	@SchemaComicWiki
-	public IRI startUseDate;
+	public Collection<BrandUse> brandUse = new HashSet<>(1);
 	
 	@Predicate("endUseDate")
 	@ObjectIRI
 	@SchemaComicWiki
 	public IRI endUseDate;
 	
-	@Predicate("brandUse")
-	@ObjectIRI
-	@SchemaComicWiki
-	public Collection<BrandUse> brandUse = new HashSet<>(1);
-	
 	@Predicate("parentBrand")
 	@ObjectIRI
 	@SchemaComicWiki
 	public IRI parentBrand;
 	
-	@Predicate("subBrand")
-	@ObjectIRI
-	@SchemaComicWiki
-	public Collection<IRI> subBrand  = new HashSet<>(3);
-	
 	@Predicate("publisher")
 	@ObjectIRI
 	@SchemaComicWiki
 	public Collection<IRI> publisher  = new HashSet<>(3);
+	
+	@Predicate("startUseDate")
+	@ObjectIRI
+	@SchemaComicWiki
+	public IRI startUseDate;
+	
+	@Predicate("subBrand")
+	@ObjectIRI
+	@SchemaComicWiki
+	public Collection<IRI> subBrand  = new HashSet<>(3);
 }

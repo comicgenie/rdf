@@ -34,11 +34,11 @@ public class CreativeWork extends Thing {
 
 	@Predicate("author")
 	@ObjectIRI
-	public Collection<IRI> authors = new HashSet<>(3);
+	public Collection<IRI> authors;
 	
 	@Predicate("character")
 	@ObjectIRI
-	public Collection<IRI> characters = new HashSet<>();
+	public Collection<IRI> characters;
 	
 	/**
 	 * A citation or reference to another creative work, such as another
@@ -47,52 +47,52 @@ public class CreativeWork extends Thing {
 	@Predicate("citation")
 	@ObjectIRI
 	public String citation;
-
+	
 	@Predicate("comment")
 	@ObjectString
-	public Collection<String> comment = new HashSet<>(2);
-
+	public Collection<String> comment;
+		
 	/**
 	 * Official rating of a piece of content—for example,'MPAA PG-13'.
 	 */
 	@Predicate("contentRating")
 	@ObjectString
 	public String contentRating;// this will map to issue.rating
-
+	
 	@Predicate("creatorAlias")
 	@ObjectIRI
 	@SchemaComicWiki
-	public Collection<IRI> creatorAlias = new HashSet<>(1);
-
+	public Collection<IRI> creatorAlias;
+	
 	@Predicate("datePublished")
 	@ObjectIRI
 	public IRI datePublished;
-
+	
 	@Predicate("editor")
 	@ObjectIRI
-	public Collection<IRI> editors = new HashSet<>(3);
-
+	public Collection<IRI> editors;
+	
 	@Predicate("exampleOfWork")
 	@ObjectIRI
-	public Collection<IRI> exampleOfWork = new HashSet<>();// CreativeWork
-
+	public Collection<IRI> exampleOfWork;
+	
 	@Predicate("fictionalOrganizations")
 	@ObjectIRI
 	@SchemaComicWiki
-	public Collection<IRI> fictionalOrganizations = new HashSet<>();
-
+	public Collection<IRI> fictionalOrganizations;
+	
 	@Predicate("genre")
 	@ObjectIRI
-	public Collection<IRI> genres = new HashSet<>(3);
-
+	public Collection<IRI> genres;
+	
 	@Predicate("hasPart")
 	@ObjectIRI
-	public Collection<IRI> hasParts = new HashSet<>();// CreativeWork - PublicationVolume
+	public Collection<IRI> hasParts;// CreativeWork - PublicationVolume
 
 	@Predicate("headline")
 	@ObjectString
 	public String headline;// featured for comic story
-	
+
 	/**
 	 * The language of the content or performance or used in an action. Please
 	 * use one of the language codes from the IETF BCP 47 standard.
@@ -100,7 +100,7 @@ public class CreativeWork extends Thing {
 	@Predicate("inLanguage")
 	@ObjectIRI
 	public IRI inLanguage;
-	
+
 	/**
 	 * Indicates whether this content is family friendly.
 	 */
@@ -114,7 +114,7 @@ public class CreativeWork extends Thing {
 	 */
 	@Predicate("isPartOf")
 	@ObjectIRI
-	public Collection<IRI> isPartOf = new HashSet<>();// CreativeWork
+	public Collection<IRI> isPartOf;// CreativeWork
 
 	@Predicate("locationCreated")
 	@ObjectIRI
@@ -134,26 +134,26 @@ public class CreativeWork extends Thing {
 	@Predicate("publisherImprints")
 	@ObjectIRI
 	@SchemaBib
-	public Collection<IRI> publisherImprints = new HashSet<>(2);//Organization
+	public Collection<IRI> publisherImprints;
 
 	@Predicate("publisher")
 	@ObjectIRI
-	public Collection<IRI> publishers = new HashSet<>(1);// organization
+	public Collection<IRI> publishers;
 
 	@Predicate("reprint")
 	@ObjectIRI
 	@SchemaComicWiki
-	public Collection<IRI> reprint = new HashSet<>(1);
-	
+	public Collection<IRI> reprint;
+
 	@Predicate("reprintNote")
 	@ObjectIRI
 	@SchemaComicWiki
-	public Collection<IRI> reprintNote = new HashSet<>(1);
-		
+	public Collection<IRI> reprintNote;
+	
 	@Predicate("reprintOf")
 	@ObjectIRI
 	@SchemaComicWiki
-	public Collection<IRI> reprintOf = new HashSet<>(1);
+	public Collection<IRI> reprintOf;
 	
 	/**
 	 * The textual content of this CreativeWork.
@@ -161,12 +161,127 @@ public class CreativeWork extends Thing {
 	@Predicate("contentRating")
 	@ObjectString
 	public String text;
-	
+
 	/**
 	 * The typical expected age range, e.g. '7-9', '11-'.
 	 */
 	@Predicate("typicalAgeRange")
 	@ObjectString
 	public String typicalAgeRange;
+	
+	public void addPublisherImprints(IRI publisher) {
+		if(publisherImprints == null) {
+			publisherImprints = new HashSet<>();
+		}
+		publisherImprints.add(publisher);
+	}
+	
+	public void addIsPartOf(IRI part) {
+		if(isPartOf == null) {
+			isPartOf = new HashSet<>();
+		}
+		isPartOf.add(part);
+	}
+	
+	public void addGenre(IRI genre) {
+		if(genres == null) {
+			genres = new HashSet<>(3);
+		}
+		genres.add(genre);
+	}
+	
+	public void addGenre(Collection<IRI> genre) {
+		if(genre == null) {
+			return;
+		}
+		if(genres == null) {
+			genres = new HashSet<>(3);
+		}
+		genres.addAll(genre);
+	}
+	
+	public void addFictionalOrganization(IRI org) {
+		if(fictionalOrganizations == null) {
+			fictionalOrganizations = new HashSet<>(3);
+		}
+		fictionalOrganizations.add(org);
+	}
+	
+	public void addExampleOfWork(IRI example) {
+		if(exampleOfWork == null) {
+			exampleOfWork = new HashSet<>(3);
+		}
+		exampleOfWork.add(example);
+	}
+	
+	public void addComment(String c) {
+		if(comment == null) {
+			comment = new HashSet<>(3);
+		}
+		comment.add(c);
+	}
+	
+	public void addAuthor(IRI author) {
+		if(authors == null) {
+			authors = new HashSet<>(3);
+		}
+		authors.add(author);
+	}
+
+	public void addCharacter(IRI character) {
+		if(characters == null) {
+			characters = new HashSet<>(5);
+		}
+		characters.add(character);
+	}
+
+	public void addCreatorAlias(IRI alias) {
+		if(creatorAlias == null) {
+			creatorAlias = new HashSet<>(1); 
+		}
+		creatorAlias.add(alias);
+	}
+
+	public void addEditor(IRI editor) {
+		if(editors== null) {
+			editors = new HashSet<>(3); 
+		}
+		editors.add(editor);
+	}
+
+	public void addHasPart(IRI part) {
+		if(hasParts== null) {
+			hasParts = new HashSet<>(3); 
+		}
+		hasParts.add(part);
+	}
+	
+	public void addPublisher(IRI publisher) {
+		if(publishers== null) {
+			publishers = new HashSet<>(1);
+		}
+		publishers.add(publisher);
+	}
+		
+	public void addReprint(IRI r) {
+		if(reprint == null) {
+			reprint = new HashSet<>(1);
+		}
+		reprint.add(r);
+	}
+	
+	public void addReprintNote(IRI note) {
+		if(reprintNote == null) {
+			reprintNote = new HashSet<>(1);
+		}
+		reprintNote.add(note);
+	}
+	
+	public void addReprintOf(IRI reprint) {
+		if(reprintOf == null) {
+			reprintOf = new HashSet<>(1);
+		}
+		reprintOf.add(reprint);
+	}
 		
 }

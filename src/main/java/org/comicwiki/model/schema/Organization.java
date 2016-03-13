@@ -29,14 +29,14 @@ public class Organization extends Thing {
 
 	@Predicate("brand")
 	@ObjectIRI
-	public Collection<IRI> brands  = new HashSet<>();
+	public Collection<IRI> brands;
 	
 	@Predicate("dissolutionDate")
 	@ObjectIRI
 	public IRI dissolutionDate;
 	
 	@Predicate("founder")
-	public Collection<IRI> founders = new HashSet<>();
+	public Collection<IRI> founders;
 	
 	@Predicate("foundingDate")
 	@ObjectIRI
@@ -55,7 +55,7 @@ public class Organization extends Thing {
 	 */
 	@Predicate("member")
 	@ObjectIRI
-	public Collection<IRI> members = new HashSet<>();
+	public Collection<IRI> members = new HashSet<>(5);
 	
 	@Predicate("parentOrganization")
 	@ObjectIRI
@@ -63,6 +63,29 @@ public class Organization extends Thing {
 	
 	@Predicate("subOrganization")
 	@ObjectIRI
-	public Collection<IRI> subOrganization = new HashSet<>(3);
+	public Collection<IRI> subOrganization;
+	
+	public void addSubOrganization(IRI org) {
+		if(subOrganization == null) {
+			subOrganization = new HashSet<>(3); 
+		}
+		subOrganization.add(org);
+	}
+	
+	public void addFounder(IRI founder) {
+		if(founders == null) {
+			founders  = new HashSet<>(3); 
+		}
+		founders.add(founder);
+	}
+	
+	public void addBrand(IRI brand) {
+		if(brands== null) {
+			brands  = new HashSet<>(3); 
+		}
+		brands.add(brand);
+	}
+	
+	
 	
 }

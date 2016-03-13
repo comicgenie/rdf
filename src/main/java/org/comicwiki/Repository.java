@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.TreeSet;
+import java.util.logging.Logger;
 
 import org.comicwiki.model.schema.Thing;
 import org.comicwiki.rdf.Statement;
@@ -42,16 +43,16 @@ import com.github.jsonldjava.core.RDFDatasetUtils;
 
 public class Repository<T extends Thing> {
 
-	private ArrayList<RepositoryTransform> transforms = new ArrayList<>();
-	
-	public final void addTransform(RepositoryTransform transform) {
-		transforms.add(transform);
+	private static final Logger LOG = Logger.getLogger("Repository");
+
+	private final String name;
+
+	public Repository(String name) {
+		this.name = name;
 	}
-	
-	public final void transform() throws IOException {
-		for(RepositoryTransform transform : transforms) {
-			transform.transform();
-		}
+
+	public String getName() {
+		return name;
 	}
 
 	private static Object mergeObjects(Object source, Object target) {
@@ -67,9 +68,18 @@ public class Repository<T extends Thing> {
 				if (targetValue == null) {
 					field.set(target, sourceValue);
 				} else if (targetValue instanceof Collection) {
-					Collection cT = (Collection<?>) targetValue;
-					Collection sT = (Collection<?>) sourceValue;
-					cT.addAll(sT);
+					Collection tV = (Collection<?>) targetValue;
+					Collection sV = (Collection<?>) sourceValue;
+					
+					if(sV != null) {
+						if(tV != null) {
+							tV.addAll(sV);
+						} else {
+							tV = sV;
+						}
+					} else {
+						sV = tV;
+					}				
 				} else if (targetValue instanceof Thing) {
 					mergeObjects(sourceValue, targetValue);
 				}
@@ -80,10 +90,12 @@ public class Repository<T extends Thing> {
 		return target;
 	}
 
-	//resourceId->Thing
+	// resourceId->Thing
 	public final HashMap<IRI, T> cache = new HashMap<>();
 
 	protected ObjectMapper mapper = new ObjectMapper();
+
+	private ArrayList<RepositoryTransform> transforms = new ArrayList<>();
 
 	public void add(Collection<T> items) {
 		for (T item : items) {
@@ -92,12 +104,16 @@ public class Repository<T extends Thing> {
 	}
 
 	public final void add(T item) {
-		IRI key = item.resourceId;		
+		IRI key = item.resourceId;
 		if (contains(key)) {
 			merge(item, getByKey(key));
 		} else {
 			cache.put(key, item);
 		}
+	}
+
+	public final void addTransform(RepositoryTransform transform) {
+		transforms.add(transform);
 	}
 
 	public final void clear() {
@@ -156,7 +172,7 @@ public class Repository<T extends Thing> {
 	public void save(File file, DataFormat format) throws Exception {
 		save(new FileOutputStream(file), format);
 	}
-	
+
 	public void save(OutputStream out, DataFormat format) throws Exception {
 		if (DataFormat.JSON.equals(format)) {
 			ObjectMapper mapper = new ObjectMapper();
@@ -193,5 +209,17 @@ public class Repository<T extends Thing> {
 			out.write(output.toString().getBytes());
 		}
 		out.close();
+	}
+
+	public final void transform() throws IOException {
+		for (RepositoryTransform transform : transforms) {
+			try {
+				transform.transform();
+			} catch (Exception e) {
+				LOG.severe("Repository transform failure: " + name + ", "
+						+ e.getMessage());
+				e.printStackTrace();
+			}
+		}
 	}
 }

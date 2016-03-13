@@ -22,9 +22,12 @@ import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 import org.comicwiki.BaseTable;
 import org.comicwiki.TableRow;
+import org.comicwiki.model.ThingInItself;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
+@Singleton
 public class SeriesPublicationTypeTable extends
 		BaseTable<SeriesPublicationTypeTable.SeriesPublicationTypeRow> {
 
@@ -35,7 +38,7 @@ public class SeriesPublicationTypeTable extends
 		public static final int NAME = 1;
 	}
 
-	public static class SeriesPublicationTypeRow extends TableRow {
+	public static class SeriesPublicationTypeRow extends TableRow<ThingInItself> {
 		public String name;
 	}
 

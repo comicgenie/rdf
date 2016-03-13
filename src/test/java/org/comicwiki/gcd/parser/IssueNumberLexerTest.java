@@ -42,7 +42,7 @@ public class IssueNumberLexerTest {
 		List<? extends Token> tokens = lexer.getAllTokens();
 		assertTrue(match(tokens.get(0), "5", IssueNumberLexer.ISSUE_NUMBER));
 		assertTrue(match(tokens.get(2), "2016", IssueNumberLexer.YEAR));
-		assertTrue(match(tokens.get(3), "#234", IssueNumberLexer.COVER));
+		assertTrue(match(tokens.get(3), "234", IssueNumberLexer.COVER));
 	}
 	
 	@Test

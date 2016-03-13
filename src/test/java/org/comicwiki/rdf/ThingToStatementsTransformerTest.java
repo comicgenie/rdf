@@ -168,7 +168,7 @@ public class ThingToStatementsTransformerTest {
 	@Test
 	public void iriCollection() throws Exception {
 		AClass c = new AClass();
-		c.colleagues.add(new IRI(BASE_URI + "N1000"));
+		c.addColleague(new IRI(BASE_URI + "N1000"));
 
 		Collection<Statement> statements = ThingToStatementsTransformer
 				.transform(c);
@@ -364,8 +364,8 @@ public class ThingToStatementsTransformerTest {
 	@Test
 	public void stringCollection() throws Exception {
 		AClass c = new AClass();
-		c.alternateNames.add("AnotherName");
-		c.alternateNames.add("AnotherName2");
+		c.addAlternateName("AnotherName");
+		c.addAlternateName("AnotherName2");
 
 		Collection<Statement> statements = ThingToStatementsTransformer
 				.transform(c);

@@ -26,7 +26,9 @@ import org.comicwiki.ThingFactory;
 import org.comicwiki.model.schema.Language;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
+@Singleton
 public class LanguageTable extends BaseTable<LanguageTable.LanguageRow> {
 	public static class Columns {
 

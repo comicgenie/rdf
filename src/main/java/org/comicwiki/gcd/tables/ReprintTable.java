@@ -24,17 +24,19 @@ import org.comicwiki.BaseTable;
 import org.comicwiki.Join;
 import org.comicwiki.TableRow;
 import org.comicwiki.ThingFactory;
-import org.comicwiki.model.ReprintNote;
+import org.comicwiki.model.notes.ReprintNote;
 import org.comicwiki.model.schema.bib.ComicStory;
 
 import com.google.common.base.Strings;
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 /**
  * Reprints of stories
  */
 @Join(value = StoryTable.class, leftKey = "fkOriginId", leftField = "original")
 @Join(value = StoryTable.class, leftKey = "fkTargetId", leftField = "reprint")
+@Singleton
 public class ReprintTable extends BaseTable<ReprintTable.ReprintRow> {
 
 	public static class Columns {
@@ -121,7 +123,7 @@ public class ReprintTable extends BaseTable<ReprintTable.ReprintRow> {
 		}
 		
 		if(!Strings.isNullOrEmpty(row.notes)) {
-			reprintNote.note.add(row.notes);
+			reprintNote.addReprintNote(row.notes);
 		}
 	}
 	

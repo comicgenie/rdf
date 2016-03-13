@@ -23,7 +23,7 @@ public class ReprintToIssueTableTest extends TableTestCase<ReprintToIssueTable>{
 
 		Row row = RowFactory.create(null, null, null, null);
 		table.process(row);
-		assertEquals(0, table.cache.size());
+		assertEquals(0, table.rowCache.size());
 	}
 	
 	@Test
@@ -33,7 +33,7 @@ public class ReprintToIssueTableTest extends TableTestCase<ReprintToIssueTable>{
 
 		Row row = RowFactory.create(1, null, null, "My note");
 		ReprintToIssueRow row2 = table.process(row);
-		assertEquals(1, table.cache.size());
+		assertEquals(1, table.rowCache.size());
 		assertEquals("My note", row2.notes);
 	}
 

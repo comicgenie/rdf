@@ -16,6 +16,7 @@
 package org.comicwiki.model.schema;
 
 import java.net.URI;
+import java.net.URL;
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -36,36 +37,67 @@ public class Thing {
 
 	public final static String CONTEXT = "http://schema.org/";
 
-	@Predicate(CONTEXT + "url")
-	@ObjectURL
-	public final Collection<URI> urls = new HashSet<>(5);
-
-	@Predicate(CONTEXT + "name")
+	@Predicate(CONTEXT + "alternateName")
 	@ObjectString
-	public String name;
+	public Collection<String> alternateNames;
+
+	@Predicate( "http://comicwiki.org/resources/compositePropertyKey")
+	@ObjectString
+	@SchemaComicWiki
+	public String compositePropertyKey;
 
 	@Predicate(CONTEXT + "description")
 	@ObjectString
-	public Collection<String> description = new HashSet<>(1);
+	public Collection<String> description;
 
-	@Predicate(CONTEXT + "alternateName")
+	@SchemaComicWiki
+	@ObjectIRI
+	public IRI instanceId;
+	
+	@Predicate(CONTEXT + "name")
 	@ObjectString
-	public final Collection<String> alternateNames = new HashSet<>(5);
+	public String name;
 	
 	@Predicate( "http://comicwiki.org/resources/resourceId")
 	@ObjectIRI
 	@SchemaComicWiki
 	public IRI resourceId;
 	
-	@Predicate( "http://comicwiki.org/resources/compositePropertyKey")
-	@ObjectString
-	@SchemaComicWiki
-	public String compositePropertyKey;
-	
-	@SchemaComicWiki
-	@ObjectIRI
-	public IRI instanceId;
+	@Predicate(CONTEXT + "url")
+	@ObjectURL
+	public Collection<URL> urls;
 
+	public void addAlternateName(String alternateName) {
+		if(alternateNames == null) {
+			alternateNames = new HashSet<>(2);
+		}
+		alternateNames.add(alternateName);
+	}
+	
+	public void addAlternateName(Collection<String> alternateName) {
+		if(alternateName == null) {
+			return;
+		}
+		if(alternateNames == null) {
+			alternateNames = new HashSet<>(2);
+		}
+		alternateNames.addAll(alternateName);
+	}
+	
+	public void addDescription(String descript) {
+		if(description == null) {
+			description = new HashSet<>(1);
+		}
+		description.add(descript);
+	}
+	
+	public void addUrl(URL url) {
+		if(urls == null) {
+			urls = new HashSet<>(2);
+		}
+		urls.add(url);
+	}
+	
 	@Override
 	public String toString() {
 		return "Thing [urls=" + urls + ", name=" + name + ", description="

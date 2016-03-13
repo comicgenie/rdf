@@ -36,22 +36,32 @@ public class ComicIssue extends PublicationIssue {
 	@Predicate("artist")
 	@ObjectIRI
 	@SchemaBib
-	public Collection<IRI> artists  = new HashSet<>(1);//person
+	public Collection<IRI> artists;
 	
 	@Predicate("brand")
 	@ObjectIRI
 	@SchemaComicWiki
-	public Collection<IRI> brands  = new HashSet<>(1);//Brand
+	public Collection<IRI> brands;
 	
 	@Predicate("colorist")
 	@ObjectIRI
 	@SchemaBib
-	public Collection<IRI> colorists  = new HashSet<>(1);
+	public Collection<IRI> colorists;
+	
+	@Predicate("frequency")
+	@ObjectString
+	@SchemaComicWiki
+	public String frequency;
 	
 	@Predicate("inker")
 	@ObjectIRI
 	@SchemaBib
-	public Collection<IRI> inkers  = new HashSet<>(1);
+	public Collection<IRI> inkers;
+	
+	@Predicate("issueNote")
+	@ObjectIRI
+	@SchemaComicWiki
+	public Collection<IRI> issueNote;
 	
 	@Predicate("issueNumber")
 	@ObjectIRI
@@ -61,21 +71,78 @@ public class ComicIssue extends PublicationIssue {
 	@Predicate("letterer")
 	@ObjectIRI
 	@SchemaBib
-	public Collection<IRI> letterers  = new HashSet<>(1);
+	public Collection<IRI> letterers;
 	
 	@Predicate("penciler")
 	@ObjectIRI
 	@SchemaBib
-	public Collection<IRI> pencilers  = new HashSet<>(1);
+	public Collection<IRI> pencilers;
 	
 	@Predicate("price")
 	@ObjectIRI
 	@SchemaComicWiki
-	public Collection<IRI> price = new HashSet<>(3);
+	public Collection<IRI> price;
 	
-	@Predicate("frequency")
-	@ObjectString
-	@SchemaComicWiki
-	public String frequency;
+	public void addArtist(IRI artist) {
+		if(artists == null) {
+			artists = new HashSet<>(3); 
+		}
+		artists.add(artist);
+	}
 	
+	public void addBrand(IRI brand) {
+		if(brands == null) {
+			brands = new HashSet<>(3); 
+		}
+		brands.add(brand);
+	}
+	
+	public void addColorist(IRI colorist) {
+		if(colorists == null) {
+			colorists = new HashSet<>(3); 
+		}
+		colorists.add(colorist);
+	}
+	
+	public void addCreatorAlias(IRI alias) {
+		if(creatorAlias == null) {
+			creatorAlias = new HashSet<>(1); 
+		}
+		creatorAlias.add(alias);
+	}
+	
+	public void addInker(IRI inker) {
+		if(inkers == null) {
+			inkers = new HashSet<>(3); 
+		}
+		inkers.add(inker);
+	}
+	
+	public void addIssueNote(IRI note) {
+		if (issueNote == null) {
+			issueNote = new HashSet<>(3); 
+		}
+		issueNote.add(note);
+	}
+	
+	public void addLetter(IRI letterer) {
+		if(letterers== null) {
+			letterers = new HashSet<>(3); 
+		}
+		letterers.add(letterer);
+	}
+	
+	public void addPenciler(IRI penciler) {
+		if(pencilers== null) {
+			pencilers = new HashSet<>(3); 
+		}
+		pencilers.add(penciler);
+	}
+	
+	public void addPrice(IRI p) {
+		if(price == null) {
+			price = new HashSet<>(3); 
+		}
+		price.add(p);
+	}
 }

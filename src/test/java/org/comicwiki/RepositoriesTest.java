@@ -8,7 +8,8 @@ public class RepositoriesTest {
 
 	@Test
 	public void getRepoAndAdd() throws Exception {
-		Repository<Thing> repo = new Repositories().getRepository(ComicCharacter.class);
+		Repository<Thing> repo = new Repositories(new PersonNameMatcher())
+				.getRepository(ComicCharacter.class);
 		ComicCharacter cc = new ComicCharacter();
 		repo.add(cc);
 	}

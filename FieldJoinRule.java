@@ -18,16 +18,18 @@ public class FieldJoinRule implements JoinRule {
 	}
 
 	@Override
-	public void join(TableRow left, TableRow right) {
+	public boolean join(TableRow left, TableRow right) {
 		try {
 			if (fk.getInt(left) == rk.getInt(right)) {
 				lf.set(left, rf.get(right));
+				return true;
 			}
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
 			e.printStackTrace();
 		}
+		return false;
 		
 	}
 }

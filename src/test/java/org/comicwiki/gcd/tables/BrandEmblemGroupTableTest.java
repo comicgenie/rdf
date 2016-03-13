@@ -23,7 +23,7 @@ public class BrandEmblemGroupTableTest extends
 
 		Row row = RowFactory.create(null, null, null);
 		table.process(row);
-		assertEquals(0, table.cache.size());
+		assertEquals(0, table.rowCache.size());
 	}
 	
 	@Test
@@ -33,7 +33,7 @@ public class BrandEmblemGroupTableTest extends
 
 		Row row = RowFactory.create(1, 2, 3);
 		BrandEmblemGroupRow row2 = table.process(row);
-		assertEquals(1, table.cache.size());
+		assertEquals(1, table.rowCache.size());
 		
 		assertEquals(new Integer(2), row2.brandId);
 		assertEquals(new Integer(3), row2.brandGroupId);

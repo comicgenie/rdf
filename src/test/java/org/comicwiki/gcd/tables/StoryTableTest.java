@@ -26,17 +26,18 @@ import org.apache.spark.sql.RowFactory;
 import org.comicwiki.BaseTable;
 import org.comicwiki.IRI;
 import org.comicwiki.IRICache;
+import org.comicwiki.OrgLookupService;
+import org.comicwiki.PersonNameMatcher;
 import org.comicwiki.Repositories;
 import org.comicwiki.ResourceIDCache;
 import org.comicwiki.ThingCache;
 import org.comicwiki.ThingFactory;
-import org.comicwiki.gcd.OrgLookupService;
 import org.comicwiki.gcd.fields.FieldParserFactory;
 import org.comicwiki.gcd.tables.StoryTable.StoryRow;
 import org.comicwiki.model.ComicCharacter;
 import org.comicwiki.model.Genre;
-import org.comicwiki.model.ReprintNote;
-import org.comicwiki.model.StoryNote;
+import org.comicwiki.model.notes.ReprintNote;
+import org.comicwiki.model.notes.StoryNote;
 import org.comicwiki.model.schema.Organization;
 import org.comicwiki.model.schema.Person;
 import org.comicwiki.model.schema.bib.ComicStory;
@@ -54,7 +55,7 @@ public class StoryTableTest extends TableTestCase<StoryTable> {
 				null, null, null, null, null, null, null, null, null, null,
 				null, null, null, null);
 		table.process(row);
-		assertEquals(0, table.cache.size());
+		assertEquals(0, table.rowCache.size());
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -72,6 +73,8 @@ public class StoryTableTest extends TableTestCase<StoryTable> {
 				null, null, null, null, null, null, "Daredevil", null, null,
 				null, null, null, null, null);
 		StoryTable.StoryRow tableRow = table.process(row);
+		table.parseFields(tableRow);
+		assertNotNull(tableRow.characters);
 		assertEquals(1, tableRow.characters.size());
 		assertEquals("Daredevil", tableRow.characters.stream().findFirst()
 				.get().name);
@@ -181,7 +184,7 @@ public class StoryTableTest extends TableTestCase<StoryTable> {
 				3/* IssueId */, null, null, null, null, null, null, null, null,
 				null, null, null, null, null, null, null);
 		StoryRow row2 = storyTable.process(storyRow);
-		storyTable.join(new BaseTable[] { pubTable, issueTable });
+		storyTable.joinTables(new BaseTable[] { pubTable, issueTable });
 		assertNotNull(row2.indiciaPublisher);
 		assertEquals("Fox Publications, Inc.", row2.indiciaPublisher.name);
 	}
@@ -201,7 +204,7 @@ public class StoryTableTest extends TableTestCase<StoryTable> {
 				null, null, null, null, null, null, null, null, null, null,
 				null, null, null, null);
 		StoryRow row2 = storyTable.process(storyRow);
-		storyTable.join(table);
+		storyTable.joinTables(table);
 		assertEquals(10, row2.fkIndiciaPublisherId);
 		assertEquals(5, row2.fkSeriesId);
 	}
@@ -234,7 +237,8 @@ public class StoryTableTest extends TableTestCase<StoryTable> {
 				3/* IssueId */, null, null, null, null, null, null, null, null,
 				null, null, null, null, null, null, null);
 		StoryRow row2 = storyTable.process(storyRow);
-		storyTable.join(new BaseTable[] { pubTable, issueTable, seriesTable });
+		storyTable.joinTables(new BaseTable[] { pubTable, issueTable,
+				seriesTable });
 		assertNotNull(row2.publisher);
 		assertEquals("Marvel Comics", row2.publisher.name);
 	}
@@ -250,7 +254,7 @@ public class StoryTableTest extends TableTestCase<StoryTable> {
 				null, null, null, null, null, null, null, null, null, null,
 				null, 8, null, null);
 		StoryRow row2 = storyTable.process(storyRow);
-		storyTable.join(table);
+		storyTable.joinTables(table);
 
 		assertEquals("credits", row2.storyType);
 	}
@@ -270,8 +274,8 @@ public class StoryTableTest extends TableTestCase<StoryTable> {
 
 	@Test
 	public void organization() throws Exception {
-		ThingCache thingCache = new ThingCache(new Repositories(),
-				new IRICache(), new ResourceIDCache());
+		ThingCache thingCache = new ThingCache(new Repositories(
+				new PersonNameMatcher()), new IRICache(), new ResourceIDCache());
 		ThingFactory thingFactory = new ThingFactory(thingCache);
 
 		OrgLookupService service = new OrgLookupService(
@@ -283,6 +287,9 @@ public class StoryTableTest extends TableTestCase<StoryTable> {
 		StoryTable table = new StoryTable(null, thingFactory,
 				new FieldParserFactory(thingFactory), service);
 		StoryTable.StoryRow tableRow = table.process(row);
+		table.parseFields(tableRow);
+		
+		assertNotNull(tableRow.characters);
 		assertEquals(1, tableRow.characters.size());
 		assertEquals("Wolverine", tableRow.characters.stream().findFirst()
 				.get().name);
@@ -412,7 +419,7 @@ public class StoryTableTest extends TableTestCase<StoryTable> {
 				3/* IssueId */, null, null, null, null, null, null, null, null,
 				null, null, null, null, null, null, null);
 		StoryRow row2 = storyTable.process(storyRow);
-		storyTable.join(new BaseTable[] { pubTable, issueTable });
+		storyTable.joinTables(new BaseTable[] { pubTable, issueTable });
 		storyTable.tranform();
 
 		ComicStory story = row2.instance;
@@ -451,9 +458,11 @@ public class StoryTableTest extends TableTestCase<StoryTable> {
 				null, null, null, null, null, null, "X-Men[Wolverine]", null,
 				null, null, null, null, null, null);
 		StoryRow row = storyTable.process(storyRow);
+		storyTable.parseFields(row);
 		storyTable.tranform();
 		ComicStory story = row.instance;
 
+		assertNotNull(story.fictionalOrganizations);
 		assertEquals(1, story.fictionalOrganizations.size());
 
 		Organization organization = (Organization) thingFactory.getCache().get(
@@ -509,7 +518,8 @@ public class StoryTableTest extends TableTestCase<StoryTable> {
 				3/* IssueId */, null, null, null, null, null, null, null, null,
 				null, null, null, null, null, null, null);
 		StoryRow row2 = storyTable.process(storyRow);
-		storyTable.join(new BaseTable[] { pubTable, issueTable, seriesTable });
+		storyTable.joinTables(new BaseTable[] { pubTable, issueTable,
+				seriesTable });
 		storyTable.tranform();
 
 		ComicStory story = row2.instance;

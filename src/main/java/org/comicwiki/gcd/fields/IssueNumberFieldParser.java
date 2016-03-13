@@ -1,12 +1,10 @@
 package org.comicwiki.gcd.fields;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
-import org.antlr.v4.runtime.BailErrorStrategy;
 import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.spark.sql.Row;
+import org.comicwiki.FieldParser;
 import org.comicwiki.ThingFactory;
-import org.comicwiki.gcd.FieldParser;
 import org.comicwiki.gcd.parser.IssueNumberLexer;
 import org.comicwiki.gcd.parser.IssueNumberParser;
 import org.comicwiki.gcd.parser.IssueNumberParser.IssueContext;
@@ -14,9 +12,7 @@ import org.comicwiki.model.ComicIssueNumber;
 
 import com.google.common.base.Strings;
 
-public class IssueNumberFieldParser implements FieldParser<ComicIssueNumber> {
-
-	private final ThingFactory thingFactory;
+public class IssueNumberFieldParser extends BaseFieldParser implements FieldParser<ComicIssueNumber> {
 
 	private static IssueContext getContextOf(String textField,
 			boolean failOnError) {
@@ -30,6 +26,9 @@ public class IssueNumberFieldParser implements FieldParser<ComicIssueNumber> {
 		return parser.issue();
 	}
 
+
+	private final ThingFactory thingFactory;
+
 	public IssueNumberFieldParser(ThingFactory thingFactory) {
 		this.thingFactory = thingFactory;
 	}
@@ -39,14 +38,10 @@ public class IssueNumberFieldParser implements FieldParser<ComicIssueNumber> {
 		if (row.isNullAt(field)) {
 			return null;
 		}
-		return parser(row.getString(field));
+		return parse(row.getString(field));
 	}
 
-	private static String getValue(TerminalNode node) {
-		return node == null ? null : node.getText();
-	}
-
-	protected ComicIssueNumber parser(String textField) {
+	public ComicIssueNumber parse(String textField) {
 		if (Strings.isNullOrEmpty(textField)) {
 			return null;
 		}
@@ -89,7 +84,7 @@ public class IssueNumberFieldParser implements FieldParser<ComicIssueNumber> {
 
 			if (issueContext.ISSUE_NUMBER() != null) {
 				for (int i = 0; i < issueContext.ISSUE_NUMBER().size(); i++) {
-					issueNumber.issueNumbers.add(Integer.valueOf(issueContext
+					issueNumber.addIssueNumber(Integer.valueOf(issueContext
 							.ISSUE_NUMBER().get(i).getText()));
 				}
 			}

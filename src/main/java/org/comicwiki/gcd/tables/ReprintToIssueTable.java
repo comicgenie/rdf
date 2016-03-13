@@ -24,18 +24,20 @@ import org.comicwiki.BaseTable;
 import org.comicwiki.Join;
 import org.comicwiki.TableRow;
 import org.comicwiki.ThingFactory;
-import org.comicwiki.model.ReprintNote;
+import org.comicwiki.model.notes.ReprintNote;
 import org.comicwiki.model.schema.bib.ComicIssue;
 import org.comicwiki.model.schema.bib.ComicStory;
 
 import com.google.common.base.Strings;
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 /**
  * Reprint of story in another issue
  */
 @Join(value = StoryTable.class, leftKey = "fkOriginStoryId", leftField = "originalStory")
 @Join(value = IssueTable.class, leftKey = "fkTargetIssueId", leftField = "reprintIssue")
+@Singleton
 public class ReprintToIssueTable extends
 		BaseTable<ReprintToIssueTable.ReprintToIssueRow> {
 
@@ -114,16 +116,16 @@ public class ReprintToIssueTable extends
 		
 		if(row.originalStory != null) {
 			reprintNote.firstPrint = row.originalStory.instanceId;
-			row.originalStory.reprintNote.add(reprintNote.instanceId);
+			row.originalStory.addReprintNote(reprintNote.instanceId);
 		}
 		
 		if(row.reprintIssue != null) {
 			reprintNote.reprint = row.reprintIssue.instanceId;
-			row.reprintIssue.reprintNote.add(reprintNote.instanceId);
+			row.reprintIssue.addReprintNote(reprintNote.instanceId);
 		}
 		
 		if(!Strings.isNullOrEmpty(row.notes)) {
-			reprintNote.note.add(row.notes);
+			reprintNote.addReprintNote(row.notes);
 		}
 	}	
 }

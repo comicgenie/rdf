@@ -29,27 +29,69 @@ public class ComicCreativeWork extends CreativeWork {
 
 	@Predicate("artist")
 	@ObjectIRI
-	public Collection<IRI> artists  = new HashSet<>(3);
+	public Collection<IRI> artists;
 	
 	@Predicate("colorist")
 	@ObjectIRI
-	public Collection<IRI> colorists  = new HashSet<>(3);
+	public Collection<IRI> colorists;
 	
 	@Predicate("editor")
 	@ObjectIRI
-	public Collection<IRI> editors = new HashSet<>(3);
+	public Collection<IRI> editors;
 	
 	@Predicate("inker")
 	@ObjectIRI
-	public Collection<IRI> inkers  = new HashSet<>(3);
+	public Collection<IRI> inkers;
 	
 	@Predicate("letterer")
 	@ObjectIRI
-	public Collection<IRI> letterers  = new HashSet<>(3);
+	public Collection<IRI> letterers;
 	
 	@Predicate("penciler")
 	@ObjectIRI
-	public Collection<IRI> pencilers  = new HashSet<>(3);
+	public Collection<IRI> pencilers;
+	
+	public void addArtist(IRI artist) {
+		if(artists == null) {
+			artists = new HashSet<>(3); 
+		}
+		artists.add(artist);
+	}
+	
+	public void addColorist(IRI colorist) {
+		if(colorists == null) {
+			colorists = new HashSet<>(3); 
+		}
+		colorists.add(colorist);
+	}
+	
+	public void addEditor(IRI editor) {
+		if(editors== null) {
+			editors = new HashSet<>(3); 
+		}
+		editors.add(editor);
+	}
+	
+	public void addInker(IRI inker) {
+		if(inkers == null) {
+			inkers = new HashSet<>(3); 
+		}
+		inkers.add(inker);
+	}
+	
+	public void addLetter(IRI letterer) {
+		if(letterers== null) {
+			letterers = new HashSet<>(3); 
+		}
+		letterers.add(letterer);
+	}
+	
+	public void addPenciler(IRI penciler) {
+		if(pencilers== null) {
+			pencilers = new HashSet<>(3); 
+		}
+		pencilers.add(penciler);
+	}
 	
 	
 }

@@ -15,16 +15,12 @@ import org.comicwiki.rdf.annotations.SchemaComicWiki;
 import org.comicwiki.rdf.annotations.Subject;
 
 @SchemaComicWiki
-@Subject(value = "Instant", key = "name", isBlankNode = true)
+@Subject(value = "Instant", isBlankNode = true)
 public class Instant extends TemporalEntity {
 
-		@Predicate("year")
-		@ObjectXSD(XSD_GYEAR)
-		public int year;
-		
-		@Predicate("month")
-		@ObjectXSD(XSD_GMONTH)
-		public int month;
+		@Predicate("instantDate")
+		@ObjectDate
+		public Date date;
 		
 		@Predicate("day")
 		@ObjectXSD(XSD_GDAY)
@@ -38,6 +34,10 @@ public class Instant extends TemporalEntity {
 		@ObjectNonNegativeInteger
 		public int minute;
 		
+		@Predicate("month")
+		@ObjectXSD(XSD_GMONTH)
+		public int month;
+		
 		@Predicate("second")
 		@ObjectNonNegativeInteger
 		public int second;
@@ -45,9 +45,9 @@ public class Instant extends TemporalEntity {
 		//tzont;TimeZone
 		private String timezone;
 	
-		@Predicate("instantDate")
-		@ObjectDate
-		public Date date;
+		@Predicate("year")
+		@ObjectXSD(XSD_GYEAR)
+		public int year;
 		
 		//DateType
 		

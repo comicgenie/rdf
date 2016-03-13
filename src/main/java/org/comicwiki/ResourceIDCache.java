@@ -7,7 +7,9 @@ import java.util.HashMap;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
+@Singleton
 public class ResourceIDCache {
 
 	public static class MaxPair {

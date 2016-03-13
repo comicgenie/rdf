@@ -16,7 +16,9 @@
 package org.comicwiki.gcd.tables;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URL;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -38,13 +40,16 @@ import org.comicwiki.model.schema.bib.ComicSeries;
 
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 @Join(value = LanguageTable.class, leftKey = "fkLanguageId", leftField = "language")
 @Join(value = CountryTable.class, leftKey = "fkCountryId", leftField = "country")
 @Join(value = PublisherTable.class, leftKey = "fkPublisherId", leftField = "publisher")
 @Join(value = SeriesPublicationTypeTable.class, leftKey = "fkPublicationTypeId", leftField = "publicationType", rightField = "name")
+@Singleton
 public class SeriesTable extends BaseTable<SeriesTable.SeriesRow> {
 
 	public static class Columns {
@@ -52,16 +57,15 @@ public class SeriesTable extends BaseTable<SeriesTable.SeriesRow> {
 		public static final Column[] ALL_COLUMNS = new Column[] {
 				new Column("id"), new Column("name"), new Column("format"),
 				new Column("year_began"), new Column("year_ended"),
-				new Column("publication_date"), new Column("publisher_id"),
+				new Column("publication_dates"), new Column("publisher_id"),
 				new Column("country_id"), new Column("language_id"),
 				new Column("tracking_notes"), new Column("notes"),
 				new Column("publication_notes"), new Column("modified"),
 				new Column("color"), new Column("dimensions"),
 				new Column("paper_stock"), new Column("binding"),
 				new Column("publishing_format"),
-				new Column("publication_type_id"),
-				new Column("key_date")};
-		public static final int BINDING = 17;
+				new Column("publication_type_id") };
+		public static final int BINDING = 16;
 		public static final int COLOR = 13;
 		public static final int COUNTRY_ID = 7;
 		public static final int DIMENSIONS = 14;
@@ -71,17 +75,16 @@ public class SeriesTable extends BaseTable<SeriesTable.SeriesRow> {
 		public static final int MODIFIED = 12;
 		public static final int NAME = 1;
 		public static final int NOTES = 10;
-		public static final int PAPER_STOCK = 16;
+		public static final int PAPER_STOCK = 15;
 		public static final int PUBLICATION_DATE = 5;
 		public static final int PUBLICATION_NOTES = 11;// unused
 		public static final int PUBLISHER_ID = 6;
-		public static final int PUBLISHING_FORMAT = 18;
-		public static final int PUBLICATION_TYPE_ID = 19;
-		public static final int REPRINT_NOTES = 15;
+		public static final int PUBLISHING_FORMAT = 17;
+		public static final int PUBLICATION_TYPE_ID = 18;
 		public static final int TRACKING_NOTES = 9;
 		public static final int YEAR_BEGAN = 3;
 		public static final int YEAR_ENDED = 4;
-		public static final int KEY_DATE = 20;
+		// public static final int KEY_DATE = 20;
 	}
 
 	public static class SeriesRow extends TableRow<ComicSeries> {
@@ -163,7 +166,7 @@ public class SeriesTable extends BaseTable<SeriesTable.SeriesRow> {
 	public SeriesTable(SQLContext sqlContext, ThingFactory thingFactory,
 			FieldParserFactory parserFactory) {
 		super(sqlContext, sParquetName);
-		this.thingFactory = thingFactory;
+		SeriesTable.thingFactory = thingFactory;
 		this.parserFactory = parserFactory;
 	}
 
@@ -184,6 +187,8 @@ public class SeriesTable extends BaseTable<SeriesTable.SeriesRow> {
 
 		seriesRow.modified = row.getTimestamp(Columns.MODIFIED);
 		seriesRow.name = row.getString(Columns.NAME);
+		seriesRow.name = row.getString(Columns.NAME);
+
 		seriesRow.instance.name = row.getString(Columns.NAME);
 
 		seriesRow.notes = row.getString(Columns.NOTES);
@@ -193,14 +198,13 @@ public class SeriesTable extends BaseTable<SeriesTable.SeriesRow> {
 			seriesRow.publicationDate = parseField(Columns.PUBLICATION_DATE,
 					row, parserFactory.publishDate());
 		}
-		
 
-		if (!row.isNullAt(Columns.KEY_DATE)) {
-		//	seriesRow.publicationDates = parseField(Columns.PUBLICATION_DATES,
-		//			row, parserFactory.publishDate());
-		}
-		
-		//TODO: xdsf
+		// if (!row.isNullAt(Columns.KEY_DATE)) {
+		// seriesRow.publicationDates = parseField(Columns.PUBLICATION_DATES,
+		// row, parserFactory.publishDate());
+		// }
+
+		// TODO: xdsf
 
 		if (!row.isNullAt(Columns.PUBLISHER_ID)) {
 			seriesRow.fkPublisherId = row.getInt(Columns.PUBLISHER_ID);
@@ -218,32 +222,56 @@ public class SeriesTable extends BaseTable<SeriesTable.SeriesRow> {
 
 		if (!row.isNullAt(Columns.FORMAT)) {
 			seriesRow.format = parseField(Columns.FORMAT, row,
-					(f, r) -> split(f, r));
+					parserFactory.string(false));
+			if (seriesRow.format == null) {
+				seriesRow.format = Sets.newHashSet();
+			}
 		}
 
 		if (!row.isNullAt(Columns.COLOR)) {
 			seriesRow.color = parseField(Columns.COLOR, row,
-					(f, r) -> split(f, r));
+					parserFactory.string(false));
+			if (seriesRow.color == null) {
+				seriesRow.color = Sets.newHashSet();
+			}
 		}
 
 		if (!row.isNullAt(Columns.BINDING)) {
 			seriesRow.binding = parseField(Columns.BINDING, row,
-					(f, r) -> split(f, r));
+					parserFactory.string(false));
+
+			if (seriesRow.binding == null) {
+				seriesRow.binding = Sets.newHashSet();
+			}
 		}
 
 		if (!row.isNullAt(Columns.DIMENSIONS)) {
 			seriesRow.dimensions = parseField(Columns.DIMENSIONS, row,
-					(f, r) -> split(f, r));
+					parserFactory.string(false));
+			if (seriesRow.dimensions == null) {
+				seriesRow.dimensions = Sets.newHashSet();
+			}
 		}
 
 		if (!row.isNullAt(Columns.PAPER_STOCK)) {
 			seriesRow.paperStock = parseField(Columns.PAPER_STOCK, row,
-					(f, r) -> split(f, r));
+					parserFactory.string(false));
+			if (seriesRow.paperStock == null) {
+				seriesRow.paperStock = Sets.newHashSet();
+			}
 		}
 
 		if (!row.isNullAt(Columns.PUBLISHING_FORMAT)) {
-			seriesRow.publishingFormat = parseField(Columns.PUBLISHING_FORMAT,
-					row, (f, r) -> split(f, r));
+			try {
+				seriesRow.publishingFormat = parseField(
+						Columns.PUBLISHING_FORMAT, row,
+						parserFactory.string(false));
+				if (seriesRow.publishingFormat == null) {
+					seriesRow.publishingFormat = Sets.newHashSet();
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 		if (!row.isNullAt(Columns.ID)) {
 			seriesRow.id = row.getInt(Columns.ID);
@@ -262,11 +290,16 @@ public class SeriesTable extends BaseTable<SeriesTable.SeriesRow> {
 		super.transform(row);
 
 		ComicSeries series = row.instance;
-		series.urls.add(URI.create("http://www.comics.org/series/" + row.id));
-		series.urls.add(URI.create("http://www.comics.org/series/" + row.id
-				+ "/covers"));
+		try {
+			series.addUrl(new URL("http://www.comics.org/series/" + row.id));
+			series.addUrl(new URL("http://www.comics.org/series/" + row.id
+					+ "/covers"));
+		} catch (MalformedURLException e) {
+		}
 
-		series.name = row.name;
+		if (Strings.isNullOrEmpty(series.name)) {
+			System.out.println("ETL: null series name " + row.id);
+		}
 		// series.authors
 
 		series.binding.addAll(row.binding);
@@ -287,7 +320,7 @@ public class SeriesTable extends BaseTable<SeriesTable.SeriesRow> {
 		}
 
 		if (row.publisher != null) {
-			series.publishers.add(row.publisher.instanceId);
+			series.addPublisher(row.publisher.instanceId);
 		}
 
 		if (row.publicationDate != null) {
@@ -307,7 +340,7 @@ public class SeriesTable extends BaseTable<SeriesTable.SeriesRow> {
 		}
 
 		if (!Strings.isNullOrEmpty(row.notes)) {
-			row.instance.description.add(row.notes);
+			row.instance.addDescription(row.notes);
 		}
 	}
 }

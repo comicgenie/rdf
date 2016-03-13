@@ -17,6 +17,7 @@ package org.comicwiki.gcd.tables;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URL;
 import java.util.Date;
 
 import org.apache.spark.sql.Column;
@@ -32,10 +33,12 @@ import org.comicwiki.model.schema.Organization;
 
 import com.google.common.base.Strings;
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 @Join(value = BrandEmblemGroupTable.class, leftKey = "id", leftField = "fkBrandId", rightKey = "brandGroupId", rightField = "brandId")
 @Join(value = BrandTable.class, leftKey = "fkBrandId", leftField = "subBrand")
 @Join(value = PublisherTable.class, leftKey = "fkParentId", leftField = "publisher")
+@Singleton
 public class BrandGroupTable extends BaseTable<BrandGroupTable.BrandGroupRow> {
 
 	public class BrandGroupRow extends TableRow<Brand> {
@@ -108,6 +111,7 @@ public class BrandGroupTable extends BaseTable<BrandGroupTable.BrandGroupRow> {
 
 		brandRow.modified = row.getTimestamp(Columns.MODIFIED);
 		brandRow.name = row.getString(Columns.NAME);
+		brandRow.instance.name = row.getString(Columns.NAME);
 		brandRow.notes = row.getString(Columns.NOTES);
 		brandRow.url = row.getString(Columns.URL);
 
@@ -156,21 +160,25 @@ public class BrandGroupTable extends BaseTable<BrandGroupTable.BrandGroupRow> {
 			row.subBrand.parentBrand = brandGroup.instanceId;
 			if (row.publisher != null) {
 				row.subBrand.publisher.add(row.publisher.instanceId);
-				row.publisher.brands.add(row.subBrand.instanceId);
+				row.publisher.addBrand(row.subBrand.instanceId);
 			}
 		}
 
 		if (row.publisher != null) {
-			row.publisher.brands.add(brandGroup.instanceId);
+			row.publisher.addBrand(brandGroup.instanceId);
 			brandGroup.publisher.add(brandGroup.instanceId);
 		}
 
 		if (!Strings.isNullOrEmpty(row.notes)) {
-			brandGroup.description.add(row.notes);
+			brandGroup.addDescription(row.notes);
 		}
 
 		if (!Strings.isNullOrEmpty(row.url)) {
-			brandGroup.urls.add(URI.create(row.url));
+			try {
+				brandGroup.addUrl(new URL(row.url));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 }

@@ -31,15 +31,16 @@ import org.comicwiki.rdf.annotations.Subject;
 @Subject(value = "ComicCharacter", compositeKey= {"name", "universe", "era"})
 public class ComicCharacter extends Person  {
 
-	public ComicCharacter() { }
-	
 	@Predicate("ability")
 	@ObjectString
-	public Collection<String> abilities = new HashSet<>(5);
-
+	public Collection<String> abilities;
+	
 	@Predicate("alignment")
 	@ObjectString
 	public Alignment alignment;
+	
+	@ParentClass
+	public ComicCreativeWork creativeWork = new ComicCreativeWork();
 	
 	@Predicate("era")
 	@ObjectString
@@ -47,8 +48,8 @@ public class ComicCharacter extends Person  {
 
 	@Predicate("identity")
 	@ObjectIRI
-	public Collection<IRI> identities = new HashSet<>(5);
-
+	public Collection<IRI> identities;
+	
 	@Predicate("identityType")
 	@ObjectString
 	public IdentityType identityType;
@@ -56,8 +57,21 @@ public class ComicCharacter extends Person  {
 	@Predicate("ComicUniverse")
 	@ObjectIRI
 	public IRI universe;
+
+	public ComicCharacter() { }
+
+	public void addAbility(String ability) {
+		if(abilities == null) {
+			abilities = new HashSet<>(3);
+		}
+		abilities.add(ability);
+	}
 	
-	@ParentClass
-	public ComicCreativeWork creativeWork = new ComicCreativeWork();
+	public void addIdentity(IRI identity) {
+		if(identities == null) {
+			identities = new HashSet<>(3);
+		}
+		identities.add(identity);
+	}
 
 }

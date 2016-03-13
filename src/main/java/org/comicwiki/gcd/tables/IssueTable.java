@@ -16,7 +16,10 @@
 package org.comicwiki.gcd.tables;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URL;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -29,11 +32,14 @@ import org.comicwiki.IRI;
 import org.comicwiki.Join;
 import org.comicwiki.TableRow;
 import org.comicwiki.ThingFactory;
+import org.comicwiki.gcd.fields.CreatorField;
 import org.comicwiki.gcd.fields.FieldParserFactory;
 import org.comicwiki.gcd.tables.joinrules.IssueAndSeriesRule;
 import org.comicwiki.model.ComicIssueNumber;
+import org.comicwiki.model.CreatorAlias;
+import org.comicwiki.model.CreatorRole;
 import org.comicwiki.model.Instant;
-import org.comicwiki.model.Price;
+import org.comicwiki.model.prices.Price;
 import org.comicwiki.model.schema.Brand;
 import org.comicwiki.model.schema.Organization;
 import org.comicwiki.model.schema.Person;
@@ -43,12 +49,14 @@ import org.comicwiki.model.schema.bib.ComicSeries;
 
 import com.google.common.base.Strings;
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 @Join(value = SeriesTable.class, withRule = IssueAndSeriesRule.class)
 @Join(value = BrandTable.class, leftKey = "fkBrandId", leftField = "brand")
 @Join(value = IndiciaPublisherTable.class, leftKey = "fkIndiciaPublisherId", leftField = "indiciaPublisher")
 @Join(value = SeriesTable.class, leftKey = "fkSeriesId", leftField = "series")
 @Join(value = PublisherTable.class, leftKey = "fkPublisherId", leftField = "publisher")
+@Singleton
 public class IssueTable extends BaseTable<IssueTable.IssueRow> {
 
 	public static final class Columns {
@@ -92,11 +100,15 @@ public class IssueTable extends BaseTable<IssueTable.IssueRow> {
 
 	public static class IssueRow extends TableRow<ComicIssue> {
 
+		public Collection<Person> alaises;
+
 		public String barcode;
 
 		public Brand brand;
 
-		public Collection<Person> editors = new HashSet<>(3);
+		public Collection<CreatorAlias> creatorAliases;
+
+		public Collection<Person> editors;
 
 		/**
 		 * gcd_brand.id
@@ -138,7 +150,7 @@ public class IssueTable extends BaseTable<IssueTable.IssueRow> {
 
 		public int pageCount;
 
-		public Collection<Price> price = new HashSet<>(3);
+		public Collection<Price> price;
 
 		public String publicationDate;
 
@@ -205,7 +217,8 @@ public class IssueTable extends BaseTable<IssueTable.IssueRow> {
 		}
 
 		if (!row.isNullAt(Columns.PAGE_COUNT)) {
-			issueRow.pageCount = row.getInt(Columns.PAGE_COUNT);
+			issueRow.pageCount = ((BigDecimal) row.get(Columns.PAGE_COUNT))
+					.intValue();
 		}
 
 		issueRow.publicationDate = row.getString(Columns.PUBLICATION_DATE);
@@ -220,13 +233,22 @@ public class IssueTable extends BaseTable<IssueTable.IssueRow> {
 		issueRow.volume = row.getString(Columns.VOLUME);
 
 		if (!row.isNullAt(Columns.EDITING)) {
-			issueRow.editors.addAll(parseField(Columns.EDITING, row,
-					parserFactory.creator()));
+			CreatorField creatorField = parseField(Columns.EDITING, row,
+					parserFactory.creator(issueRow.instance));
+			issueRow.editors = creatorField.creators;
+			issueRow.alaises = creatorField.aliases;//TODO - not doing anything with these
+			
+			if (creatorField.creatorAliases != null) {
+				issueRow.creatorAliases = creatorField.creatorAliases;
+				issueRow.creatorAliases
+						.forEach(c -> c.role = CreatorRole.editor);
+			}
+
 		}
 
 		if (!row.isNullAt(Columns.PRICE)) {
-			issueRow.price.addAll(parseField(Columns.PRICE, row,
-					parserFactory.price()));
+			issueRow.price = parseField(Columns.PRICE, row,
+					parserFactory.price());
 		}
 
 		if (!row.isNullAt(Columns.NUMBER)) {
@@ -251,33 +273,36 @@ public class IssueTable extends BaseTable<IssueTable.IssueRow> {
 	protected void transform(IssueRow row) {
 		super.transform(row);
 		ComicIssue issue = row.instance;
-		issue.urls.add(URI.create("http://www.comics.org/issue/" + row.id));
-		
+		try {
+			issue.addUrl(new URL("http://www.comics.org/issue/" + row.id));
+		} catch (MalformedURLException e1) {
+		}
+
 		issue.headline = row.title;
 		issue.frequency = row.indiciaFrequency;
 
 		if (!Strings.isNullOrEmpty(row.variantName)) {
-			issue.alternateNames.add(row.variantName);
+			issue.addAlternateName(row.variantName);
 		}
 		issue.contentRating = row.rating;
 		if (row.brand != null) {
-			issue.brands.add(row.brand.instanceId);
+			issue.addBrand(row.brand.instanceId);
 		}
 		if (row.editors != null && !row.editors.isEmpty()) {
-			row.editors.forEach(e -> issue.editors.add(e.instanceId));
+			row.editors.forEach(e -> issue.addEditor(e.instanceId));
 		}
 
 		if (row.indiciaPublisher != null) {
-			issue.publisherImprints.add(row.indiciaPublisher.instanceId);
+			issue.addPublisherImprints(row.indiciaPublisher.instanceId);
 		}
 		if (row.series != null) {
 			issue.name = row.series.name;
-			row.series.hasParts.add(issue.instanceId);
-			issue.isPartOf.add(row.series.instanceId);
+			row.series.addHasPart(issue.instanceId);
+			issue.addIsPartOf(row.series.instanceId);
 		}
 
 		if (!Strings.isNullOrEmpty(row.note)) {
-			issue.description.add(row.note);
+			issue.addDescription(row.note);
 		}
 
 		if (row.onSaleDate != null) {
@@ -285,23 +310,25 @@ public class IssueTable extends BaseTable<IssueTable.IssueRow> {
 		}
 
 		issue.datePublished = createInstant(row.keyDate, row.publicationDate);
-		row.price.forEach(p -> issue.price.add(p.instanceId));
+		if (row.price != null) {
+			row.price.forEach(p -> issue.addPrice(p.instanceId));
+		}
 
 		if (!Strings.isNullOrEmpty(row.volume)) {
 			PublicationVolume publicationVolume = thingFactory
 					.create(PublicationVolume.class);
 			publicationVolume.name = row.series.name;
 			publicationVolume.volumeNumber = row.volume;
-			publicationVolume.alternateNames.addAll(issue.alternateNames);
-			publicationVolume.hasParts.add(issue.instanceId);
-			issue.isPartOf.add(publicationVolume.instanceId);
+			publicationVolume.addAlternateName(issue.alternateNames);
+			publicationVolume.addHasPart(issue.instanceId);
+			issue.addIsPartOf(publicationVolume.instanceId);
 		}
 		if (row.number != null) {
 			issue.issueNumber = row.number.instanceId;
 		}
 
 		if (row.publisher != null) {
-			issue.publishers.add(row.publisher.instanceId);
+			issue.addPublisher(row.publisher.instanceId);
 		}
 
 		// issue.inLanguage

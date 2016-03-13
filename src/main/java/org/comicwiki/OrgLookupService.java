@@ -1,4 +1,4 @@
-package org.comicwiki.gcd;
+package org.comicwiki;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,12 +41,16 @@ public class OrgLookupService {
 	}
 
 	public void load(File resourceDir) throws IOException {
-		try {
-			organizationList = Files.readAllLines(new File(resourceDir,
-					"MarvelOrganizations.txt").toPath(), Charset
-					.defaultCharset());
-		} catch (IOException e) {
-			e.printStackTrace();
+		File[] files = resourceDir.listFiles();
+		if(files != null) {
+			for (File file : files) {
+				try {
+					organizationList.addAll(Files.readAllLines(file.toPath(),
+							Charset.defaultCharset()));
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}		
 		}
 	}
 }

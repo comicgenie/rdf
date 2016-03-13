@@ -16,7 +16,9 @@
 package org.comicwiki;
 
 import java.io.File;
+import java.util.logging.Logger;
 
+import org.apache.spark.sql.SQLContext;
 import org.comicwiki.gcd.tables.BrandEmblemGroupTable;
 import org.comicwiki.gcd.tables.BrandGroupTable;
 import org.comicwiki.gcd.tables.BrandTable;
@@ -42,6 +44,8 @@ import com.google.inject.Injector;
 
 public class ETL {
 
+	private static final Logger LOG = Logger.getLogger("ETL");
+
 	@SuppressWarnings("unchecked")
 	protected static final Class<? extends BaseTable<?>>[] tableClasses = new Class[] {
 			BrandEmblemGroupTable.class, BrandGroupTable.class,
@@ -53,30 +57,30 @@ public class ETL {
 			SeriesBondTypeTable.class, SeriesPublicationTypeTable.class,
 			SeriesTable.class, StoryTable.class, StoryTypeTable.class };
 
-	private ThingCache thingCache;
-	private Repositories repositories;
-	private Injector injector;
-	private ResourceIDCache resourceIDCache;
-
-	@Inject
-	public ETL(ThingCache thingCache, Repositories repositories,
-			ResourceIDCache resourceIDCache) {
-		this.thingCache = thingCache;
-		this.repositories = repositories;
-		this.resourceIDCache = resourceIDCache;
-	}
-
-	protected static BaseTable<?>[] getTables(Injector injector)
+	protected static BaseTable<TableRow<?>>[] getTables(Injector injector)
 			throws Exception {
-		BaseTable<?>[] tables = new BaseTable<?>[tableClasses.length];
+		BaseTable<TableRow<?>>[] tables = new BaseTable[tableClasses.length];
 		for (int i = 0; i < tableClasses.length; i++) {
-			tables[i] = injector.getInstance(tableClasses[i]);
+			tables[i] = (BaseTable<TableRow<?>>) injector
+					.getInstance(tableClasses[i]);
 		}
 		return tables;
 	}
+	private Injector injector;
+	private Repositories repositories;
+	private ResourceIDCache resourceIDCache;
 
-	public void setInjector(Injector injector) {
-		this.injector = injector;
+	private SQLContext sqlContext;
+
+	private ThingCache thingCache;
+
+	@Inject
+	public ETL(ThingCache thingCache, Repositories repositories,
+			ResourceIDCache resourceIDCache, SQLContext sqlContext) {
+		this.thingCache = thingCache;
+		this.repositories = repositories;
+		this.resourceIDCache = resourceIDCache;
+		this.sqlContext = sqlContext;
 	}
 
 	public void fromRDB(String jdbcUrl) throws Exception {
@@ -94,30 +98,106 @@ public class ETL {
 
 		if (outputDir == null) {
 			throw new IllegalArgumentException("outputDir not specified");
+		} else {
+			outputDir.mkdirs();
 		}
 
 		if (resourceIds.exists()) {
 			resourceIDCache.loadResourceIDs(resourceIds);
 		}
 
-		BaseTable<?>[] tables = getTables(injector);
+		BaseTable<TableRow<?>>[] tables = getTables(injector);
 
-		for (BaseTable<?> table : tables) {
+		for (BaseTable<TableRow<?>> table : tables) {
 			if (table != null) {
-				table.extract();
-				table.join(tables);
-				table.tranform();
+				try {
+					LOG.info("Extracting table: " + table.datasourceName);
+					table.extract();
+				} catch (Exception e) {
+					LOG.severe("Error extracting table: "
+							+ table.datasourceName + ", " + e.getMessage());
+					e.printStackTrace();
+				}
+			}
+		}
+		if (sqlContext != null) {
+			LOG.info("Stopping Spark Context");
+			sqlContext.sparkContext().stop();
+		}
+
+		for (BaseTable<TableRow<?>> table : tables) {
+			if (table != null) {
+				try {
+					LOG.info("Parsing table fields: " + table.datasourceName);
+					table.parse();
+				} catch (Exception e) {
+					LOG.severe("Error parsing table: " + table.datasourceName
+							+ ", " + e.getMessage());
+					e.printStackTrace();
+				}
+			}
+		}
+		for (BaseTable<TableRow<?>> table : tables) {
+			if (table != null) {
+				try {
+					LOG.info("Joining table: " + table.datasourceName);
+					table.joinTables(tables);
+				} catch (Exception e) {
+					LOG.severe("Error joining table: " + table.datasourceName
+							+ ", " + e.getMessage());
+					e.printStackTrace();
+				}
+			}
+		}
+		for (BaseTable<TableRow<?>> table : tables) {
+			if (table != null) {
+				try {
+					LOG.info("Transform table: " + table.datasourceName);
+					table.tranform();
+				} catch (Exception e) {
+					LOG.severe("Transform failure: " + table.datasourceName
+							+ ", " + e.getMessage());
+					e.printStackTrace();
+				}
 			}
 		}
 
-		thingCache.assignResourceIDs();
-		thingCache.exportToRepositories();
-		for (Repository<?> repo : repositories.getRepositories()) {
-			repo.transform();
-			String repoName = repo.getClass().getSimpleName();
-			repo.save(new File(outputDir, repoName + ".json"), DataFormat.JSON);
-			repo.save(new File(outputDir, repoName + ".ttl"), DataFormat.TURTLE);
+		for (BaseTable<TableRow<?>> table : tables) {
+			if (table != null) {
+				try {
+					LOG.info("Clean table cache: " + table.datasourceName);
+					table.rowCache.clear();
+				} catch (Exception e) {
+					LOG.severe("Clean table failure: " + table.datasourceName
+							+ ", " + e.getMessage());
+					e.printStackTrace();
+				}
+			}
 		}
+
+		LOG.info("Assign resource IDs");
+		thingCache.assignResourceIDs();
+
+		LOG.info("Export to repositories");
+		thingCache.exportToRepositories();
+
+		for (Repository<?> repo : repositories.getRepositories()) {
+			LOG.info("Export Repository: " + repo.getName());
+			repo.transform();
+			try {
+				repo.save(new File(outputDir, repo.getName() + ".json"),
+						DataFormat.JSON);
+				repo.save(new File(outputDir, repo.getName() + ".ttl"),
+						DataFormat.TURTLE);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		LOG.info("Export resource IDs: size = " + resourceIds.length());
 		resourceIDCache.exportResourceIDs(resourceIds);
+	}
+
+	public void setInjector(Injector injector) {
+		this.injector = injector;
 	}
 }

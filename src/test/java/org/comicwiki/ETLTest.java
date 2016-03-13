@@ -24,9 +24,11 @@ public class ETLTest {
 				mockTable);
 
 		ResourceIDCache resourceIDCache = new ResourceIDCache();
-		ThingCache thingCache = new ThingCache(new Repositories(),
-				new IRICache(), resourceIDCache);
-		ETL etl = new ETL(thingCache, new Repositories(), new ResourceIDCache());
+		ThingCache thingCache = new ThingCache(new Repositories(
+				new PersonNameMatcher()), new IRICache(), resourceIDCache);
+		ETL etl = new ETL(thingCache,
+				new Repositories(new PersonNameMatcher()),
+				new ResourceIDCache(), null);
 		etl.setInjector(injector);
 		etl.process(new File("."), new File("."));
 		verify(mockTable, times(1)).extract();
@@ -40,7 +42,7 @@ public class ETLTest {
 		when(injector.getInstance(BrandEmblemGroupTable.class)).thenReturn(
 				mockTable);
 
-		ETL etl = new ETL(null, null, null);
+		ETL etl = new ETL(null, null, null, null);
 		etl.setInjector(injector);
 		etl.fromRDB("jdbc:mysql//localhost");
 		verify(mockTable, times(1))
@@ -50,7 +52,7 @@ public class ETLTest {
 
 	@Test
 	public void loadTables() throws Exception {
-		ETL etl = new ETL(null, null, null);
+		ETL etl = new ETL(null, null, null, null);
 		Injector injector = mock(Injector.class);
 		BrandEmblemGroupTable mockTable = mock(BrandEmblemGroupTable.class);
 		when(injector.getInstance(BrandEmblemGroupTable.class)).thenReturn(
@@ -64,13 +66,13 @@ public class ETLTest {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void noOutputDir() throws Exception {
-		ETL etl = new ETL(null, null, null);
+		ETL etl = new ETL(null, null, null, null);
 		etl.process(new File("."), null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void noResourceIds() throws Exception {
-		ETL etl = new ETL(null, null, null);
+		ETL etl = new ETL(null, null, null, null);
 		etl.process(null, new File("."));
 	}
 }

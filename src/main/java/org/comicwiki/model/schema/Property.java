@@ -19,8 +19,8 @@ import java.util.Collection;
 
 public class Property extends Intangible {
 
-	private Collection<SchemaClass> rangeIncludes;
-	
 	private Collection<SchemaClass> domainIncludes;
+	
+	private Collection<SchemaClass> rangeIncludes;
 
 }

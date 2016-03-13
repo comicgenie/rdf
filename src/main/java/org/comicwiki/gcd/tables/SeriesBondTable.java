@@ -22,9 +22,12 @@ import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 import org.comicwiki.BaseTable;
 import org.comicwiki.TableRow;
+import org.comicwiki.model.ThingInItself;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
+@Singleton
 public class SeriesBondTable extends BaseTable<SeriesBondTable.SeriesBondRow> {
 	public static class Columns {
 
@@ -45,7 +48,7 @@ public class SeriesBondTable extends BaseTable<SeriesBondTable.SeriesBondRow> {
 		public static final int TARGET_ISSUE_ID = 4;
 	}
 
-	public static class SeriesBondRow extends TableRow {
+	public static class SeriesBondRow extends TableRow<ThingInItself> {
 		public int bondTypeId;
 
 		public int originId;

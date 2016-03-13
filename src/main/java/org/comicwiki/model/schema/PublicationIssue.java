@@ -27,6 +27,11 @@ import org.comicwiki.rdf.annotations.Subject;
 @Subject(value = "http://schema.org/PublicationIssue", compositeKey= {"name", "issueNumber"})
 public class PublicationIssue extends CreativeWork {
 
+	@Predicate("dateOnSale")
+	@ObjectIRI
+	@SchemaComicWiki
+	public IRI dateOnSale;
+	
 	/**
 	 * A PublicationIssue isPartOf PublicationVolume [ how to use in ID]
 	 */
@@ -47,11 +52,6 @@ public class PublicationIssue extends CreativeWork {
 	@Predicate("pagination")
 	@ObjectString
 	public String pagination;
-	
-	@Predicate("dateOnSale")
-	@ObjectIRI
-	@SchemaComicWiki
-	public IRI dateOnSale;
 	
 
 }

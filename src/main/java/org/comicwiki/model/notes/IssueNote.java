@@ -1,4 +1,4 @@
-package org.comicwiki.model;
+package org.comicwiki.model.notes;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -12,22 +12,14 @@ import org.comicwiki.rdf.annotations.SchemaComicWiki;
 import org.comicwiki.rdf.annotations.Subject;
 
 @SchemaComicWiki
-@Subject(value = "StoryNote", isBlankNode = true)
-public class StoryNote extends Intangible {
-
-	@Predicate("comicCharacter")
-	@ObjectIRI
-	public IRI comicCharacter;
-	
-	@Predicate("comicOrganization")
-	@ObjectIRI
-	public IRI comicOrganization;
+@Subject(value = "IssueNote", isBlankNode = true)
+public class IssueNote extends Intangible {
 
 	@Predicate("note")
 	@ObjectString
 	public Collection<String> note = new HashSet<>(3);
 
-	@Predicate("story")
+	@Predicate("issue")
 	@ObjectIRI
-	public IRI story;
+	public IRI issue;
 }

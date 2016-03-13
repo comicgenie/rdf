@@ -524,8 +524,6 @@ Young Avengers
 Young Gods
 Young X-Men
 Zodiac
-
-
 The 100
 The 1000
 2000 Committee
@@ -552,18 +550,20 @@ Altered Strain
 A.S.A.
 Amazon Nation
 All-Star Comics
-
 Amber Butane Corps
 Ambushbug Revenge Squad
-American Crusaders (Impact Comics)
+American Crusaders
 American Supreme Men
-American Supremacist Party (A.S.P.)
+A.S.P
+American Supremacist Party
 American Warriors
-Ancients (see also League of Ancients)
+League of Ancients
+Ancients
 Angel and the Ape
 Anti-Green Lantern Corps
-A.P.E.S. (All-Purpose Enforcement Squad)
-Argent - 1950s domestic secret agent team. First appearance: Secret Origins (vol. 3) #14 (May 1987).
+All-Purpose Enforcement Squad
+A.P.E.S.
+Argent
 Army of Crime
 Aryan Brigade
 Assassination Bureau
@@ -629,7 +629,7 @@ The Centurions
 Chain Gang
 Challengers from Beyond
 Challengers of the Unknown
-Challengers of the Fantastic (Amalgam Comics)
+Challengers of the Fantastic
 Champions of Crime
 Champions of Angor
 Checkmate!
@@ -727,7 +727,7 @@ Forever People
 Four Horsemen of Apokolips
 Fourth Reich
 Front Men
-Frightful Five (Amalgam Comics)
+Frightful Five
 Freak Show
 Freedom Brigade
 Freedom Fighters
@@ -740,11 +740,11 @@ Gargoyles of Notredame
 Gas Gang
 Gemma Masters
 Gen 13
-Gen¹³ (Wildstorm)
-Generation Hex (Amalgam Comics)
+Generation Hex
 Ghost Patrol
 Global Guardians
-G.C.P.D. (Gotham City Police Department)
+Gotham City Police Department
+G.C.P.D.
 Gotham City Sirens
 The Great Ten
 Green Arrows of the World
@@ -760,11 +760,11 @@ Guardians of World Galaxy
 Guardians of the Galaxy Elite
 Gunner and Sarge
 The Halla's
-Hammer and Sickle - Former members of the People's Heroes from Outsiders (vol. 1) #10 (August 1986).
+Hammer and Sickle
 Hammer and Tongs
-The Hand - Gang featured in Legionnaires #1 (April 1993).
-Hand of Krona - Interstellar technology cult.
-Hangmen - Mercenary supervillain team. First appearance: Teen Titans Secret Files and Origins #2 (September 2000).
+The Hand
+Hand of Krona
+Hangmen
 Haunted Tank Crew
 Haven
 Hawk and Dove
@@ -773,11 +773,13 @@ Hayoth
 Headmen
 Helix
 Hellenders
-Hellfire League of Injustice (Amalgam Comics)
+Hellfire League of Injustice
 Heroes of Lallor
 Hero Hotline
-H.I.V.E. (Hierarchy of International Vengeance and Extermination) I and II
-H.I.V.E. of the Anti-Matter Universe (Hierarchy for International Virtuous Empowerment)
+Hierarchy of International Vengeance and Extermination
+H.I.V.E.
+Hierarchy for International Virtuous Empowerment
+H.I.V.E. of the Anti-Matter Universe
 Hocus and Pocus
 Hollow Men
 Honor Team of Throne
@@ -860,7 +862,7 @@ League of Ancients
 League Busters
 League of Assassins
 League of Challenger-Haters
-League of Extraordinary Gentlemen (America's Best Comics/Wildstorm)
+League of Extraordinary Gentlemen
 League of Super-Assassins
 L.E.G.I.O.N.
 Legionnaires
@@ -884,7 +886,7 @@ Madmen
 Mainframe
 Magnetic Men
 Manhunters
-Mankind Liberation Front)
+Mankind Liberation Front
 Martian Marauders
 Martian Mandrills
 Marvel Family
@@ -936,7 +938,8 @@ O.G.R.E.
 Old Justice
 Olympian Gods
 Offending Society
-OMAC (One-Man Army Corps)
+One-Man Army Corps
+OMAC
 Omega Men
 One Six Seven
 Onslaught
@@ -964,13 +967,12 @@ Primal Force
 Professionals
 Project Cadmus
 Project Slipshift
-Psyba-Rats - Superpowered teenage hackers. First appearance: Robin Annual #2 (1993).
-Punch and Jewelee - Duo of jester-themed thieves. First appearance: Captain Atom (vol. 1) #85 (March 1967).
+Psyba-Rats
+Punch and Jewelee
 Purple Trio
-Pyre - unrevealed villains made up of fire in martian manhunter comics.
-Q[edit]
+Pyre
 Q Society
-The Quorum - Rogue American agency.
+The Quorum
 Quickstart Enterprises
 Quinntettes
 Quintet
@@ -981,15 +983,15 @@ Ratpack
 The Rattles
 The Ravens
 The Ravers
-R.E.B.E.L.S. (Revolutionary Elite Brigade to Eradicate L.E.G.I.O.N. Supremacy)
+R.E.B.E.L.S.
 Rebirth Inc.
 RECOMbatants
 R.E.C.R.U.I.T.S.
 Red Brotherhood
-Red Claw (from Batman: The Animated Series)
+Red Claw
 Red Lantern Corps
 Red Morgue
-Red Shadows (Russian Suicide Squad)
+Red Shadows
 Red Shift
 Red Tornado Family
 Red Trinity
@@ -998,8 +1000,8 @@ Relative Heroes
 Renegades
 Renegades of Mars
 Requiem Inc.
-The Resistance (Wildstorm)
-Revenge Squad (from Batman: Brave and the Bold)
+The Resistance
+Revenge Squad
 Revenge Syndicate
 Revson Cosmetics
 Ringers
@@ -1011,7 +1013,6 @@ Rogue's Gallery
 Royal Guard
 Royal Flush Gang
 Rydertech
-S[edit]
 The Sacred Order of Saint Dumas
 The Satan Brothers
 Savage Six

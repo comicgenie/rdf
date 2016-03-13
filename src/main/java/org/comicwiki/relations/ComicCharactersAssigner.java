@@ -37,7 +37,7 @@ public final class ComicCharactersAssigner {
 		for (Person one : charactersArray) {
 			for (Person two : charactersArray) {
 				if (!one.equals(two)) {
-					one.colleagues.add(two.instanceId);
+					one.addColleague(two.instanceId);
 				}
 			}
 		}
@@ -54,14 +54,14 @@ public final class ComicCharactersAssigner {
 	 * ComicCharacters -> ComicStory
 	 */
 	public void story(ComicStory story) {
-		comicCharacters.forEach(e -> story.characters.add(e.instanceId));
+		comicCharacters.forEach(e -> story.addCharacter(e.instanceId));
 	}
 
 	/**
 	 * ComicCharacters -> ComicStory.genres
 	 */
 	public void genres(Collection<Genre> genres) {
-		genres.forEach(g -> comicCharacters.forEach(c -> c.creativeWork.genres
-				.add(g.instanceId)));
+		genres.forEach(g -> comicCharacters.forEach(c -> c.creativeWork
+				.addGenre(g.instanceId)));
 	}
 }

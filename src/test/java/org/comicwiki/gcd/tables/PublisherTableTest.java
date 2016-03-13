@@ -26,7 +26,7 @@ public class PublisherTableTest extends TableTestCase<PublisherTable> {
 		Row row = RowFactory.create(null, null, null, null, null, null, null,
 				null);
 		table.process(row);
-		assertEquals(0, table.cache.size());
+		assertEquals(0, table.rowCache.size());
 	}
 	
 	@Test
@@ -41,7 +41,7 @@ public class PublisherTableTest extends TableTestCase<PublisherTable> {
 		Row row = RowFactory.create(1, null, 225, null, null, null, null,
 				null, null);
 		PublisherRow row2 = table.process(row);
-		table.join(new BaseTable[]{countryTable});
+		table.joinTables(new BaseTable[]{countryTable});
 		table.tranform();
 
 		assertNotNull(row2.instance.location);

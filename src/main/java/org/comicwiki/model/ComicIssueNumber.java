@@ -24,7 +24,6 @@ import org.comicwiki.model.schema.Intangible;
 import org.comicwiki.rdf.annotations.ObjectBoolean;
 import org.comicwiki.rdf.annotations.ObjectIRI;
 import org.comicwiki.rdf.annotations.ObjectNonNegativeInteger;
-import org.comicwiki.rdf.annotations.ObjectNumber;
 import org.comicwiki.rdf.annotations.ObjectXSD;
 import org.comicwiki.rdf.annotations.Predicate;
 import org.comicwiki.rdf.annotations.SchemaComicWiki;
@@ -45,21 +44,28 @@ public class ComicIssueNumber extends Intangible {
 	@ObjectNonNegativeInteger
 	public Integer cover;
 	
-	@Predicate("year")
-	@ObjectXSD(XSD_GYEAR)
-	public Integer year;
+	@Predicate("isNonStandardGCDFormat")
+	@ObjectBoolean
+	public Boolean isNonStandardGCDFormat;
 	
 	@Predicate("issueNumber")
 	@ObjectNonNegativeInteger
-	public Collection<Integer> issueNumbers = new HashSet<>();
+	public Collection<Integer> issueNumbers;
 	
 	@Predicate("label")
 	@ObjectIRI
 	public String label;
 	
-	@Predicate("isNonStandardGCDFormat")
-	@ObjectBoolean
-	public Boolean isNonStandardGCDFormat;
+	@Predicate("year")
+	@ObjectXSD(XSD_GYEAR)
+	public Integer year;
+	
+	public void addIssueNumber(Integer number) {
+		if(issueNumbers == null) {
+			issueNumbers = new HashSet<>(3); 
+		}
+		issueNumbers.add(number);
+	}
 	
 	
 }

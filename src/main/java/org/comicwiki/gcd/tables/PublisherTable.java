@@ -16,7 +16,9 @@
 package org.comicwiki.gcd.tables;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URL;
 import java.util.Date;
 
 import org.apache.spark.sql.Column;
@@ -32,9 +34,10 @@ import org.comicwiki.model.schema.Organization;
 
 import com.google.common.base.Strings;
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
-//TODO: Brand
 @Join(value = CountryTable.class, leftKey = "fkCountryId", leftField = "country")
+@Singleton
 public class PublisherTable extends BaseTable<PublisherTable.PublisherRow> {
 	private static final class Columns {
 		public static final Column[] ALL_COLUMNS = new Column[] {
@@ -130,8 +133,11 @@ public class PublisherTable extends BaseTable<PublisherTable.PublisherRow> {
 	protected void transform(PublisherRow row) {
 		super.transform(row);
 		Organization publisher = row.instance;
-		publisher.urls.add(URI.create("http://www.comics.org/publisher/"
-				+ row.id));
+		try {
+			publisher.addUrl(new URL("http://www.comics.org/publisher/"
+					+ row.id));
+		} catch (MalformedURLException e1) {
+		}
 		//TODO: has brand? indicia_publishers?
 		//publisher.urls.add(URI.create("http://www.comics.org/publisher/"
 		//		+ row.id +"/brands"));
@@ -153,11 +159,15 @@ public class PublisherTable extends BaseTable<PublisherTable.PublisherRow> {
 		}
 
 		if (!Strings.isNullOrEmpty(row.notes)) {
-			publisher.description.add(row.notes);
+			publisher.addDescription(row.notes);
 		}
 
 		if (!Strings.isNullOrEmpty(row.url)) {
-			publisher.urls.add(URI.create(row.url));
+			try {
+				publisher.urls.add(new URL(row.url));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 
 	}

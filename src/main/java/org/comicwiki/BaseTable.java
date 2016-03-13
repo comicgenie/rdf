@@ -15,10 +15,18 @@
  *******************************************************************************/
 package org.comicwiki;
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Logger;
 
 import org.apache.spark.sql.Column;
 import org.apache.spark.sql.DataFrame;
@@ -26,14 +34,10 @@ import org.apache.spark.sql.DataFrameReader;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 import org.apache.spark.storage.StorageLevel;
-import org.comicwiki.gcd.FieldParser;
-import org.comicwiki.gcd.SparkUtils;
-import org.comicwiki.model.schema.Thing;
 
-import com.google.inject.Singleton;
-
-@Singleton
 public abstract class BaseTable<ROW extends TableRow<?>> {
+
+	private static final Logger LOG = Logger.getLogger("BaseTable");
 
 	private static void assertValidJdbcScheme(String jdbcUrl) {
 		if (!SparkUtils.isValidScheme(jdbcUrl)) {
@@ -42,13 +46,23 @@ public abstract class BaseTable<ROW extends TableRow<?>> {
 		}
 	}
 
-	public HashMap<Integer, ROW> cache = new HashMap<>();
+	private static BaseTable<? extends TableRow<?>> getJoinTable(
+			BaseTable<? extends TableRow<?>>[] tables, Class<?> clazz) {
+		for (BaseTable<? extends TableRow<?>> baseTable : tables) {
+			if (baseTable.getClass().isAssignableFrom(clazz)) {
+				return baseTable;
+			}
+		}
+		return null;
+	}
+	
+	//public Int2ObjectOpenHashMap<ROW> rowCache2 = new  Int2ObjectOpenHashMap();
+	 
+	//public Map<Integer, ROW> rowCache =  new Int2ObjectOpenHashMap<ROW>();
 
+	public Map<Integer, ROW> rowCache = new HashMap<>();
+	
 	protected final String datasourceName;
-
-	protected DataFrame frame;
-
-	protected HashMap<String, Thing> instanceCache = new HashMap<>(1000);
 
 	protected final SQLContext sqlContext;
 
@@ -66,7 +80,16 @@ public abstract class BaseTable<ROW extends TableRow<?>> {
 	}
 
 	protected final void add(ROW row) {
-		cache.put(row.id, row);
+		rowCache.put(row.id, row);
+	}
+
+	protected ArrayList<ROW> cacheToArray() {
+		ArrayList<ROW> ar = new ArrayList<>();
+		Collection<ROW> rightRows = getCache().values();
+		for (ROW row : rightRows) {
+			ar.add(row);
+		}
+		return ar;
 	}
 
 	private DataFrameReader createReader(String jdbcUrl, String tableName) {
@@ -78,105 +101,238 @@ public abstract class BaseTable<ROW extends TableRow<?>> {
 		if (sqlContext == null) {
 			return;// noop
 		}
+		DataFrame frame = null;
 		if (TableFormat.RDB.equals(tableFormat)) {
 			frame = sqlContext.read().load(datasourceName);
 		} else if (TableFormat.JSON.equals(tableFormat)) {
 			frame = sqlContext.read().json(datasourceName);
 		} else {
+			LOG.warning("Unable to read dataframe: " + datasourceName);
 			throw new IOException("Unable to read dataframe: " + datasourceName);
 		}
 
 		frame = sqlContext.read().load(datasourceName);
-		frame.persist(StorageLevel.MEMORY_AND_DISK_SER());
-
+		//frame.persist(StorageLevel.MEMORY_AND_DISK_SER());
+		frame.cache();
 		setCacheSize((int) frame.count());
 
-		for (Row row : frame.collect()) {
-			process(row);
+		Row[] rows = frame.collect(); 
+		frame = null;
+		
+		for(int i = 0; i < rows.length; i++) {
+			process(rows[i]);
+			rows[i] = null;
+			if(i%10000 == 0) {
+				LOG.info("Processed Rows: " + i);
+			}
+		}
+		LOG.info("Clearing table cache");
+		sqlContext.clearCache();
+	}
+	
+	public final void parse() throws IOException {
+		int count = 0;
+		for(ROW row : rowCache.values()) {
+			parseFields(row);
+			if(count++%10000 == 0) {
+				LOG.info("Parsed Rows: " + count);
+			}		
 		}
 	}
-
+	
+	protected void parseFields(ROW row) {
+		//noop
+	}
+	
 	public final ROW get(int id) {
-		return cache.get(id);
+		return rowCache.get(id);
 	}
 
-	public final HashMap<Integer, ROW> getCache() {
-		return cache;
+	public final Map<Integer, ROW> getCache() {
+		return rowCache;
 	}
 
-	private static BaseTable getTable(BaseTable[] tables, Class<?> clazz) {
-		for (BaseTable baseTable : tables) {
-			if (baseTable.getClass().isAssignableFrom(clazz)) {
-				return baseTable;
-			}
+	protected void join(BaseTable<? extends TableRow<?>> table) {
+		ArrayList<ROW> leftRows = cacheToArray();
+		ArrayList<? extends TableRow<?>> rightRows = table.cacheToArray();
+
+		if(leftRows.isEmpty() || rightRows.isEmpty()) {
+			LOG.warning("One of the tables is empty. Unable to do join: LT = " 
+					+ leftRows.size() + ", RT = " + rightRows.size());
+			return;
 		}
-		return null;
-	}
-
-	public void join(BaseTable<?>... tables) {
-		ArrayList<BaseTable<?>> orderedTables = new ArrayList<>();
-		Join[] joins = getClass().getAnnotationsByType(Join.class);
-
-		for (Join join : joins) {
-			BaseTable baseTable = getTable(tables, join.value());
-			if (baseTable != null) {
-				orderedTables.add(baseTable);
-			}
-		}
-
-		for (BaseTable<?> table : orderedTables) {
-			join(table);
-		}
-	}
-
-	protected void join(BaseTable<?> table) {
 		Join[] joins = this.getClass().getAnnotationsByType(Join.class);
 		for (Join join : joins) {
+			long startTime = System.currentTimeMillis();
+			LOG.info("ETL: Join Table = " + join.getClass().getName()
+					+ ":" + table.getClass().getName() + ", LF ="
+					+ join.leftField() + ", RF =" + join.rightField() + ", LK="
+					+ join.leftKey() + ", RK =" + join.rightKey());
 			if (table.getClass().isAssignableFrom(join.value())) {
 				try {
 					if (join.withRule().isAssignableFrom(NoOpJoinRule.class)) {
-						for (TableRow<?> rightRow : table.getCache().values()) {
-							for (ROW leftRow : getCache().values()) {
-								join(join.leftKey(), join.rightKey(),
-										join.leftField(), join.rightField(),
-										leftRow, rightRow);
+						String leftKey = join.leftKey();
+						String rightKey = join.rightKey();
+						String leftField = join.leftField();
+						String rightField = join.rightField();
+
+						ROW left = leftRows.get(0);
+						TableRow<?> right = (TableRow<?>) rightRows.get(0);
+
+						final Field fk = left.getClass().getField(leftKey);
+						final Field rk = right.getClass().getField(rightKey);
+						Field lf = left.getClass().getField(leftField);
+						Field rf = right.getClass().getField(rightField);
+
+						Collections.sort(new ArrayList<ROW>(leftRows),
+								new Comparator<ROW>() {
+
+									@Override
+									public int compare(ROW o1, ROW o2) {
+										try {
+											Integer fkInt = (Integer) fk
+													.get(o1);
+											Integer rkInt = (Integer) fk
+													.get(o2);
+											if (fkInt.equals(rkInt)) {
+												return 0;
+											} else if (fkInt < rkInt) {
+												return -1;
+											} else {
+												return 1;
+											}
+										} catch (Exception e) {
+											throw new IllegalArgumentException(
+													"Illegal compare values");
+										}
+									}
+								});
+
+						Collections.sort(rightRows,
+								new Comparator<TableRow<?>>() {
+
+									@Override
+									public int compare(TableRow<?> o1,
+											TableRow<?> o2) {
+										try {
+											Integer fkInt = (Integer) rk
+													.get(o1);
+											Integer rkInt = (Integer) rk
+													.get(o2);
+											if (fkInt.equals(rkInt)) {
+												return 0;
+											} else if (fkInt < rkInt) {
+												return -1;
+											} else {
+												return 1;
+											}
+										} catch (Exception e) {
+											throw new IllegalArgumentException(
+													"Illegal compare values");
+										}
+									}
+
+								});
+
+						int start = 0, matchCount = 0;
+						for (ROW leftRow : leftRows) {
+							for (int i = start; i < rightRows.size(); i++) {
+								boolean match = join(leftKey, rightKey,
+										leftField, rightField, leftRow,
+										rightRows.get(i), fk, rk, lf, rf);
+								if (match) {
+									start = i;
+									matchCount++;
+									break;
+								}
 							}
 						}
+						LOG.info("ETL: Joined rows: " + matchCount);
 					} else {
-						join(this, table, join.withRule().newInstance());
+						join(leftRows, rightRows, join.withRule().newInstance());
 					}
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
+			LOG.info("ETL: Join time: "
+					+ (System.currentTimeMillis() - startTime));
 		}
 	}
 
-	protected final <LT extends ROW, RT extends TableRow<?>> void join(
+	@SuppressWarnings("unchecked")
+	protected final <RT extends TableRow<?>, JR extends JoinRule> void join(
+			List<ROW> leftRows, List<RT> rightRows, JR rule) {
+		rule.sort(leftRows, rightRows);
+
+		int start = 0, matchCount = 0;
+		for (ROW leftJoinedRow : leftRows) {
+			for (int i = start; i < rightRows.size(); i++) {
+				if (rule.join(leftJoinedRow, rightRows.get(i))) {
+					start = i;
+					matchCount++;
+					break;
+				}
+			}
+		}
+		LOG.info("ETL: Joined rows: " + matchCount);
+	}
+
+	protected final <LT extends ROW, RT extends TableRow<?>> boolean join(
 			String leftKey, String rightKey, String leftField,
-			String rightField, LT left, RT right) throws Exception {
-		Field fk = left.getClass().getField(leftKey);
-		Field rk = right.getClass().getField(rightKey);
-		Field lf = left.getClass().getField(leftField);
-		Field rf = right.getClass().getField(rightField);
-		if (fk.getInt(left) == rk.getInt(right)) {
-			lf.set(left, rf.get(right));
+			String rightField, LT left, RT right, Field fk, Field rk, Field lf,
+			Field rf) throws Exception {
+		Integer fkInt = (Integer) fk.get(left);
+		Integer rkInt = (Integer) rk.get(right);
+		if (fkInt == null || rkInt == null) {
+			return true;
 		}
+		if (fkInt.equals(rkInt)) {
+			lf.set(left, rf.get(right));
+			return true;
+		}
+		return false;
 	}
 
-	protected final <LT extends BaseTable<ROW>, RT extends BaseTable<?>, JR extends JoinRule> void join(
-			LT left, RT right, JR rule) {
-		for (TableRow<?> rightRow : right.getCache().values()) {
-			left.getCache()
-					.values()
-					.forEach(
-							leftJoinedRow -> rule.join(leftJoinedRow, rightRow));
+	public void joinTables(BaseTable<? extends TableRow<?>>... tables) {
+		ArrayList<BaseTable<? extends TableRow<?>>> orderedJoinTables = new ArrayList<>();
+		Join[] joins = getClass().getAnnotationsByType(Join.class);
+
+		for (Join join : joins) {
+			BaseTable<? extends TableRow<?>> baseTable = getJoinTable(tables,
+					join.value());
+			if (baseTable != null) {
+				orderedJoinTables.add(baseTable);
+			} else {
+				LOG.warning("Unable to find table specified in join: "
+						+ join.value().getName());
+			}
+		}
+		
+		LOG.info("Found tables to join: count = " + orderedJoinTables.size());
+		for (BaseTable<? extends TableRow<?>> table : orderedJoinTables) {
+			join(table);
 		}
 	}
 
 	protected final <T> T parseField(int field, Row row,
 			FieldParser<T> fieldParser) {
-		return fieldParser.parse(field, row);
+		try {
+			return fieldParser.parse(field, row);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	protected final <T> T parseField(String fieldValue,
+			FieldParser<T> fieldParser) {
+		try {
+			return fieldParser.parse(fieldValue);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	protected abstract ROW process(Row row) throws IOException;
@@ -217,12 +373,13 @@ public abstract class BaseTable<ROW extends TableRow<?>> {
 	}
 
 	private void setCacheSize(int size) {
-		cache = new HashMap<Integer, ROW>(size);
+		rowCache = new HashMap<Integer, ROW>(size);
 	}
 
 	public final void tranform() {
-		if (cache != null) {
-			cache.values().forEach(r -> transform(r));
+		if (rowCache != null) {
+			LOG.info("Beginning tranform on rows: count = " + rowCache.size());
+			rowCache.values().forEach(r -> transform(r));
 		}
 	}
 

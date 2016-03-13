@@ -23,12 +23,12 @@ import org.comicwiki.rdf.annotations.Subject;
 @Subject(value = "http://schema.org/CreativeWorkSeries", key= "name")
 public class CreativeWorkSeries extends CreativeWork {
 
-	@Predicate("startDate")
-	@ObjectIRI
-	public IRI startDate;
-	
 	@Predicate("endDate")
 	@ObjectIRI
 	public IRI endDate;
+	
+	@Predicate("startDate")
+	@ObjectIRI
+	public IRI startDate;
 	
 }

@@ -34,7 +34,7 @@ public class SeriesTableTest extends TableTestCase<SeriesTable> {
 				null, null, null, null, null, null, null, null, null, null,
 				null, null, null, null, null);
 		table.process(row);
-		assertEquals(0, table.cache.size());
+		assertEquals(0, table.rowCache.size());
 	}
 
 	@Test
@@ -54,7 +54,7 @@ public class SeriesTableTest extends TableTestCase<SeriesTable> {
 				null, null, null, null, null, null, null, null, null, null,
 				null, null, null, null, null, null);
 		SeriesRow seriesRow = table.process(row);
-		assertEquals(1, table.cache.size());
+		assertEquals(1, table.rowCache.size());
 		assertTrue(seriesRow.publicationDate.equals(result));
 		;
 	}
@@ -65,11 +65,11 @@ public class SeriesTableTest extends TableTestCase<SeriesTable> {
 		SeriesTable table = createTable(thingFactory);
 
 		Row row = RowFactory.create(1, null, null, null, null, null, null,
-				null, null, null, null, null, null, null, null, null, null,
+				null, null, null, null, null, null, null, null, null, 
 				"squarebound (#1-14); saddle-stitched (#15-46)", null, null,
 				null, null);
 		SeriesRow seriesRow = table.process(row);
-		assertEquals(1, table.cache.size());
+		assertEquals(1, table.rowCache.size());
 		assertTrue(seriesRow.binding.contains("squarebound (#1-14)"));
 		assertTrue(seriesRow.binding.contains("saddle-stitched (#15-46)"));
 	}
@@ -87,7 +87,7 @@ public class SeriesTableTest extends TableTestCase<SeriesTable> {
 		, null, null, null, null, null, null, null, null, null, null, null,
 				null, null, null);
 		SeriesRow seriesRow = seriesTable.process(row);
-		seriesTable.join(countryTable);
+		seriesTable.joinTables(countryTable);
 
 		assertNotNull(seriesRow.country);
 		assertEquals("United States", seriesRow.country.name);
@@ -109,7 +109,7 @@ public class SeriesTableTest extends TableTestCase<SeriesTable> {
 				"Standard Modern Age US", null, null, null, null, null, null,
 				null);
 		SeriesRow seriesRow = table.process(row);
-		assertEquals(1, table.cache.size());
+		assertEquals(1, table.rowCache.size());
 		assertTrue(seriesRow.dimensions.contains("Standard Modern Age US"));
 	}
 
@@ -127,7 +127,7 @@ public class SeriesTableTest extends TableTestCase<SeriesTable> {
 				null, null, null, null);
 
 		SeriesRow seriesRow = table.process(row);
-		table.join(new BaseTable[] { pubTable });
+		table.joinTables(new BaseTable[] { pubTable });
 
 		assertNotNull(seriesRow.publisher);
 		assertEquals("Marvel Comics", seriesRow.publisher.name);
@@ -147,7 +147,7 @@ public class SeriesTableTest extends TableTestCase<SeriesTable> {
 				, null, null, null, null, null, null, null, null, null, null,
 				null, null, null);
 		SeriesRow seriesRow = seriesTable.process(row);
-		seriesTable.join(languageTable);
+		seriesTable.joinTables(languageTable);
 
 		assertNotNull(seriesRow.language);
 		assertEquals("English", seriesRow.language.name);
@@ -160,11 +160,11 @@ public class SeriesTableTest extends TableTestCase<SeriesTable> {
 		SeriesTable table = createTable(thingFactory);
 
 		Row row = RowFactory.create(1, null, null, null, null, null, null,
-				null, null, null, null, null, null, null, null, null,
+				null, null, null, null, null, null, null, null,
 				"Glossy cover; Newsprint interior", null, null, null, null,
 				null);
 		SeriesRow seriesRow = table.process(row);
-		assertEquals(1, table.cache.size());
+		assertEquals(1, table.rowCache.size());
 		assertTrue(seriesRow.paperStock.contains("Glossy cover"));
 		assertTrue(seriesRow.paperStock.contains("Newsprint interior"));
 	}
@@ -187,7 +187,7 @@ public class SeriesTableTest extends TableTestCase<SeriesTable> {
 		, null, null, null, null, null, null, null, null, null, null, null,
 				null, null, null);
 		SeriesRow seriesRow = seriesTable.process(row);
-		seriesTable.join(countryTable);
+		seriesTable.joinTables(countryTable);
 		seriesTable.tranform();
 
 		assertNotNull(seriesRow.instance.locationCreated);
@@ -247,7 +247,7 @@ public class SeriesTableTest extends TableTestCase<SeriesTable> {
 		ThingFactory thingFactory = createThingFactory();
 		SeriesTable table = createTable(thingFactory);
 		Row row = RowFactory.create(1, null, null, null, null, null, null,
-				null, null, null, null, null, null, null, null, null, null,
+				null, null, null, null, null, null, null, null, null, 
 				null, "Limited Series", null, null, null);
 		SeriesRow seriesRow = table.process(row);
 		table.tranform();
@@ -269,7 +269,7 @@ public class SeriesTableTest extends TableTestCase<SeriesTable> {
 				, null, null, null, null, null, null, null, null, null, null,
 				null, null, null);
 		SeriesRow seriesRow = seriesTable.process(row);
-		seriesTable.join(languageTable);
+		seriesTable.joinTables(languageTable);
 		seriesTable.tranform();
 
 		assertNotNull(seriesRow.instance.inLanguage);
@@ -295,7 +295,7 @@ public class SeriesTableTest extends TableTestCase<SeriesTable> {
 				null, null, null, null);
 
 		SeriesRow seriesRow = table.process(row);
-		table.join(new BaseTable[] { pubTable });
+		table.joinTables(new BaseTable[] { pubTable });
 		table.tranform();
 
 		assertNotNull(seriesRow.instance.publishers);

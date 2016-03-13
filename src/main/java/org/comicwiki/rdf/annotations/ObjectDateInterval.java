@@ -15,12 +15,14 @@
  *******************************************************************************/
 package org.comicwiki.rdf.annotations;
 
+import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 import org.comicwiki.rdf.NodeType;
 
 @Retention(RetentionPolicy.RUNTIME)
+@Inherited
 public @interface ObjectDateInterval {
 	
 	NodeType type() default NodeType.literal;

@@ -1,4 +1,4 @@
-package org.comicwiki.gcd;
+package org.comicwiki.gcd.fields;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

@@ -9,8 +9,8 @@ public class ThingFactoryTest {
 
 	@Test
 	public void testCreateHasInstanceId() {
-		ThingCache thingCache = new ThingCache(new Repositories(),
-				new IRICache(), new ResourceIDCache());
+		ThingCache thingCache = new ThingCache(new Repositories(
+				new PersonNameMatcher()), new IRICache(), new ResourceIDCache());
 		ComicCharacter thing = new ThingFactory(thingCache)
 				.create(ComicCharacter.class);
 		assertNotNull(thing.instanceId);

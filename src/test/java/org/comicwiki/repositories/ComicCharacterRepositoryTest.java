@@ -27,24 +27,24 @@ public class ComicCharacterRepositoryTest {
 
 	@After
 	public void clean() {
-		new Repositories().COMIC_CHARACTERS.clear();
+		new Repositories(new PersonNameMatcher()).COMIC_CHARACTERS.clear();
 	}
 
 	@Test
 	public void testMergeCollectionField() throws Exception {
 
 		ComicCharacter c1 = new ComicCharacter();
-		c1.alternateNames.add("A1");
+		c1.addAlternateName("A1");
 		ComicCharacter c2 = new ComicCharacter();
-		c2.alternateNames.add("A2");
+		c2.addAlternateName("A2");
 
-		Repositories repositories = new Repositories();
+		Repositories repositories = new Repositories(new PersonNameMatcher());
 		repositories.COMIC_CHARACTERS.merge(c1, c2);
 		assertEquals(2, c2.alternateNames.size());
 		assertTrue(c2.alternateNames.contains("A1"));
 		assertTrue(c2.alternateNames.contains("A2"));
 
-		new Repositories().COMIC_CHARACTERS.save(System.out,
+		new Repositories(new PersonNameMatcher()).COMIC_CHARACTERS.save(System.out,
 				DataFormat.N_TRIPLES);
 	}
 
@@ -53,10 +53,10 @@ public class ComicCharacterRepositoryTest {
 
 		ComicCharacter c1 = new ComicCharacter();
 		c1.creativeWork = new ComicCreativeWork();
-		c1.creativeWork.publishers.add(IRI.create("pub1", new IRICache()));
+		c1.creativeWork.addPublisher(IRI.create("pub1", new IRICache()));
 		ComicCharacter c2 = new ComicCharacter();
 
-		Repositories repositories = new Repositories();
+		Repositories repositories = new Repositories(new PersonNameMatcher());
 		repositories.COMIC_CHARACTERS.merge(c1, c2);
 		assertEquals(IRI.create("pub1", new IRICache()),
 				c2.creativeWork.publishers.iterator().next());
@@ -67,12 +67,12 @@ public class ComicCharacterRepositoryTest {
 
 		ComicCharacter c1 = new ComicCharacter();
 		c1.creativeWork = new ComicCreativeWork();
-		c1.creativeWork.artists.add(IRI.create("ART1", new IRICache()));
+		c1.creativeWork.addArtist(IRI.create("ART1", new IRICache()));
 
 		ComicCharacter c2 = new ComicCharacter();
-		c2.creativeWork.artists.add(IRI.create("ART2", new IRICache()));
+		c2.creativeWork.addArtist(IRI.create("ART2", new IRICache()));
 
-		Repositories repositories = new Repositories();
+		Repositories repositories = new Repositories(new PersonNameMatcher());
 		repositories.COMIC_CHARACTERS.merge(c1, c2);
 		assertEquals(2, c2.creativeWork.artists.size());
 		assertTrue(c2.creativeWork.artists.contains(IRI.create("ART2",
@@ -84,11 +84,11 @@ public class ComicCharacterRepositoryTest {
 
 		ComicCharacter c1 = new ComicCharacter();
 		c1.creativeWork = new ComicCreativeWork();
-		c1.creativeWork.publishers.add(IRI.create("pub1", new IRICache()));
+		c1.creativeWork.addPublisher(IRI.create("pub1", new IRICache()));
 		ComicCharacter c2 = new ComicCharacter();
-		c2.creativeWork.publishers.add(IRI.create("pub2", new IRICache()));
+		c2.creativeWork.addPublisher(IRI.create("pub2", new IRICache()));
 
-		Repositories repositories = new Repositories();
+		Repositories repositories = new Repositories(new PersonNameMatcher());
 		repositories.COMIC_CHARACTERS.merge(c1, c2);
 		c2.creativeWork.publishers.contains(IRI.create("pub2", new IRICache()));
 		System.out.println(JsonUtils.toPrettyString(c2));
@@ -99,13 +99,13 @@ public class ComicCharacterRepositoryTest {
 
 		ComicCharacter c1 = new ComicCharacter();
 		c1.name = "X1";
-		c1.alternateNames.add("A1");
+		c1.addAlternateName("A1");
 
 		ComicCharacter c2 = new ComicCharacter();
 		c2.name = "X2";
-		c2.alternateNames.add("A2");
+		c2.addAlternateName("A2");
 
-		Repositories repositories = new Repositories();
+		Repositories repositories = new Repositories(new PersonNameMatcher());
 		repositories.COMIC_CHARACTERS.add(c1);
 		repositories.COMIC_CHARACTERS.add(c2);
 		repositories.COMIC_CHARACTERS.save(System.out, DataFormat.JSON);
@@ -133,7 +133,7 @@ public class ComicCharacterRepositoryTest {
 	public void maleFirstNameOnly() throws Exception {
 		ComicCharacter c1 = new ComicCharacter();
 		c1.name = "Vaden";
-		Repositories repositories = new Repositories();
+		Repositories repositories = new Repositories(new PersonNameMatcher());
 		repositories.COMIC_CHARACTERS.add(c1);
 		ComicCharacterTransform t = new ComicCharacterTransform(namesImporter,
 				repositories);
@@ -147,7 +147,7 @@ public class ComicCharacterRepositoryTest {
 	public void maleFirstNameWithMalePrefix() throws Exception {
 		ComicCharacter c1 = new ComicCharacter();
 		c1.name = "Mr. Vaden";
-		Repositories repositories = new Repositories();
+		Repositories repositories = new Repositories(new PersonNameMatcher());
 		repositories.COMIC_CHARACTERS.add(c1);
 		ComicCharacterTransform t = new ComicCharacterTransform(namesImporter,
 				repositories);
@@ -161,7 +161,7 @@ public class ComicCharacterRepositoryTest {
 	public void femaleFirstNameOnly() throws Exception {
 		ComicCharacter c1 = new ComicCharacter();
 		c1.name = "Alice";
-		Repositories repositories = new Repositories();
+		Repositories repositories = new Repositories(new PersonNameMatcher());
 		repositories.COMIC_CHARACTERS.add(c1);
 		ComicCharacterTransform t = new ComicCharacterTransform(namesImporter,
 				repositories);
@@ -175,7 +175,7 @@ public class ComicCharacterRepositoryTest {
 	public void lastNameOnly() throws Exception {
 		ComicCharacter c1 = new ComicCharacter();
 		c1.name = "Smith";
-		Repositories repositories = new Repositories();
+		Repositories repositories = new Repositories(new PersonNameMatcher());
 		repositories.COMIC_CHARACTERS.add(c1);
 		ComicCharacterTransform t = new ComicCharacterTransform(namesImporter,
 				repositories);
@@ -188,7 +188,7 @@ public class ComicCharacterRepositoryTest {
 	public void lastNameWithSuffix() throws Exception {
 		ComicCharacter c1 = new ComicCharacter();
 		c1.name = "Smith Esq.";
-		Repositories repositories = new Repositories();
+		Repositories repositories = new Repositories(new PersonNameMatcher());
 		repositories.COMIC_CHARACTERS.add(c1);
 		ComicCharacterTransform t = new ComicCharacterTransform(namesImporter,
 				repositories);
@@ -201,7 +201,7 @@ public class ComicCharacterRepositoryTest {
 	public void femaleFirstNameWithPrefix() throws Exception {
 		ComicCharacter c1 = new ComicCharacter();
 		c1.name = "Ms. Alice";
-		Repositories repositories = new Repositories();
+		Repositories repositories = new Repositories(new PersonNameMatcher());
 		repositories.COMIC_CHARACTERS.add(c1);
 		ComicCharacterTransform t = new ComicCharacterTransform(namesImporter,
 				repositories);
@@ -216,7 +216,7 @@ public class ComicCharacterRepositoryTest {
 	public void femaleFullNameWithPrefix() throws Exception {
 		ComicCharacter c1 = new ComicCharacter();
 		c1.name = "Ms. Alice Smith";
-		Repositories repositories = new Repositories();
+		Repositories repositories = new Repositories(new PersonNameMatcher());
 		repositories.COMIC_CHARACTERS.add(c1);
 		ComicCharacterTransform t = new ComicCharacterTransform(namesImporter,
 				repositories);
@@ -231,7 +231,7 @@ public class ComicCharacterRepositoryTest {
 	public void maleFullNameWithPrefix() throws Exception {
 		ComicCharacter c1 = new ComicCharacter();
 		c1.name = "Mr. Jim Smith";
-		Repositories repositories = new Repositories();
+		Repositories repositories = new Repositories(new PersonNameMatcher());
 		repositories.COMIC_CHARACTERS.add(c1);
 		ComicCharacterTransform t = new ComicCharacterTransform(namesImporter,
 				repositories);
@@ -246,7 +246,7 @@ public class ComicCharacterRepositoryTest {
 	public void maleFullNameWithFemalePrefix() throws Exception {
 		ComicCharacter c1 = new ComicCharacter();
 		c1.name = "Ms. Jim Smith";
-		Repositories repositories = new Repositories();
+		Repositories repositories = new Repositories(new PersonNameMatcher());
 		repositories.COMIC_CHARACTERS.add(c1);
 		ComicCharacterTransform t = new ComicCharacterTransform(namesImporter,
 				repositories);
@@ -261,7 +261,7 @@ public class ComicCharacterRepositoryTest {
 	public void fullMaleNameWithNoPrefix() throws Exception {
 		ComicCharacter c1 = new ComicCharacter();
 		c1.name = "Jim Smith";
-		Repositories repositories = new Repositories();
+		Repositories repositories = new Repositories(new PersonNameMatcher());
 		repositories.COMIC_CHARACTERS.add(c1);
 		ComicCharacterTransform t = new ComicCharacterTransform(namesImporter,
 				repositories);
@@ -277,7 +277,7 @@ public class ComicCharacterRepositoryTest {
 	public void fullMaleNameWithNoPrefixAndMiddleInitial() throws Exception {
 		ComicCharacter c1 = new ComicCharacter();
 		c1.name = "Jim T. Smith";
-		Repositories repositories = new Repositories();
+		Repositories repositories = new Repositories(new PersonNameMatcher());
 		repositories.COMIC_CHARACTERS.add(c1);
 		ComicCharacterTransform t = new ComicCharacterTransform(namesImporter,
 				repositories);
@@ -293,7 +293,7 @@ public class ComicCharacterRepositoryTest {
 	public void fullNameWithNoPrefixAndMiddleInitial() throws Exception {
 		ComicCharacter c1 = new ComicCharacter();
 		c1.name = "Foo T. Smith";
-		Repositories repositories = new Repositories();
+		Repositories repositories = new Repositories(new PersonNameMatcher());
 		repositories.COMIC_CHARACTERS.add(c1);
 		ComicCharacterTransform t = new ComicCharacterTransform(namesImporter,
 				repositories);
@@ -308,7 +308,7 @@ public class ComicCharacterRepositoryTest {
 	public void fullMaleNameWithNoPrefixAndMiddleName() throws Exception {
 		ComicCharacter c1 = new ComicCharacter();
 		c1.name = "Jim Tiberius Smith";
-		Repositories repositories = new Repositories();
+		Repositories repositories = new Repositories(new PersonNameMatcher());
 		repositories.COMIC_CHARACTERS.add(c1);
 		ComicCharacterTransform t = new ComicCharacterTransform(namesImporter,
 				repositories);
@@ -324,7 +324,7 @@ public class ComicCharacterRepositoryTest {
 	public void fullFemaleNameWithNoPrefixAndFirstInitialAndMiddleName() throws Exception {
 		ComicCharacter c1 = new ComicCharacter();
 		c1.name = "B. Alice Smith";
-		Repositories repositories = new Repositories();
+		Repositories repositories = new Repositories(new PersonNameMatcher());
 		repositories.COMIC_CHARACTERS.add(c1);
 		ComicCharacterTransform t = new ComicCharacterTransform(namesImporter,
 				repositories);
@@ -340,7 +340,7 @@ public class ComicCharacterRepositoryTest {
 	public void fullMaleNameWithNoPrefixAndFirstInitialAndMiddleName() throws Exception {
 		ComicCharacter c1 = new ComicCharacter();
 		c1.name = "J. Jim Smith";
-		Repositories repositories = new Repositories();
+		Repositories repositories = new Repositories(new PersonNameMatcher());
 		repositories.COMIC_CHARACTERS.add(c1);
 		ComicCharacterTransform t = new ComicCharacterTransform(namesImporter,
 				repositories);
@@ -356,7 +356,7 @@ public class ComicCharacterRepositoryTest {
 	public void fullFemaleNameWithNoPrefixAndMiddleInitial() throws Exception {
 		ComicCharacter c1 = new ComicCharacter();
 		c1.name = "Alice J. Smith";
-		Repositories repositories = new Repositories();
+		Repositories repositories = new Repositories(new PersonNameMatcher());
 		repositories.COMIC_CHARACTERS.add(c1);
 		ComicCharacterTransform t = new ComicCharacterTransform(namesImporter,
 				repositories);
@@ -372,7 +372,7 @@ public class ComicCharacterRepositoryTest {
 	public void fullFemaleNameWithNoPrefixAndMiddleName() throws Exception {
 		ComicCharacter c1 = new ComicCharacter();
 		c1.name = "Alice Janice Smith";
-		Repositories repositories = new Repositories();
+		Repositories repositories = new Repositories(new PersonNameMatcher());
 		repositories.COMIC_CHARACTERS.add(c1);
 		ComicCharacterTransform t = new ComicCharacterTransform(namesImporter,
 				repositories);
@@ -388,7 +388,7 @@ public class ComicCharacterRepositoryTest {
 	public void fullFemaleNameWithNoPrefix() throws Exception {
 		ComicCharacter c1 = new ComicCharacter();
 		c1.name = "Alice Smith";
-		Repositories repositories = new Repositories();
+		Repositories repositories = new Repositories(new PersonNameMatcher());
 		repositories.COMIC_CHARACTERS.add(c1);
 		ComicCharacterTransform t = new ComicCharacterTransform(namesImporter,
 				repositories);
@@ -407,7 +407,7 @@ public class ComicCharacterRepositoryTest {
 	public void femaleFullNameWithMalePrefix() throws Exception {
 		ComicCharacter c1 = new ComicCharacter();
 		c1.name = "Mr. Alice Smith";
-		Repositories repositories = new Repositories();
+		Repositories repositories = new Repositories(new PersonNameMatcher());
 		repositories.COMIC_CHARACTERS.add(c1);
 		ComicCharacterTransform t = new ComicCharacterTransform(namesImporter,
 				repositories);
@@ -422,7 +422,7 @@ public class ComicCharacterRepositoryTest {
 	public void testHonorific() throws Exception {
 		ComicCharacter c1 = new ComicCharacter();
 		c1.name = "Mr. Evarts";
-		Repositories repositories = new Repositories();
+		Repositories repositories = new Repositories(new PersonNameMatcher());
 		repositories.COMIC_CHARACTERS.add(c1);
 		ComicCharacterTransform t = new ComicCharacterTransform(namesImporter,
 				repositories);
@@ -430,7 +430,7 @@ public class ComicCharacterRepositoryTest {
 
 		assertEquals("Evarts", c1.familyName);
 		assertEquals("Mr", c1.honorificPrefix);
-		new Repositories().COMIC_CHARACTERS.print();
+		new Repositories(new PersonNameMatcher()).COMIC_CHARACTERS.print();
 	}
 
 	@Test
@@ -438,7 +438,7 @@ public class ComicCharacterRepositoryTest {
 
 		ComicCharacter c1 = new ComicCharacter();
 		c1.name = "Mr. Mike Evarts";
-		Repositories repositories = new Repositories();
+		Repositories repositories = new Repositories(new PersonNameMatcher());
 		repositories.COMIC_CHARACTERS.add(c1);
 		ComicCharacterTransform t = new ComicCharacterTransform(namesImporter,
 				repositories);
@@ -447,7 +447,7 @@ public class ComicCharacterRepositoryTest {
 		assertEquals("Mike", c1.givenName);
 		assertEquals("Evarts", c1.familyName);
 		assertEquals("Mr", c1.honorificPrefix);
-		new Repositories().COMIC_CHARACTERS.print();
+		new Repositories(new PersonNameMatcher()).COMIC_CHARACTERS.print();
 	}
 
 	@Test
@@ -455,7 +455,7 @@ public class ComicCharacterRepositoryTest {
 
 		ComicCharacter c1 = new ComicCharacter();
 		c1.name = "Captain Jim";
-		Repositories repositories = new Repositories();
+		Repositories repositories = new Repositories(new PersonNameMatcher());
 		repositories.COMIC_CHARACTERS.add(c1);
 		ComicCharacterTransform t = new ComicCharacterTransform(namesImporter,
 				repositories);
@@ -472,7 +472,7 @@ public class ComicCharacterRepositoryTest {
 
 		ComicCharacter c1 = new ComicCharacter();
 		c1.name = "Captain X";
-		Repositories repositories = new Repositories();
+		Repositories repositories = new Repositories(new PersonNameMatcher());
 		repositories.COMIC_CHARACTERS.add(c1);
 		ComicCharacterTransform t = new ComicCharacterTransform(namesImporter,
 				repositories);
@@ -487,7 +487,7 @@ public class ComicCharacterRepositoryTest {
 
 		ComicCharacter c1 = new ComicCharacter();
 		c1.name = "Captain Smith";
-		Repositories repositories = new Repositories();
+		Repositories repositories = new Repositories(new PersonNameMatcher());
 		repositories.COMIC_CHARACTERS.add(c1);
 		ComicCharacterTransform t = new ComicCharacterTransform(namesImporter,
 				repositories);
@@ -504,7 +504,7 @@ public class ComicCharacterRepositoryTest {
 
 		ComicCharacter c1 = new ComicCharacter();
 		c1.name = "Captain Debra";
-		Repositories repositories = new Repositories();
+		Repositories repositories = new Repositories(new PersonNameMatcher());
 		repositories.COMIC_CHARACTERS.add(c1);
 		ComicCharacterTransform t = new ComicCharacterTransform(namesImporter,
 				repositories);
@@ -522,7 +522,7 @@ public class ComicCharacterRepositoryTest {
 
 		ComicCharacter c1 = new ComicCharacter();
 		c1.name = "Captain 423";
-		Repositories repositories = new Repositories();
+		Repositories repositories = new Repositories(new PersonNameMatcher());
 		repositories.COMIC_CHARACTERS.add(c1);
 
 		ComicCharacterTransform t = new ComicCharacterTransform(namesImporter,

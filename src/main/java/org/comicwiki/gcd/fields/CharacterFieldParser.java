@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.comicwiki.gcd.fields;
 
-import static org.comicwiki.gcd.CharacterFieldCleaner.cleanAll;
+import static org.comicwiki.gcd.fields.CharacterFieldCleaner.cleanAll;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -26,10 +26,10 @@ import org.antlr.v4.runtime.BailErrorStrategy;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.spark.sql.Row;
+import org.comicwiki.FieldParser;
 import org.comicwiki.IRI;
+import org.comicwiki.OrgLookupService;
 import org.comicwiki.ThingFactory;
-import org.comicwiki.gcd.FieldParser;
-import org.comicwiki.gcd.OrgLookupService;
 import org.comicwiki.gcd.parser.CharacterFieldLexer;
 import org.comicwiki.gcd.parser.CharacterFieldParser.CharactersContext;
 import org.comicwiki.gcd.parser.CharacterFieldParser.OrganizationContext;
@@ -38,7 +38,9 @@ import org.comicwiki.gcd.parser.CharacterFieldParser.RootContext;
 import org.comicwiki.gcd.tables.StoryTable;
 import org.comicwiki.model.ComicCharacter;
 import org.comicwiki.model.ComicOrganization;
-import org.comicwiki.model.StoryNote;
+import org.comicwiki.model.notes.ComicCharacterNote;
+import org.comicwiki.model.notes.ComicOrganizationNote;
+import org.comicwiki.model.notes.StoryNote;
 import org.comicwiki.model.schema.bib.ComicStory;
 import org.comicwiki.relations.ComicCharactersAssigner;
 import org.comicwiki.relations.ComicOrganizationAssigner;
@@ -53,22 +55,24 @@ public final class CharacterFieldParser implements
 			boolean failOnError) {
 		CharacterFieldLexer lexer = new CharacterFieldLexer(
 				new ANTLRInputStream(textField));
+		 lexer.removeErrorListeners();
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
 		org.comicwiki.gcd.parser.CharacterFieldParser parser = new org.comicwiki.gcd.parser.CharacterFieldParser(
 				tokens);
+		 parser.removeErrorListeners();
 		if (failOnError) {
-			parser.setErrorHandler(new BailErrorStrategy());
+			//parser.setErrorHandler(new BailErrorStrategy());
 		}
 		return parser.root();
 	}
 
-	private final StoryTable.Fields.Character characterFields = new StoryTable.Fields.Character();
+	private StoryTable.Fields.Character characterFields;
 
 	private final HashMap<String, ComicCharacter> charactersCache = new HashMap<>();
 
 	private final OrgLookupService comicOrganizationsLookup;
 
-	private final ComicStory comicStory;
+	private ComicStory comicStory;
 
 	private boolean failOnError = true;
 
@@ -77,44 +81,55 @@ public final class CharacterFieldParser implements
 	private final ThingFactory thingFactory;
 
 	protected CharacterFieldParser(ThingFactory thingFactory,
-			OrgLookupService comicOrganizations, ComicStory comicStory) {
+			OrgLookupService comicOrganizations) {
 		this.thingFactory = thingFactory;
-		this.comicStory = comicStory;
 		this.comicOrganizationsLookup = comicOrganizations;
+	}
+
+	public void clear() {
+		comicStory = null;
+		characterFields = null;
+		organizationsCache.clear();
+		charactersCache.clear();
+	}
+
+	protected void setStory(ComicStory comicStory) {
+		this.comicStory = comicStory;
+		characterFields = new StoryTable.Fields.Character();
 	}
 
 	private StoryNote addStoryNote(String note, ComicCharacter character,
 			ComicStory story) {
-		StoryNote storyNote = thingFactory.create(StoryNote.class);
+		ComicCharacterNote storyNote = thingFactory
+				.create(ComicCharacterNote.class);
 		storyNote.story = story.instanceId;
 		storyNote.comicCharacter = character.instanceId;
 		storyNote.note.add(note);
-		story.characterNote.add(storyNote.instanceId);
+		story.addStoryNote(storyNote.instanceId);
 		return storyNote;
 	}
 
 	private StoryNote addStoryNote(String note, ComicOrganization org,
 			ComicStory story) {
-		StoryNote storyNote = thingFactory.create(StoryNote.class);
+		ComicOrganizationNote storyNote = thingFactory
+				.create(ComicOrganizationNote.class);
 		storyNote.story = story.instanceId;
 		storyNote.comicOrganization = org.instanceId;
 		storyNote.note.add(note);
-		story.characterNote.add(storyNote.instanceId);
+		story.addStoryNote(storyNote.instanceId);
 		return storyNote;
 	}
 
 	private void assignColleagues() {
 		for (ComicOrganization comicOrganization : organizationsCache.values()) {
 			Collection<ComicCharacter> team = new HashSet<>();
-			//System.out.println(charactersCache.keySet());
 			for (IRI member : comicOrganization.members) {
 				ComicCharacter cc = getCharacter(member);
 				if (cc == null) {
-					//System.out.println("NULL CHARACTER: " + member);
+
 				} else {
 					team.add(cc);
 				}
-
 			}
 			if (!team.isEmpty()) {
 				ComicCharactersAssigner charAssigner = new ComicCharactersAssigner(
@@ -156,8 +171,8 @@ public final class CharacterFieldParser implements
 
 		for (String name : aliases) {
 			ComicCharacter aliasCharacter = createComicCharacter(name);
-			character.identities.add(aliasCharacter.instanceId);
-			aliasCharacter.identities.add(character.instanceId);
+			character.addIdentity(aliasCharacter.instanceId);
+			aliasCharacter.addIdentity(character.instanceId);
 		}
 		return character;
 	}
@@ -174,8 +189,8 @@ public final class CharacterFieldParser implements
 		for (String name : members) {
 			ComicCharacter member = createComicCharacter(name);
 			organization.members.add(member.instanceId);
-			member.identities.add(organization.instanceId);
-			member.memberOf.add(organization.instanceId);
+			member.addIdentity(organization.instanceId);
+			member.addMemberOf(organization.instanceId);
 		}
 		return organization;
 	}
@@ -198,10 +213,10 @@ public final class CharacterFieldParser implements
 		if (row.isNullAt(field)) {
 			return null;
 		}
-		return parser(row.getString(field));
+		return parse(row.getString(field));
 	}
 
-	protected StoryTable.Fields.Character parser(String text) {
+	public StoryTable.Fields.Character parse(String text) {
 		if (Strings.isNullOrEmpty(text)) {
 			return characterFields;
 		}
@@ -209,16 +224,18 @@ public final class CharacterFieldParser implements
 		RootContext rootContext = getContextOf(cleanAll(text), failOnError);
 
 		for (CharactersContext charactersContext : rootContext.characters()) {
-
 			charactersContext.organizationOrCharacter().forEach(
 					e -> processOrganizationOrCharacter(e));
 		}
 
-		characterFields.comicCharacters = charactersCache.values();
-		characterFields.comicOrganizations = organizationsCache.values();
+		characterFields.comicCharacters = new HashSet<>(
+				charactersCache.values());
+		characterFields.comicOrganizations = new HashSet<>(
+				organizationsCache.values());
 
 		assignColleagues();
-
+		organizationsCache.clear();
+		charactersCache.clear();
 		return characterFields;
 	}
 
@@ -242,7 +259,8 @@ public final class CharacterFieldParser implements
 		Collection<String> localNotes = Lists.newArrayList();
 
 		if (oocContext.noteTypes() != null) {
-		//	System.out.println("NoteType:" + oocContext.noteTypes().getText());
+			// System.out.println("NoteType:" +
+			// oocContext.noteTypes().getText());
 			state.noteTypeState(oocContext.noteTypes().getText());
 		}
 		if (state.currentState == State.NOTE_TYPE_STATE) {
@@ -250,14 +268,14 @@ public final class CharacterFieldParser implements
 		}
 
 		if (oocContext.note() != null) {
-		//	System.out.println("Note:" + oocContext.note().getText());
+			// System.out.println("Note:" + oocContext.note().getText());
 			for (TerminalNode note : oocContext.note().WORD()) {
 				localNotes.add(note.getText());
 			}
 		}
 
-	//	System.out.println("OrganizationOrCharacter:");
-	//	System.out.println("---- " + oocContext.WORD());
+		// System.out.println("OrganizationOrCharacter:");
+		// System.out.println("---- " + oocContext.WORD());
 		if (oocContext.WORD() == null) {
 			return;
 		}
@@ -277,7 +295,7 @@ public final class CharacterFieldParser implements
 					if (orgCtx.WORD() != null) {
 						members.add(orgCtx.WORD().getText());
 					}
-					
+
 					processOrganizationOrCharacter(orgCtx);
 				}
 			}

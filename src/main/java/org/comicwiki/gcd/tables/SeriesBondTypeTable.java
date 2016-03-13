@@ -22,9 +22,12 @@ import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 import org.comicwiki.BaseTable;
 import org.comicwiki.TableRow;
+import org.comicwiki.model.ThingInItself;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
+@Singleton
 public class SeriesBondTypeTable extends
 		BaseTable<SeriesBondTypeTable.SeriesBondTypeRow> {
 	public static class Columns {
@@ -41,7 +44,7 @@ public class SeriesBondTypeTable extends
 		public static final int NOTES = 3;
 	}
 
-	public static class SeriesBondTypeRow extends TableRow {
+	public static class SeriesBondTypeRow extends TableRow<ThingInItself> {
 		public String description;
 
 		public String name;

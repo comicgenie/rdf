@@ -13,7 +13,7 @@ public class StoryTypeTableTest {
 		Row row = RowFactory.create(null, null);
 		StoryTypeTable table = new StoryTypeTable(null);
 		table.process(row);
-		assertEquals(0, table.cache.size());
+		assertEquals(0, table.rowCache.size());
 	}
 	
 	@Test
@@ -21,7 +21,7 @@ public class StoryTypeTableTest {
 		Row row = RowFactory.create(1, "credits");
 		StoryTypeTable table = new StoryTypeTable(null);
 		table.process(row);
-		assertEquals(1, table.cache.size());
-		assertEquals("credits", table.cache.get(1).name);
+		assertEquals(1, table.rowCache.size());
+		assertEquals("credits", table.rowCache.get(1).name);
 	}
 }

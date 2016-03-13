@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.HashSet;
 
 import org.comicwiki.IRICache;
+import org.comicwiki.PersonNameMatcher;
 import org.comicwiki.Repositories;
 import org.comicwiki.ResourceIDCache;
 import org.comicwiki.ThingCache;
@@ -25,7 +26,7 @@ import com.google.common.collect.Sets;
 
 public class ComicCreatorAssignerTest {
 
-	//private ComicCreatorAssigner assigner;
+	// private ComicCreatorAssigner assigner;
 	Collection<Person> colors = new HashSet<>();
 	Collection<Person> editors = new HashSet<>();
 	private ThingFactory factory;
@@ -40,18 +41,19 @@ public class ComicCreatorAssignerTest {
 	private Person p6Editor;
 	Collection<Person> pencils = new HashSet<>();
 	Collection<Person> script = new HashSet<>();
-	
+
 	private ComicCreatorAssigner assigner() {
 		return new ComicCreatorAssigner(colors, inks, letters, pencils, script,
 				editors);
 	}
+
 	@Test(expected = NullPointerException.class)
-	public void nullInstanceId() throws Exception {	
+	public void nullInstanceId() throws Exception {
 		colors.add(new Person());
 		new ComicCreatorAssigner(colors, inks, letters, pencils, script,
 				editors);
 	}
-	
+
 	@Test
 	public void character() throws Exception {
 		ComicCreatorAssigner assigner = assigner();
@@ -60,13 +62,14 @@ public class ComicCreatorAssignerTest {
 
 		assertTrue(comicCharacter.creativeWork.colorists
 				.contains(p1Colorist.instanceId));
-		assertTrue(comicCharacter.creativeWork.inkers.contains(p2Inker.instanceId));
+		assertTrue(comicCharacter.creativeWork.inkers
+				.contains(p2Inker.instanceId));
 	}
-	
+
 	@Test(expected = NullPointerException.class)
 	public void noCharacterInstanceId() throws Exception {
-		ComicCreatorAssigner assigner = new ComicCreatorAssigner(colors, inks, letters, pencils, script,
-				editors);
+		ComicCreatorAssigner assigner = new ComicCreatorAssigner(colors, inks,
+				letters, pencils, script, editors);
 		assigner.characters(Sets.newHashSet(new ComicCharacter()));
 	}
 
@@ -79,7 +82,7 @@ public class ComicCreatorAssignerTest {
 		assertTrue(p2Inker.colleagues.contains(p1Colorist.instanceId));
 		assertTrue(p3Letterer.colleagues.contains(p1Colorist.instanceId));
 		assertFalse(p3Letterer.colleagues.contains(p3Letterer.instanceId));
-		
+
 		assertEquals(5, p1Colorist.colleagues.size());
 		assertEquals(5, p2Inker.colleagues.size());
 		assertEquals(5, p3Letterer.colleagues.size());
@@ -92,7 +95,7 @@ public class ComicCreatorAssignerTest {
 	@Test
 	public void comicOrganization() throws Exception {
 		ComicCreatorAssigner assigner = assigner();
-		
+
 		ComicOrganization comicOrg = factory.create(ComicOrganization.class);
 		assigner.comicOrganizations(Sets.newHashSet(comicOrg));
 		assertTrue(p1Colorist.workedOn.contains(comicOrg.instanceId));
@@ -105,23 +108,24 @@ public class ComicCreatorAssignerTest {
 		assigner.jobTitles();
 		assertTrue(p1Colorist.jobTitle.contains(CreatorRole.colorist.name()));
 		assertTrue(p2Inker.jobTitle.contains(CreatorRole.inker.name()));
-		assertTrue(p3Letterer.jobTitle.contains(CreatorRole.letterist.name()));	
-		assertTrue(p4Penciler.jobTitle.contains(CreatorRole.penclier.name()));
+		assertTrue(p3Letterer.jobTitle.contains(CreatorRole.letterist.name()));
+		assertTrue(p4Penciler.jobTitle.contains(CreatorRole.penciller.name()));
 		assertTrue(p5Script.jobTitle.contains(CreatorRole.writer.name()));
 		assertTrue(p6Editor.jobTitle.contains(CreatorRole.editor.name()));
 	}
 
 	@Before
 	public void setUp() {
-		factory = new ThingFactory(new ThingCache(new Repositories(),
-				new IRICache(), new ResourceIDCache()));
+		factory = new ThingFactory(
+				new ThingCache(new Repositories(new PersonNameMatcher()),
+						new IRICache(), new ResourceIDCache()));
 		p1Colorist = factory.create(Person.class);
 		p2Inker = factory.create(Person.class);
 		p3Letterer = factory.create(Person.class);
 		p4Penciler = factory.create(Person.class);
 		p5Script = factory.create(Person.class);
 		p6Editor = factory.create(Person.class);
-		
+
 		colors.add(p1Colorist);
 		inks.add(p2Inker);
 		letters.add(p3Letterer);

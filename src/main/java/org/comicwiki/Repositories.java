@@ -24,21 +24,29 @@ public class Repositories {
 
 	private final HashMap<Class<? extends Thing>, Repository<? extends Thing>> sThingRepoMap = new HashMap<>();
 
-	public final Repository<ComicCharacter> COMIC_CHARACTERS = new Repository<>();
+	public final Repository<ComicCharacter> COMIC_CHARACTERS = new Repository<>(
+			ComicCharacter.class.getName());
 
-	public final Repository<Person> COMIC_CREATOR = new Repository<>();
+	public final Repository<Person> COMIC_CREATOR = new Repository<>(
+			Person.class.getName());
 
-	public final Repository<ComicIssue> COMIC_ISSUE = new Repository<>();
+	public final Repository<ComicIssue> COMIC_ISSUE = new Repository<>(
+			ComicIssue.class.getName());
 
-	public final Repository<ComicOrganization> COMIC_ORGANIZATIONS = new Repository<>();
+	public final Repository<ComicOrganization> COMIC_ORGANIZATIONS = new Repository<>(
+			ComicOrganization.class.getName());
 
-	public final Repository<ComicSeries> COMIC_SERIES = new Repository<>();
+	public final Repository<ComicSeries> COMIC_SERIES = new Repository<>(
+			ComicSeries.class.getName());
 
-	public final Repository<ComicStory> COMIC_STORIES = new Repository<>();
+	public final Repository<ComicStory> COMIC_STORIES = new Repository<>(
+			ComicStory.class.getName());
 
-	public final Repository<ComicUniverse> COMIC_UNIVERSE = new Repository<>();
+	public final Repository<ComicUniverse> COMIC_UNIVERSE = new Repository<>(
+			ComicUniverse.class.getName());
 
-	public final Repository<Country> COUNTRY = new Repository<>();
+	public final Repository<Country> COUNTRY = new Repository<>(
+			Country.class.getName());
 
 	public Collection<Repository<? extends Thing>> getRepositories() {
 		return sThingRepoMap.values();
@@ -49,7 +57,7 @@ public class Repositories {
 	}
 
 	@Inject
-	public Repositories() {
+	public Repositories(PersonNameMatcher namesImporter) {
 		sThingRepoMap.put(Person.class, COMIC_CREATOR);
 		sThingRepoMap.put(ComicIssue.class, COMIC_ISSUE);
 		sThingRepoMap.put(ComicOrganization.class, COMIC_ORGANIZATIONS);
@@ -57,18 +65,8 @@ public class Repositories {
 		sThingRepoMap.put(Country.class, COUNTRY);
 		sThingRepoMap.put(ComicCharacter.class, COMIC_CHARACTERS);
 		sThingRepoMap.put(ComicStory.class, COMIC_STORIES);
-
-		PersonNameMatcher namesImporter = new PersonNameMatcher();
-		try {
-			namesImporter.load(new File(
-					"./src/main/resources/names/yob2014.txt"));
-			namesImporter.loadLastNames(new File(
-					"./src/main/resources/names/lastname.txt"));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		COMIC_CHARACTERS
-				.addTransform(new ComicCharacterTransform(namesImporter, this));
+		COMIC_CHARACTERS.addTransform(new ComicCharacterTransform(
+				namesImporter, this));
 	}
 
 }

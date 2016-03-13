@@ -1,8 +1,9 @@
 package org.comicwiki.gcd.fields;
 
 import org.apache.spark.sql.Row;
+import org.comicwiki.FieldParser;
 import org.comicwiki.ThingFactory;
-import org.comicwiki.gcd.FieldParser;
+import org.comicwiki.model.ComicIssueNumber;
 import org.comicwiki.model.Instant;
 
 import com.google.common.base.Strings;
@@ -17,8 +18,12 @@ public class SaleDateFieldParser implements FieldParser<Instant> {
 	
 	@Override
 	public Instant parse(int field, Row row) {
+		return parse(row.getString(field));
+		
+	}
+	
+	public Instant parse(String date) {
 		Instant instant = thingFactory.create(Instant.class);
-		String date = row.getString(field);
 		instant.label = date;
 		try {
 			
@@ -33,6 +38,7 @@ public class SaleDateFieldParser implements FieldParser<Instant> {
 				instant.day = Integer.parseInt(tokens[2]);
 			}
 		} catch (NumberFormatException e) {
+			System.out.println(instant.label);
 			e.printStackTrace();
 		}
 		return instant;

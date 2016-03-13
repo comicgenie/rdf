@@ -5,7 +5,7 @@ import org.comicwiki.rdf.annotations.SchemaComicWiki;
 import org.comicwiki.rdf.annotations.Subject;
 
 @SchemaComicWiki
-@Subject(value = "ThingInItself", key = "name")
+@Subject(value = "ThingInItself", isBlankNode = true)
 public class ThingInItself extends Thing {
 
 }

@@ -1,27 +1,16 @@
-package org.comicwiki.model;
+package org.comicwiki.model.prices;
 
-
-import org.comicwiki.model.schema.Thing;
 import org.comicwiki.rdf.DataType;
-import org.comicwiki.rdf.annotations.ObjectString;
 import org.comicwiki.rdf.annotations.ObjectXSD;
 import org.comicwiki.rdf.annotations.Predicate;
 import org.comicwiki.rdf.annotations.SchemaComicWiki;
 import org.comicwiki.rdf.annotations.Subject;
 
 @SchemaComicWiki
-@Subject(value = "Price", isBlankNode=true)
-public class Price extends Thing {
+@Subject(value = "DecimalPrice", isBlankNode=true)
+public class DecimalPrice extends Price {
 
 	@Predicate("amount")
 	@ObjectXSD(DataType.XSD_DECIMAL)
 	public double amount;
-	
-	@Predicate("currency")
-	@ObjectString
-	public String currency;
-	
-	@Predicate("display")
-	@ObjectString
-	public String display;
 }

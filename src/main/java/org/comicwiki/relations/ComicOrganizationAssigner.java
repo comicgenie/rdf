@@ -45,7 +45,7 @@ public final class ComicOrganizationAssigner {
 				.forEach(cc -> {
 					checkNotNull(cc.instanceId, "ComicCharacter.instanceId: "
 							+ cc.name);
-					cc.memberOf.add(organization.instanceId);
+					cc.addMemberOf(organization.instanceId);
 					organization.members.add(cc.instanceId);
 				});
 	}
@@ -65,17 +65,13 @@ public final class ComicOrganizationAssigner {
 
 		creators = Stream.of(colors, inks, letters, pencils, script, editors)
 				.flatMap(Collection::stream);
-		creators.forEach(c -> c.workedOn.add(organization.instanceId));
-		colors.forEach(e -> organization.creativeWork.colorists
-				.add(e.instanceId));
-		inks.forEach(e -> organization.creativeWork.inkers.add(e.instanceId));
-		letters.forEach(e -> organization.creativeWork.letterers
-				.add(e.instanceId));
-		pencils.forEach(e -> organization.creativeWork.pencilers
-				.add(e.instanceId));
-		script.forEach(e -> organization.creativeWork.authors.add(e.instanceId));
-		editors.forEach(e -> organization.creativeWork.editors
-				.add(e.instanceId));
+		creators.forEach(c -> c.addWorkedOn(organization.instanceId));
+		colors.forEach(e -> organization.creativeWork.addColorist(e.instanceId));
+		inks.forEach(e -> organization.creativeWork.addInker(e.instanceId));
+		letters.forEach(e -> organization.creativeWork.addLetter(e.instanceId));
+		pencils.forEach(e -> organization.creativeWork.addPenciler(e.instanceId));
+		script.forEach(e -> organization.creativeWork.addAuthor(e.instanceId));
+		editors.forEach(e -> organization.creativeWork.addEditor(e.instanceId));
 
 	}
 
@@ -83,13 +79,13 @@ public final class ComicOrganizationAssigner {
 	 * ComicOrganization -> ComicStory.genres
 	 */
 	public void genres(Collection<Genre> genres) {
-		genres.forEach(g -> organization.creativeWork.genres.add(g.instanceId));
+		genres.forEach(g -> organization.creativeWork.addGenre(g.instanceId));
 	}
 
 	/**
 	 * ComicOrganization -> ComicStory
 	 */
 	public void story(ComicStory story) {
-		story.organizations.add(organization.instanceId);
+		story.addOrganization(organization.instanceId);
 	}
 }

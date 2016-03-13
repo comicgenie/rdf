@@ -20,8 +20,9 @@ import org.comicwiki.gcd.fields.PriceFieldParser;
 import org.comicwiki.gcd.tables.BrandTable.BrandRow;
 import org.comicwiki.gcd.tables.IssueReprintTable.IssueReprintRow;
 import org.comicwiki.gcd.tables.IssueTable.IssueRow;
-import org.comicwiki.model.Price;
-import org.comicwiki.model.ReprintNote;
+import org.comicwiki.model.notes.ReprintNote;
+import org.comicwiki.model.prices.DecimalPrice;
+import org.comicwiki.model.prices.Price;
 import org.comicwiki.model.schema.Brand;
 import org.comicwiki.model.schema.Organization;
 import org.comicwiki.model.schema.PublicationVolume;
@@ -55,7 +56,7 @@ public class IssueTableTest extends TableTestCase<IssueTable> {
 				null, null, null, null, null, null, null, null, null, null,
 				null, null);
 		IssueRow issueRow = table.process(row2);
-		table.join(new BaseTable[] { brandTable });
+		table.joinTables(new BaseTable[] { brandTable });
 		table.tranform();
 		assertEquals(1, issueRow.instance.brands.size());
 
@@ -68,7 +69,7 @@ public class IssueTableTest extends TableTestCase<IssueTable> {
 	public void price() throws Exception {
 		ThingFactory thingFactory = createThingFactory();
 
-		Price p1 = new Price();
+		DecimalPrice p1 = new DecimalPrice();
 		p1.amount = 1;
 		p1.currency = "USD";
 		PriceFieldParser fieldParser = mock(PriceFieldParser.class);
@@ -84,7 +85,7 @@ public class IssueTableTest extends TableTestCase<IssueTable> {
 				null, "40.00 FRF; 5.0 BEF; 0.50 CHF", null, null, null, null,
 				null, null, null, null, null, null, null);
 		IssueRow issueRow = table.process(row);
-		assertEquals(1, table.cache.size());
+		assertEquals(1, table.rowCache.size());
 
 		assertTrue(issueRow.price.contains(p1));
 	}
@@ -125,7 +126,7 @@ public class IssueTableTest extends TableTestCase<IssueTable> {
 				null, null, null, null, null, null,
 				null, null, null, null, null, null, null);
 		IssueRow issueRow = table.process(row);		
-		table.join(new BaseTable[] { pubTable, seriesTable });
+		table.joinTables(new BaseTable[] { pubTable, seriesTable });
 		table.tranform();
 		
 		assertNotNull(issueRow.publisher);
@@ -150,7 +151,7 @@ public class IssueTableTest extends TableTestCase<IssueTable> {
 				new FieldParserFactory(thingFactory));
 		IssueRow row2 = issueTable.process(issueRow);
 				
-		issueTable.join(new BaseTable[] { pubTable });
+		issueTable.joinTables(new BaseTable[] { pubTable });
 		issueTable.tranform();
 		
 		IRI iri = row2.instance.publisherImprints.iterator().next();
@@ -177,7 +178,7 @@ public class IssueTableTest extends TableTestCase<IssueTable> {
 				null, null, null, null, null, null, null, null, null, null,
 				null, null);
 		IssueRow issueRow = table.process(row);
-		table.join(new BaseTable[] { seriesTable });
+		table.joinTables(new BaseTable[] { seriesTable });
 
 		assertNotNull(issueRow.series);
 		assertNotNull(issueRow.series.name);
@@ -202,7 +203,7 @@ public class IssueTableTest extends TableTestCase<IssueTable> {
 				null, null, null, null, null, null, null, null, null, null,
 				null, null);
 		IssueRow issueRow = table.process(row);
-		table.join(new BaseTable[] { seriesTable });
+		table.joinTables(new BaseTable[] { seriesTable });
 		table.tranform();
 
 		Iterator<IRI> it = issueRow.instance.isPartOf.iterator();
@@ -230,7 +231,7 @@ public class IssueTableTest extends TableTestCase<IssueTable> {
 				null, null, null, null, null, null, null, null, null, null,
 				null, null, null);
 		table.process(row);
-		assertEquals(0, table.cache.size());
+		assertEquals(0, table.rowCache.size());
 	}
 
 }

@@ -1,6 +1,6 @@
 grammar IssueNumber;   
 @header {
-    package org.comicwiki.gcd.parser;
+ //   package org.comicwiki.gcd.parser;
 }  
 
 issue 

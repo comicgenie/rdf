@@ -21,6 +21,6 @@ public class SeriesPublicationTypeTableTest extends TableTestCase<SeriesPublicat
 
 		Row row = RowFactory.create(null, null);
 		table.process(row);
-		assertEquals(0, table.cache.size());
+		assertEquals(0, table.rowCache.size());
 	}
 }

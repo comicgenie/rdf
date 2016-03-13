@@ -24,7 +24,7 @@ public class BrandUseTableTest extends TableTestCase<BrandUseTable> {
 
 		Row row = RowFactory.create(null, null, null, null, null, null, null);
 		table.process(row);
-		assertEquals(0, table.cache.size());
+		assertEquals(0, table.rowCache.size());
 	}
 	
 	@Test(expected = IllegalArgumentException.class)

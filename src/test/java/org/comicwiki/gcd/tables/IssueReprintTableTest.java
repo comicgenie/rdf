@@ -12,7 +12,7 @@ import org.comicwiki.ThingFactory;
 import org.comicwiki.gcd.fields.FieldParserFactory;
 import org.comicwiki.gcd.tables.IssueReprintTable.IssueReprintRow;
 import org.comicwiki.gcd.tables.IssueTable.IssueRow;
-import org.comicwiki.model.ReprintNote;
+import org.comicwiki.model.notes.ReprintNote;
 import org.comicwiki.model.schema.bib.ComicIssue;
 import org.junit.Test;
 
@@ -30,7 +30,7 @@ public class IssueReprintTableTest extends TableTestCase<IssueReprintTable> {
 
 		Row row = RowFactory.create(null, null, null, null);
 		table.process(row);
-		assertEquals(0, table.cache.size());
+		assertEquals(0, table.rowCache.size());
 	}
 
 	@Test
@@ -40,7 +40,7 @@ public class IssueReprintTableTest extends TableTestCase<IssueReprintTable> {
 
 		Row row = RowFactory.create(1, 2, 3, null);
 		IssueReprintRow row2 = table.process(row);
-		assertEquals(1, table.cache.size());
+		assertEquals(1, table.rowCache.size());
 		assertEquals(2, row2.fkOriginIssueId);
 		assertEquals(3, row2.fkTargetIssueId);
 	}
@@ -52,7 +52,7 @@ public class IssueReprintTableTest extends TableTestCase<IssueReprintTable> {
 
 		Row row = RowFactory.create(1, null, null, "My note");
 		IssueReprintRow row2 = table.process(row);
-		assertEquals(1, table.cache.size());
+		assertEquals(1, table.rowCache.size());
 		assertEquals("My note", row2.notes);
 	}
 
@@ -75,7 +75,7 @@ public class IssueReprintTableTest extends TableTestCase<IssueReprintTable> {
 		IssueReprintTable table = createTable(thingFactory);
 		Row row = RowFactory.create(1, 5, 6, null);
 		IssueReprintRow row2 = table.process(row);		
-		table.join(new BaseTable[]{issueTable});
+		table.joinTables(new BaseTable[]{issueTable});
 		
 		assertNotNull(row2.original);
 		assertNotNull(row2.reprint);
@@ -103,7 +103,7 @@ public class IssueReprintTableTest extends TableTestCase<IssueReprintTable> {
 		IssueReprintTable table = createTable(thingFactory);
 		Row row = RowFactory.create(1, 5, 6, "MyNote");
 		IssueReprintRow row2 = table.process(row);		
-		table.join(new BaseTable[]{issueTable});
+		table.joinTables(new BaseTable[]{issueTable});
 		table.tranform();
 		
 		IRI iriReprint = row2.instance.reprint;

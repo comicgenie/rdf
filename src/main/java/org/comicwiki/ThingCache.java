@@ -58,16 +58,19 @@ public final class ThingCache {
 				} else if (fieldValue instanceof String) {
 					sb.append(field.getName()).append(":").append(fieldValue);
 				} else if (fieldValue instanceof IRI) {
-					Thing thing = instanceCache.get(fieldValue);
+					Thing thing = instanceCache.get((IRI) fieldValue);
 					String id = readCompositePropertyKey(thing);
 					sb.append(id);
 				}
 				sb.append('_');
 			}
 			if (sb.length() == 0) {
-				throw new IllegalThingException("No values for any key");
+				return "empty";
+				//throw new IllegalThingException("No values for any key: "
+				//		+ clazz.getName());
 			}
-			return DigestUtils.md5Hex(object.getClass().getCanonicalName() + ":" + sb.toString());
+			return DigestUtils.md5Hex(object.getClass().getCanonicalName()
+					+ ":" + sb.toString());
 		} else {
 			Field field = clazz.getField(subject.key());
 			field.setAccessible(true);
@@ -94,8 +97,10 @@ public final class ThingCache {
 		return null;
 	}
 
-	protected final HashMap<IRI, Thing> instanceCache = new HashMap<>(1000000);
+	//protected final HashMap<IRI, Thing> instanceCache = new HashMap<>(Integer.MAX_VALUE);
 
+	protected final HashMapShard instanceCache  = new HashMapShard(3);
+	
 	private final Repositories repositories;
 
 	private final IRICache iriCache;
@@ -109,15 +114,14 @@ public final class ThingCache {
 		this.iriCache = iriCache;
 		this.resourceIDCache = resourceIDCache;
 	}
-	
+
 	public Thing get(IRI iri) {
 		return instanceCache.get(iri);
 	}
-	
+
 	public Collection<Thing> getThings() {
 		return instanceCache.values();
 	}
-
 
 	public void add(Thing thing) {
 		assignInstanceId(thing);
@@ -128,26 +132,35 @@ public final class ThingCache {
 		HashMap<IRI, String> instanceCpkMap = new HashMap<>(1000000);
 		HashMap<IRI, IRI> instanceResourceMap = new HashMap<>(1000000);
 		for (Thing thing : instanceCache.values()) {
-			thing.compositePropertyKey = readCompositePropertyKey(thing);
-			if (Strings.isNullOrEmpty(thing.compositePropertyKey)) {
-				throw new IllegalArgumentException(
-						"thing.compositePropertyKey is empty");
-			}
-			instanceCpkMap.put(thing.instanceId, thing.compositePropertyKey);
-
-			if (!resourceIDCache.containsKey(thing.compositePropertyKey)) {
-				Subject subjectAnnotation = (Subject) thing.getClass()
-						.getAnnotation(Subject.class);
-
+			Subject subjectAnnotation = (Subject) thing.getClass()
+					.getAnnotation(Subject.class);
+			if (subjectAnnotation.isBlankNode()) {
 				thing.resourceId = new IRI(
-						subjectAnnotation.isBlankNode() ? resourceIDCache
-								.generateAnonymousId() : resourceIDCache
-								.generateResourceId());
+						resourceIDCache.generateAnonymousId());
+				thing.compositePropertyKey = thing.resourceId.value;
+				instanceCpkMap
+						.put(thing.instanceId, thing.compositePropertyKey);
 				resourceIDCache.put(thing.compositePropertyKey,
 						thing.resourceId);
 			} else {
-				thing.resourceId = resourceIDCache
-						.get(thing.compositePropertyKey);
+				thing.compositePropertyKey = readCompositePropertyKey(thing);
+				if (Strings.isNullOrEmpty(thing.compositePropertyKey)) {
+				//	throw new IllegalArgumentException(
+				System.out.println("ETL: " +			"thing.compositePropertyKey is empty: "
+									+ thing.getClass() + ", thing.name=" + thing.name + ":" + thing);
+				}
+				instanceCpkMap
+						.put(thing.instanceId, thing.compositePropertyKey);
+
+				if (!resourceIDCache.containsKey(thing.compositePropertyKey)) {
+					thing.resourceId = new IRI(
+							resourceIDCache.generateResourceId());
+					resourceIDCache.put(thing.compositePropertyKey,
+							thing.resourceId);
+				} else {
+					thing.resourceId = resourceIDCache
+							.get(thing.compositePropertyKey);
+				}
 			}
 
 			instanceResourceMap.put(thing.instanceId, thing.resourceId);
@@ -163,7 +176,9 @@ public final class ThingCache {
 		for (Thing thing : instanceCache.values()) {
 			Repository<Thing> repo = repositories.getRepository(thing
 					.getClass());
-			repo.add(thing);
+			if(repo != null) {
+				repo.add(thing);
+			}		
 		}
 	}
 }

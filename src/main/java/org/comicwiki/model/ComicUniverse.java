@@ -24,12 +24,12 @@ import org.comicwiki.rdf.annotations.Subject;
 @Subject(value = "ComicUniverse", key = "name")
 public class ComicUniverse extends Thing {
 
+	@ParentClass
+	public ComicCreativeWork creativeWork = new ComicCreativeWork();
+	
 	public ComicUniverse() { }
 	
 	public ComicUniverse(String name) {
 		this.name = name;
 	}
-	
-	@ParentClass
-	public ComicCreativeWork creativeWork = new ComicCreativeWork();
 }

@@ -17,5 +17,5 @@ package org.comicwiki.model;
 
 public enum CreatorRole {
 
-	colorist, creator, editor, inker, letterist, penclier, writer
+	colorist, creator, editor, inker, letterist, penciller, writer
 }

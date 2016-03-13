@@ -20,7 +20,7 @@ public class CountryTableTest extends TableTestCase<CountryTable> {
 
 		Row row = RowFactory.create(null, null, null);
 		table.process(row);
-		assertEquals(0, table.cache.size());
+		assertEquals(0, table.rowCache.size());
 	}
 
 	@Test
@@ -30,8 +30,8 @@ public class CountryTableTest extends TableTestCase<CountryTable> {
 
 		Row row = RowFactory.create(1, "US", null);
 		table.process(row);
-		assertEquals(1, table.cache.size());
-		assertEquals("US", table.cache.get(1).instance.countryCode.iterator()
+		assertEquals(1, table.rowCache.size());
+		assertEquals("US", table.rowCache.get(1).instance.countryCode.iterator()
 				.next());
 
 	}
@@ -43,8 +43,8 @@ public class CountryTableTest extends TableTestCase<CountryTable> {
 
 		Row row = RowFactory.create(1, null, "United States");
 		table.process(row);
-		assertEquals(1, table.cache.size());
-		assertEquals("United States", table.cache.get(1).instance.name);
+		assertEquals(1, table.rowCache.size());
+		assertEquals("United States", table.rowCache.get(1).instance.name);
 
 	}
 }

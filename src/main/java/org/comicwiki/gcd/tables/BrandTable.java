@@ -17,6 +17,7 @@ package org.comicwiki.gcd.tables;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URL;
 import java.util.Date;
 
 import org.apache.spark.sql.Column;
@@ -30,12 +31,14 @@ import org.comicwiki.model.schema.Brand;
 
 import com.google.common.base.Strings;
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
+@Singleton
 public class BrandTable extends BaseTable<BrandTable.BrandRow> {
 
-	public class BrandRow extends TableRow<Brand> {
+	public static class BrandRow extends TableRow<Brand> {
 		
-		public Brand instance = this.create(thingFactory);
+		public Brand instance = create(thingFactory);
 		
 		public String name;
 
@@ -75,12 +78,12 @@ public class BrandTable extends BaseTable<BrandTable.BrandRow> {
 
 	private static final String sParquetName = sInputTable + ".parquet";
 
-	private ThingFactory thingFactory;
+	private static ThingFactory thingFactory;
 
 	@Inject
 	public BrandTable(SQLContext sqlContext, ThingFactory thingFactory) {
 		super(sqlContext, sParquetName);
-		this.thingFactory = thingFactory;
+		BrandTable.thingFactory = thingFactory;
 	}
 
 	@Override
@@ -129,11 +132,15 @@ public class BrandTable extends BaseTable<BrandTable.BrandRow> {
 		}
 		
 		if(!Strings.isNullOrEmpty(row.notes)) {			
-			row.instance.description.add(row.notes);
+			row.instance.addDescription(row.notes);
 		}
 		
 		if(!Strings.isNullOrEmpty(row.url)) {			
-			row.instance.urls.add(URI.create(row.url));
+			try {
+				row.instance.addUrl(new URL(row.url));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}	
 }

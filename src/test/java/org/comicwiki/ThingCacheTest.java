@@ -37,8 +37,8 @@ public class ThingCacheTest {
 
 	@Test
 	public void readCompositePropertyKey() throws Exception {
-		ThingCache thingCache = new ThingCache(new Repositories(),
-				new IRICache(), new ResourceIDCache());
+		ThingCache thingCache = new ThingCache(new Repositories(
+				new PersonNameMatcher()), new IRICache(), new ResourceIDCache());
 		TestClass tc = new TestClass();
 		tc.familyName = "Smith";
 		tc.name = "Mr. Smith";
@@ -51,8 +51,8 @@ public class ThingCacheTest {
 
 	@Test
 	public void readCompositePropertyKeyWithIRIKey() throws Exception {
-		ThingCache thingCache = new ThingCache(new Repositories(),
-				new IRICache(), new ResourceIDCache());
+		ThingCache thingCache = new ThingCache(new Repositories(
+				new PersonNameMatcher()), new IRICache(), new ResourceIDCache());
 
 		TestClass tc = new TestClass();
 		tc.familyName = "Smith";
@@ -75,8 +75,8 @@ public class ThingCacheTest {
 
 	@Test
 	public void readCompositePropertyKeyWithNull() throws Exception {
-		ThingCache thingCache = new ThingCache(new Repositories(),
-				new IRICache(), new ResourceIDCache());
+		ThingCache thingCache = new ThingCache(new Repositories(
+				new PersonNameMatcher()), new IRICache(), new ResourceIDCache());
 
 		TestClass tc = new TestClass();
 		tc.name = "Mr. Smith";
@@ -89,8 +89,8 @@ public class ThingCacheTest {
 
 	@Test
 	public void add() throws Exception {
-		ThingCache thingCache = new ThingCache(new Repositories(),
-				new IRICache(), new ResourceIDCache());
+		ThingCache thingCache = new ThingCache(new Repositories(
+				new PersonNameMatcher()), new IRICache(), new ResourceIDCache());
 		Thing thing = new Thing();
 		thingCache.add(thing);
 
@@ -102,8 +102,8 @@ public class ThingCacheTest {
 	public void assignResourceIdsNoKey() throws Exception {
 		IRICache iriCache = new IRICache();
 		ResourceIDCache resourceIDCache = new ResourceIDCache();
-		ThingCache thingCache = new ThingCache(new Repositories(), iriCache,
-				resourceIDCache);
+		ThingCache thingCache = new ThingCache(new Repositories(
+				new PersonNameMatcher()), iriCache, resourceIDCache);
 
 		Thing thing = new Thing();
 		thingCache.add(thing);
@@ -114,8 +114,8 @@ public class ThingCacheTest {
 	public void assignResourceIdsSameKey() throws Exception {
 		IRICache iriCache = new IRICache();
 		ResourceIDCache resourceIDCache = new ResourceIDCache();
-		ThingCache thingCache = new ThingCache(new Repositories(), iriCache,
-				resourceIDCache);
+		ThingCache thingCache = new ThingCache(new Repositories(
+				new PersonNameMatcher()), iriCache, resourceIDCache);
 
 		Thing thing = new Thing();
 		thing.name = "foo";

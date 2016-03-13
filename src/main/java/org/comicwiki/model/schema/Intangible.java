@@ -21,7 +21,7 @@ import org.comicwiki.rdf.annotations.Subject;
  * A utility class that serves as the umbrella for a number of 'intangible'
  * things such as quantities, structured values, etc.
  */
-@Subject(value = "http://schema.org/Intangible", key = "name")
+@Subject(value = "http://schema.org/Intangible" )
 public class Intangible extends Thing {
 
 }

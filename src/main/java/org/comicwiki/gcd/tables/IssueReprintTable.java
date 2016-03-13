@@ -24,11 +24,12 @@ import org.comicwiki.BaseTable;
 import org.comicwiki.Join;
 import org.comicwiki.TableRow;
 import org.comicwiki.ThingFactory;
-import org.comicwiki.model.ReprintNote;
+import org.comicwiki.model.notes.ReprintNote;
 import org.comicwiki.model.schema.bib.ComicIssue;
 
 import com.google.common.base.Strings;
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 /**
  * Will join into issue table
@@ -38,6 +39,7 @@ import com.google.inject.Inject;
  */
 @Join(value = IssueTable.class, leftKey = "fkOriginIssueId", leftField = "original")
 @Join(value = IssueTable.class, leftKey = "fkTargetIssueId", leftField = "reprint")
+@Singleton
 public class IssueReprintTable extends
 		BaseTable<IssueReprintTable.IssueReprintRow> {
 	public static class Columns {
@@ -119,16 +121,16 @@ public class IssueReprintTable extends
 		
 		if(row.original != null) {
 			reprintNote.firstPrint = row.original.instanceId;
-			row.original.reprintNote.add(reprintNote.instanceId);
+			row.original.addReprintNote(reprintNote.instanceId);
 		}
 		
 		if(row.reprint != null) {
 			reprintNote.reprint = row.reprint.instanceId;
-			row.reprint.reprintNote.add(reprintNote.instanceId);
+			row.reprint.addReprintNote(reprintNote.instanceId);
 		}
 		
 		if(!Strings.isNullOrEmpty(row.notes)) {
-			reprintNote.note.add(row.notes);
+			reprintNote.addReprintNote(row.notes);
 		}
 	}
 }

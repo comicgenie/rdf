@@ -29,7 +29,9 @@ import org.comicwiki.model.Instant;
 
 import com.google.common.base.Strings;
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
+@Singleton
 public class BrandUseTable extends BaseTable<BrandUseTable.BrandUseRow> {
 
 	public static class BrandUseRow extends TableRow<BrandUse> {
@@ -93,7 +95,7 @@ public class BrandUseTable extends BaseTable<BrandUseTable.BrandUseRow> {
 	@Override
 	public BrandUseRow process(Row row) throws IOException {
 		BrandUseRow groupRow = new BrandUseRow();
-		groupRow.modified = row.getTimestamp(Columns.MODIFIED);
+		groupRow.modified = row.getDate(Columns.MODIFIED);
 		groupRow.notes = row.getString(Columns.NOTES);
 
 		if (!row.isNullAt(Columns.EMBLEM_ID)) {
@@ -140,7 +142,7 @@ public class BrandUseTable extends BaseTable<BrandUseTable.BrandUseRow> {
 		}
 
 		if (!Strings.isNullOrEmpty(row.notes)) {
-			row.instance.description.add(row.notes);
+			row.instance.addDescription(row.notes);
 		}
 	}
 }

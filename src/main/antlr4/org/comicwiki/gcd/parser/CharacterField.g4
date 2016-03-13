@@ -1,6 +1,6 @@
 grammar CharacterField;     
 @header {
-    package org.comicwiki.gcd.parser;
+//    package org.comicwiki.gcd.parser;
 }  
 
 root: characters*;

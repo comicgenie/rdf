@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.Collection;
 
 import org.comicwiki.IRICache;
+import org.comicwiki.PersonNameMatcher;
 import org.comicwiki.Repositories;
 import org.comicwiki.ResourceIDCache;
 import org.comicwiki.ThingCache;
@@ -26,33 +27,35 @@ public class ComicCharacterAssignerTest {
 
 	@Before
 	public void setUp() {
-		factory = new ThingFactory(new ThingCache(new Repositories(),
-				new IRICache(), new ResourceIDCache()));
+		factory = new ThingFactory(
+				new ThingCache(new Repositories(new PersonNameMatcher()),
+						new IRICache(), new ResourceIDCache()));
 		c1 = factory.create(ComicCharacter.class);
 		c2 = factory.create(ComicCharacter.class);
 		Collection<ComicCharacter> chars = Sets.newHashSet(c1, c2);
-		
+
 		assigner = new ComicCharactersAssigner(chars);
 
 	}
-	
+
 	@Test
 	public void colleagues() throws Exception {
 		assigner.colleagues();
-		
+
 		assertTrue(c1.colleagues.contains(c2.instanceId));
 		assertTrue(c2.colleagues.contains(c1.instanceId));
-		
+
 		assertEquals(1, c1.colleagues.size());
 		assertEquals(1, c2.colleagues.size());
 	}
-	
+
 	@Test(expected = NullPointerException.class)
-	public void nullInstanceId() throws Exception {	
-		Collection<ComicCharacter> chars = Sets.newHashSet(new ComicCharacter());	
+	public void nullInstanceId() throws Exception {
+		Collection<ComicCharacter> chars = Sets
+				.newHashSet(new ComicCharacter());
 		new ComicCharactersAssigner(chars);
 	}
-	
+
 	@Test
 	public void story() throws Exception {
 		ComicStory story = factory.create(ComicStory.class);

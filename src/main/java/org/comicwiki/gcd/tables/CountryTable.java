@@ -26,7 +26,9 @@ import org.comicwiki.ThingFactory;
 import org.comicwiki.model.schema.Country;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
+@Singleton
 public class CountryTable extends BaseTable<CountryTable.CountryRow> {
 
 	public static class Columns {

@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.stream.Stream;
 
 import org.comicwiki.IRICache;
+import org.comicwiki.PersonNameMatcher;
 import org.comicwiki.Repositories;
 import org.comicwiki.ResourceIDCache;
 import org.comicwiki.ThingCache;
@@ -26,8 +27,9 @@ public class ComicOrganizationAssignerTest {
 
 	@Before
 	public void setUp() {
-		factory = new ThingFactory(new ThingCache(new Repositories(),
-				new IRICache(), new ResourceIDCache()));
+		factory = new ThingFactory(
+				new ThingCache(new Repositories(new PersonNameMatcher()),
+						new IRICache(), new ResourceIDCache()));
 		org = factory.create(ComicOrganization.class);
 		assigner = new ComicOrganizationAssigner(org);
 	}

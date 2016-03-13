@@ -17,6 +17,7 @@ package org.comicwiki.gcd.tables;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URL;
 import java.util.Date;
 
 import org.apache.spark.sql.Column;
@@ -32,9 +33,11 @@ import org.comicwiki.model.schema.Organization;
 
 import com.google.common.base.Strings;
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 @Join(value = CountryTable.class, leftKey = "fkCountryId", leftField = "country")
 @Join(value = PublisherTable.class, leftKey = "fkParentId", leftField = "parentOrganization")
+@Singleton
 public class IndiciaPublisherTable extends
 		BaseTable<IndiciaPublisherTable.IndiciaPublisherRow> {
 
@@ -102,7 +105,7 @@ public class IndiciaPublisherTable extends
 		public Integer yearEnded;
 	}
 
-	private static final String sInputTable = "gcd_publisher";
+	private static final String sInputTable = "gcd_indicia_publisher";
 
 	private static final String sParquetName = sInputTable + ".parquet";
 
@@ -171,16 +174,20 @@ public class IndiciaPublisherTable extends
 		}
 		
 		if(!Strings.isNullOrEmpty(row.notes)) {
-			publisher.description.add(row.notes);
+			publisher.addDescription(row.notes);
 		}
 		
 		if(row.parentOrganization != null) {
 			publisher.parentOrganization = row.parentOrganization.instanceId;
-			row.parentOrganization.subOrganization.add(row.instance.instanceId);
+			row.parentOrganization.addSubOrganization(row.instance.instanceId);
 		}
 		
 		if(!Strings.isNullOrEmpty(row.url)) {
-			publisher.urls.add(URI.create(row.url));
+			try {
+				publisher.addUrl(new URL(row.url));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 		
 	}

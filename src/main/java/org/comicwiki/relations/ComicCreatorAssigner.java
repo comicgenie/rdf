@@ -84,25 +84,24 @@ public final class ComicCreatorAssigner {
 	 * ComicStory.[inkers][pencilers][....]
 	 */
 	public void characters(Collection<ComicCharacter> characters) {
-		if(characters == null) {
+		if (characters == null) {
 			return;
 		}
 		characters
 				.forEach(cc -> {
 					checkNotNull(cc.instanceId, "ComicCharacter.instanceId: "
 							+ cc.name);
-					colors.forEach(e -> cc.creativeWork.colorists
-							.add(e.instanceId));
-					inks.forEach(e -> cc.creativeWork.inkers.add(e.instanceId));
-					letters.forEach(e -> cc.creativeWork.letterers
-							.add(e.instanceId));
-					pencils.forEach(e -> cc.creativeWork.pencilers
-							.add(e.instanceId));
-					script.forEach(e -> cc.creativeWork.authors
-							.add(e.instanceId));
-					editors.forEach(e -> cc.creativeWork.editors
-							.add(e.instanceId));
-					creators.forEach(c -> c.workedOn.add(cc.instanceId));
+					colors.forEach(e -> cc.creativeWork
+							.addColorist(e.instanceId));
+					inks.forEach(e -> cc.creativeWork.addInker(e.instanceId));
+					letters.forEach(e -> cc.creativeWork
+							.addLetter(e.instanceId));
+					pencils.forEach(e -> cc.creativeWork
+							.addPenciler(e.instanceId));
+					script.forEach(e -> cc.creativeWork.addAuthor(e.instanceId));
+					editors.forEach(e -> cc.creativeWork
+							.addEditor(e.instanceId));
+					creators.forEach(c -> c.addWorkedOn(cc.instanceId));
 				});
 	}
 
@@ -114,27 +113,27 @@ public final class ComicCreatorAssigner {
 		for (Person one : creatorsArray) {
 			for (Person two : creatorsArray) {
 				if (!one.equals(two)) {
-					one.colleagues.add(two.instanceId);
+					one.addColleague(two.instanceId);
 				}
 			}
 		}
 	}
 
 	public void jobTitles() {
-		colors.forEach(e -> e.jobTitle.add(CreatorRole.colorist.name()));
-		inks.forEach(e -> e.jobTitle.add(CreatorRole.inker.name()));
-		letters.forEach(e -> e.jobTitle.add(CreatorRole.letterist.name()));
-		pencils.forEach(e -> e.jobTitle.add(CreatorRole.penclier.name()));
-		script.forEach(e -> e.jobTitle.add(CreatorRole.writer.name()));
-		editors.forEach(e -> e.jobTitle.add(CreatorRole.editor.name()));
+		colors.forEach(e -> e.addJobTitle(CreatorRole.colorist.name()));
+		inks.forEach(e -> e.addJobTitle(CreatorRole.inker.name()));
+		letters.forEach(e -> e.addJobTitle(CreatorRole.letterist.name()));
+		pencils.forEach(e -> e.addJobTitle(CreatorRole.penciller.name()));
+		script.forEach(e -> e.addJobTitle(CreatorRole.writer.name()));
+		editors.forEach(e -> e.addJobTitle(CreatorRole.editor.name()));
 	}
 
 	/**
 	 * ComicStory.[inkers][....] -> ComicStory.genres
 	 */
 	public void genres(Collection<Genre> genres) {
-		genres.forEach(g -> creators.forEach(c -> c.areasWorkedIn
-				.add(g.instanceId)));
+		genres.forEach(g -> creators.forEach(c -> c
+				.addAreasWorkedIn(g.instanceId)));
 	}
 
 	/**
@@ -147,31 +146,31 @@ public final class ComicCreatorAssigner {
 		organizations.forEach(e -> {
 			checkNotNull(e.instanceId, "ComicOrganization.instanceId: "
 					+ e.name);
-			creators.forEach(c -> c.workedOn.add(e.instanceId));
+			creators.forEach(c -> c.addWorkedOn(e.instanceId));
 		});
 	}
-	
+
 	public void organization(Organization organization) {
 		if (organization == null) {
 			return;
 		}
-			checkNotNull(organization.instanceId, "Organization.instanceId: "
-					+ organization.name);
-			creators.forEach(c -> {
-				c.worksFor.add(organization.instanceId);
-				organization.members.add(c.instanceId);
-			});
+		checkNotNull(organization.instanceId, "Organization.instanceId: "
+				+ organization.name);
+		creators.forEach(c -> {
+			c.addWorksFor(organization.instanceId);
+			organization.members.add(c.instanceId);
+		});
 	}
 
 	/**
 	 * ComicStory.[inkers][....] -> ComicStory
 	 */
 	public void story(ComicStory story) {
-		colors.forEach(e -> story.colorists.add(e.instanceId));
-		inks.forEach(e -> story.inkers.add(e.instanceId));
-		letters.forEach(e -> story.letterers.add(e.instanceId));
-		pencils.forEach(e -> story.pencilers.add(e.instanceId));
-		script.forEach(e -> story.authors.add(e.instanceId));
-		editors.forEach(e -> story.editors.add(e.instanceId));
+		colors.forEach(e -> story.addColorist(e.instanceId));
+		inks.forEach(e -> story.addInker(e.instanceId));
+		letters.forEach(e -> story.addLetter(e.instanceId));
+		pencils.forEach(e -> story.addPenciler(e.instanceId));
+		script.forEach(e -> story.addAuthor(e.instanceId));
+		editors.forEach(e -> story.addEditor(e.instanceId));
 	}
 }

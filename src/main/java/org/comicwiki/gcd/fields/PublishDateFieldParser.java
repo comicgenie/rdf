@@ -1,8 +1,8 @@
 package org.comicwiki.gcd.fields;
 
 import org.apache.spark.sql.Row;
+import org.comicwiki.FieldParser;
 import org.comicwiki.ThingFactory;
-import org.comicwiki.gcd.FieldParser;
 import org.comicwiki.model.TemporalEntity;
 
 public class PublishDateFieldParser implements FieldParser<TemporalEntity> {
@@ -18,6 +18,11 @@ public class PublishDateFieldParser implements FieldParser<TemporalEntity> {
 		TemporalEntity temporalEntity = thingFactory.create(TemporalEntity.class);
 		temporalEntity.label = row.getString(field);
 		return temporalEntity;
+	}
+
+	@Override
+	public TemporalEntity parse(String fieldValue) {
+		return null;//noop
 	}
 
 }

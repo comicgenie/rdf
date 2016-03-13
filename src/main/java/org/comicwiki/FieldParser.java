@@ -13,11 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package org.comicwiki.gcd;
+package org.comicwiki;
 
 import org.apache.spark.sql.Row;
 
+/**
+ * Provides some service to parse table field and to return a domain object
+ * 
+ * @param <OUTPUT> - domain object
+ */
 public interface FieldParser<OUTPUT> {
 
 	OUTPUT parse(int field, Row row);
+	
+	OUTPUT parse(String fieldValue);
 }

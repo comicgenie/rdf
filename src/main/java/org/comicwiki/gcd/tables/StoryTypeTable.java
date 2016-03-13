@@ -25,7 +25,9 @@ import org.comicwiki.TableRow;
 import org.comicwiki.model.schema.Thing;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
+@Singleton
 public class StoryTypeTable extends BaseTable<StoryTypeTable.StoryTypeRow> {
 
 	public static class Columns {

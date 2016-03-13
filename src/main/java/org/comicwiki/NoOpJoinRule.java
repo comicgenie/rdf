@@ -1,10 +1,20 @@
 package org.comicwiki;
 
+import java.util.List;
+
 public class NoOpJoinRule implements JoinRule {
 
 	@Override
-	public void join(TableRow left, TableRow right) {
+	public boolean join(TableRow left, TableRow right) {
+		return false;
+	}
+
+	@Override
+	public void sort(List left, List right) {
+		//noop
 		
 	}
+
+
 
 }
