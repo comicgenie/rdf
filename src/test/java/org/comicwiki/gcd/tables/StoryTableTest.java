@@ -20,6 +20,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
@@ -90,7 +91,7 @@ public class StoryTableTest extends TableTestCase<StoryTable> {
 
 		table.transform(row);
 
-		assertTrue(row.instance.characters.contains(cc.instanceId));
+		assertTrue(Arrays.asList(row.instance.characters).contains(cc.instanceId));
 	}
 
 	@Override
@@ -112,8 +113,9 @@ public class StoryTableTest extends TableTestCase<StoryTable> {
 		row.inks = new Person[] {inker};
 		table.transform(row);
 
-		assertTrue(inker.workedOn.contains(cc.instanceId));
-		assertTrue(cc.creativeWork.inkers.contains(inker.instanceId));
+		assertNotNull(inker.workedOn);
+		assertTrue(Arrays.asList(inker.workedOn).contains(cc.instanceId));
+		assertTrue(Arrays.asList(cc.creativeWork.inkers).contains(inker.instanceId));
 	}
 
 	@Test
@@ -341,9 +343,9 @@ public class StoryTableTest extends TableTestCase<StoryTable> {
 				"reprint1; reprint2", null, null, null, null, null);
 		StoryRow row = storyTable.process(storyRow);
 
-		assertEquals(2, row.reprintNotes.size());
-		assertTrue(row.reprintNotes.contains("reprint1"));
-		assertTrue(row.reprintNotes.contains("reprint2"));
+		assertEquals(2, row.reprintNotes.length);
+		assertTrue(Arrays.asList(row.reprintNotes).contains("reprint1"));
+		assertTrue(Arrays.asList(row.reprintNotes).contains("reprint2"));
 	}
 
 	@Test
@@ -383,7 +385,7 @@ public class StoryTableTest extends TableTestCase<StoryTable> {
 		ComicStory instance = row.instance;
 
 		assertNotNull(instance.genres);
-		assertEquals(2, instance.genres.size());
+		assertEquals(2, instance.genres.length);
 
 		boolean superhero = false, western = false;
 		for (IRI genre : instance.genres) {
@@ -424,8 +426,8 @@ public class StoryTableTest extends TableTestCase<StoryTable> {
 		storyTable.tranform();
 
 		ComicStory story = row2.instance;
-		assertEquals(1, story.publisherImprints.size());
-		IRI publisherIri = story.publisherImprints.iterator().next();
+		assertEquals(1, story.publisherImprints.length);
+		IRI publisherIri = story.publisherImprints[0];;
 
 		Organization publisher = (Organization) thingFactory.getCache().get(
 				publisherIri);
@@ -442,8 +444,7 @@ public class StoryTableTest extends TableTestCase<StoryTable> {
 				null, null, null, null, null, null);
 		StoryTable.StoryRow tableRow = table.process(row);
 		table.tranform();
-		assertEquals("A description", tableRow.instance.description.iterator()
-				.next());
+		assertEquals("A description", tableRow.instance.description[0]);
 	}
 
 	@Test
@@ -464,10 +465,10 @@ public class StoryTableTest extends TableTestCase<StoryTable> {
 		ComicStory story = row.instance;
 
 		assertNotNull(story.fictionalOrganizations);
-		assertEquals(1, story.fictionalOrganizations.size());
+		assertEquals(1, story.fictionalOrganizations.length);
 
 		Organization organization = (Organization) thingFactory.getCache().get(
-				story.fictionalOrganizations.iterator().next());
+				story.fictionalOrganizations[0]);
 		assertEquals("X-Men", organization.name);
 	}
 
@@ -488,8 +489,8 @@ public class StoryTableTest extends TableTestCase<StoryTable> {
 
 		StoryNote storyNote = (StoryNote) thingFactory.getCache().get(
 				story.storyNote[0]);
-		assertTrue(storyNote.note.contains("note1"));
-		assertTrue(storyNote.note.contains("note2"));
+		assertTrue(Arrays.asList(storyNote.note).contains("note1"));
+		assertTrue(Arrays.asList(storyNote.note).contains("note2"));
 	}
 
 	@Test
@@ -524,8 +525,8 @@ public class StoryTableTest extends TableTestCase<StoryTable> {
 		storyTable.tranform();
 
 		ComicStory story = row2.instance;
-		assertEquals(1, story.publishers.size());
-		IRI publisherIri = story.publishers.iterator().next();
+		assertEquals(1, story.publishers.length);
+		IRI publisherIri = story.publishers[0];
 
 		Organization publisher = (Organization) thingFactory.getCache().get(
 				publisherIri);
@@ -545,12 +546,12 @@ public class StoryTableTest extends TableTestCase<StoryTable> {
 		storyTable.tranform();
 		ComicStory story = row.instance;
 
-		assertEquals(1, story.reprintNote.size());
+		assertEquals(1, story.reprintNote.length);
 
 		ReprintNote reprintNote = (ReprintNote) thingFactory.getCache().get(
-				story.reprintNote.iterator().next());
-		assertTrue(reprintNote.note.contains("note1"));
-		assertTrue(reprintNote.note.contains("note2"));
+				story.reprintNote[0]);
+		assertTrue(Arrays.asList(reprintNote.note).contains("note1"));
+		assertTrue(Arrays.asList(reprintNote.note).contains("note2"));
 	}
 
 	@Test

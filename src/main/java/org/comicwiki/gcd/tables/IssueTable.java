@@ -18,15 +18,14 @@ package org.comicwiki.gcd.tables;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashSet;
 
 import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
+import org.comicwiki.Add;
 import org.comicwiki.BaseTable;
 import org.comicwiki.IRI;
 import org.comicwiki.Join;
@@ -35,9 +34,9 @@ import org.comicwiki.ThingFactory;
 import org.comicwiki.gcd.fields.CreatorField;
 import org.comicwiki.gcd.fields.FieldParserFactory;
 import org.comicwiki.gcd.tables.joinrules.IssueAndSeriesRule;
+import org.comicwiki.joinrules.IdToInstanceJoinRule;
 import org.comicwiki.model.ComicIssueNumber;
 import org.comicwiki.model.CreatorAlias;
-import org.comicwiki.model.CreatorRole;
 import org.comicwiki.model.Instant;
 import org.comicwiki.model.prices.Price;
 import org.comicwiki.model.schema.Brand;
@@ -52,10 +51,10 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 @Join(value = SeriesTable.class, withRule = IssueAndSeriesRule.class)
-@Join(value = BrandTable.class, leftKey = "fkBrandId", leftField = "brand")
-@Join(value = IndiciaPublisherTable.class, leftKey = "fkIndiciaPublisherId", leftField = "indiciaPublisher")
-@Join(value = SeriesTable.class, leftKey = "fkSeriesId", leftField = "series")
-@Join(value = PublisherTable.class, leftKey = "fkPublisherId", leftField = "publisher")
+@Join(value = BrandTable.class, leftKey = "fkBrandId", leftField = "brand", withRule=IdToInstanceJoinRule.class)
+@Join(value = IndiciaPublisherTable.class, leftKey = "fkIndiciaPublisherId", leftField = "indiciaPublisher", withRule=IdToInstanceJoinRule.class)
+@Join(value = SeriesTable.class, leftKey = "fkSeriesId", leftField = "series", withRule=IdToInstanceJoinRule.class)
+@Join(value = PublisherTable.class, leftKey = "fkPublisherId", leftField = "publisher", withRule=IdToInstanceJoinRule.class)
 @Singleton
 public class IssueTable extends BaseTable<IssueTable.IssueRow> {
 
@@ -150,7 +149,7 @@ public class IssueTable extends BaseTable<IssueTable.IssueRow> {
 
 		public int pageCount;
 
-		public Collection<Price> price;
+		public Price[] price;
 
 		public String publicationDate;
 
@@ -235,21 +234,23 @@ public class IssueTable extends BaseTable<IssueTable.IssueRow> {
 		if (!row.isNullAt(Columns.EDITING)) {
 			CreatorField creatorField = parseField(Columns.EDITING, row,
 					parserFactory.creator(issueRow.instance));
-			issueRow.editors = creatorField.creators;
-			issueRow.alaises = creatorField.aliases;//TODO - not doing anything with these
-			 
-			if (creatorField.creatorAliases != null) {
-				issueRow.creatorAliases = creatorField.creatorAliases;
-				//TODO
-				//issueRow.creatorAliases
-				//		.forEach(c -> c.role = CreatorRole.editor);
-			}
-
+			if(creatorField != null) {
+				issueRow.editors = creatorField.creators;
+				issueRow.alaises = creatorField.aliases;//TODO - not doing anything with these
+				 
+				if (creatorField.creatorAliases != null) {
+					issueRow.creatorAliases = creatorField.creatorAliases;
+					//TODO
+					//issueRow.creatorAliases
+					//		.forEach(c -> c.role = CreatorRole.editor);
+				}
+			}		
 		}
 
 		if (!row.isNullAt(Columns.PRICE)) {
-			issueRow.price = parseField(Columns.PRICE, row,
+			Collection<Price> prices = parseField(Columns.PRICE, row,
 					parserFactory.price());
+			issueRow.price = Add.toArray(prices, Price.class);
 		}
 
 		if (!row.isNullAt(Columns.NUMBER)) {
@@ -313,7 +314,9 @@ public class IssueTable extends BaseTable<IssueTable.IssueRow> {
 
 		issue.datePublished = createInstant(row.keyDate, row.publicationDate);
 		if (row.price != null) {
-			row.price.forEach(p -> issue.addPrice(p.instanceId));
+			for(int i = 0; i < row.price.length; i++) {
+				issue.addPrice(row.price[i].instanceId);
+			}
 		}
 
 		if (!Strings.isNullOrEmpty(row.volume)) {

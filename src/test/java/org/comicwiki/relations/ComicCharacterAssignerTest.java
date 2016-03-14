@@ -3,6 +3,7 @@ package org.comicwiki.relations;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Arrays;
 import java.util.Collection;
 
 import org.comicwiki.IRICache;
@@ -42,11 +43,11 @@ public class ComicCharacterAssignerTest {
 	public void colleagues() throws Exception {
 		assigner.colleagues();
 
-		assertTrue(c1.colleagues.contains(c2.instanceId));
-		assertTrue(c2.colleagues.contains(c1.instanceId));
+		assertTrue(Arrays.asList(c1.colleagues).contains(c2.instanceId));
+		assertTrue(Arrays.asList(c2.colleagues).contains(c1.instanceId));
 
-		assertEquals(1, c1.colleagues.size());
-		assertEquals(1, c2.colleagues.size());
+		assertEquals(1, c1.colleagues.length);
+		assertEquals(1, c2.colleagues.length);
 	}
 
 	@Test(expected = NullPointerException.class)
@@ -61,7 +62,7 @@ public class ComicCharacterAssignerTest {
 		ComicStory story = factory.create(ComicStory.class);
 		assigner.story(story);
 
-		assertTrue(story.characters.contains(c1.instanceId));
-		assertTrue(story.characters.contains(c2.instanceId));
+		assertTrue(Arrays.asList(story.characters).contains(c1.instanceId));
+		assertTrue(Arrays.asList(story.characters).contains(c2.instanceId));
 	}
 }

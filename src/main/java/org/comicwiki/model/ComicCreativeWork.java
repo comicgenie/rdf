@@ -15,9 +15,7 @@
  *******************************************************************************/
 package org.comicwiki.model;
 
-import java.util.Collection;
-import java.util.HashSet;
-
+import org.comicwiki.Add;
 import org.comicwiki.IRI;
 import org.comicwiki.model.schema.CreativeWork;
 import org.comicwiki.rdf.annotations.ObjectIRI;
@@ -29,69 +27,55 @@ public class ComicCreativeWork extends CreativeWork {
 
 	@Predicate("artist")
 	@ObjectIRI
-	public Collection<IRI> artists;
+	public IRI[] artists;
 	
 	@Predicate("colorist")
 	@ObjectIRI
-	public Collection<IRI> colorists;
+	public IRI[] colorists;
 	
 	@Predicate("editor")
 	@ObjectIRI
-	public Collection<IRI> editors;
+	public IRI[] editors;
 	
 	@Predicate("inker")
 	@ObjectIRI
-	public Collection<IRI> inkers;
+	public IRI[] inkers;
 	
 	@Predicate("letterer")
 	@ObjectIRI
-	public Collection<IRI> letterers;
+	public IRI[] letterers;
 	
 	@Predicate("penciler")
 	@ObjectIRI
-	public Collection<IRI> pencilers;
-	
-	public void addArtist(IRI artist) {
-		if(artists == null) {
-			artists = new HashSet<>(3); 
-		}
-		artists.add(artist);
-	}
-	
-	public void addColorist(IRI colorist) {
-		if(colorists == null) {
-			colorists = new HashSet<>(3); 
-		}
-		colorists.add(colorist);
-	}
+	public IRI[] pencilers;
 	
 	public void addEditor(IRI editor) {
-		if(editors== null) {
-			editors = new HashSet<>(3); 
-		}
-		editors.add(editor);
+		editors = Add.one(editors, editor);
+	}
+	
+	public void addArtist(IRI artist) {
+		artists = Add.one(artists, artist);
+	}
+	
+	public void addColorist(IRI colorist) {	
+		colorists = Add.one(colorists, colorist);
+	}
+	
+	public void addCreatorAlias(IRI alias) {
+		creatorAlias = Add.one(creatorAlias, alias);
 	}
 	
 	public void addInker(IRI inker) {
-		if(inkers == null) {
-			inkers = new HashSet<>(3); 
-		}
-		inkers.add(inker);
+		inkers = Add.one(inkers, inker);
 	}
 	
 	public void addLetter(IRI letterer) {
-		if(letterers== null) {
-			letterers = new HashSet<>(3); 
-		}
-		letterers.add(letterer);
+		letterers = Add.one(letterers, letterer);
 	}
+	
 	
 	public void addPenciler(IRI penciler) {
-		if(pencilers== null) {
-			pencilers = new HashSet<>(3); 
-		}
-		pencilers.add(penciler);
+		pencilers = Add.one(pencilers, penciler);
 	}
-	
 	
 }

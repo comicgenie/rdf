@@ -28,6 +28,7 @@ import org.comicwiki.BaseTable;
 import org.comicwiki.Join;
 import org.comicwiki.TableRow;
 import org.comicwiki.ThingFactory;
+import org.comicwiki.joinrules.IdToInstanceJoinRule;
 import org.comicwiki.model.Instant;
 import org.comicwiki.model.schema.Country;
 import org.comicwiki.model.schema.Organization;
@@ -36,7 +37,7 @@ import com.google.common.base.Strings;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-@Join(value = CountryTable.class, leftKey = "fkCountryId", leftField = "country")
+@Join(value = CountryTable.class, leftKey = "fkCountryId", leftField = "country", withRule=IdToInstanceJoinRule.class)
 @Singleton
 public class PublisherTable extends BaseTable<PublisherTable.PublisherRow> {
 	private static final class Columns {
@@ -164,7 +165,7 @@ public class PublisherTable extends BaseTable<PublisherTable.PublisherRow> {
 
 		if (!Strings.isNullOrEmpty(row.url)) {
 			try {
-				publisher.urls.add(new URL(row.url));
+				publisher.addUrl(new URL(row.url));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

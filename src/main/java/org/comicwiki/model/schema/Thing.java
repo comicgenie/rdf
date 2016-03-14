@@ -15,11 +15,10 @@
  *******************************************************************************/
 package org.comicwiki.model.schema;
 
-import java.net.URI;
 import java.net.URL;
 import java.util.Collection;
-import java.util.HashSet;
 
+import org.comicwiki.Add;
 import org.comicwiki.IRI;
 import org.comicwiki.rdf.annotations.ObjectIRI;
 import org.comicwiki.rdf.annotations.ObjectString;
@@ -39,7 +38,7 @@ public class Thing {
 
 	@Predicate(CONTEXT + "alternateName")
 	@ObjectString
-	public Collection<String> alternateNames;
+	public String[] alternateNames;
 
 	@Predicate( "http://comicwiki.org/resources/compositePropertyKey")
 	@ObjectString
@@ -48,7 +47,7 @@ public class Thing {
 
 	@Predicate(CONTEXT + "description")
 	@ObjectString
-	public Collection<String> description;
+	public String[] description;
 
 	@SchemaComicWiki
 	@ObjectIRI
@@ -65,37 +64,26 @@ public class Thing {
 	
 	@Predicate(CONTEXT + "url")
 	@ObjectURL
-	public Collection<URL> urls;
+	public URL[] urls;
 
 	public void addAlternateName(String alternateName) {
-		if(alternateNames == null) {
-			alternateNames = new HashSet<>(2);
-		}
-		alternateNames.add(alternateName);
+		alternateNames = Add.one(alternateNames, alternateName);
 	}
 	
 	public void addAlternateName(Collection<String> alternateName) {
-		if(alternateName == null) {
-			return;
-		}
-		if(alternateNames == null) {
-			alternateNames = new HashSet<>(2);
-		}
-		alternateNames.addAll(alternateName);
+		alternateNames = Add.both(alternateNames, alternateName, String.class);
 	}
 	
+	public void addAlternateName(String[] alternateName) {
+		alternateNames = Add.both(alternateNames, alternateName, String.class);
+	}
+		
 	public void addDescription(String descript) {
-		if(description == null) {
-			description = new HashSet<>(1);
-		}
-		description.add(descript);
+		description = Add.one(description, descript);
 	}
 	
 	public void addUrl(URL url) {
-		if(urls == null) {
-			urls = new HashSet<>(2);
-		}
-		urls.add(url);
+		urls = Add.one(urls, url);
 	}
 	
 	@Override

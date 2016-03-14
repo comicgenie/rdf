@@ -17,9 +17,7 @@ package org.comicwiki.model;
 
 import static org.comicwiki.rdf.DataType.XSD_GYEAR;
 
-import java.util.Collection;
-import java.util.HashSet;
-
+import org.comicwiki.Add;
 import org.comicwiki.model.schema.Intangible;
 import org.comicwiki.rdf.annotations.ObjectBoolean;
 import org.comicwiki.rdf.annotations.ObjectIRI;
@@ -50,7 +48,7 @@ public class ComicIssueNumber extends Intangible {
 	
 	@Predicate("issueNumber")
 	@ObjectNonNegativeInteger
-	public Collection<Integer> issueNumbers;
+	public Integer[] issueNumbers;
 	
 	@Predicate("label")
 	@ObjectIRI
@@ -61,10 +59,7 @@ public class ComicIssueNumber extends Intangible {
 	public Integer year;
 	
 	public void addIssueNumber(Integer number) {
-		if(issueNumbers == null) {
-			issueNumbers = new HashSet<>(3); 
-		}
-		issueNumbers.add(number);
+		issueNumbers = Add.one(issueNumbers, number);
 	}
 	
 	

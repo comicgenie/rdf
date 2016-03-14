@@ -15,18 +15,13 @@
  *******************************************************************************/
 package org.comicwiki.model.schema;
 
-import java.util.Collection;
-import java.util.HashSet;
-
+import org.comicwiki.Add;
 import org.comicwiki.IRI;
-import org.comicwiki.model.Genre;
 import org.comicwiki.rdf.annotations.ObjectIRI;
 import org.comicwiki.rdf.annotations.ObjectString;
 import org.comicwiki.rdf.annotations.Predicate;
 import org.comicwiki.rdf.annotations.SchemaComicWiki;
 import org.comicwiki.rdf.annotations.Subject;
-
-import com.google.common.collect.ObjectArrays;
 
 @Subject(value = "http://schema.org/Person", key = "name")
 public class Person extends Thing {
@@ -34,11 +29,11 @@ public class Person extends Thing {
 	@Predicate("areasWorkedIn")
 	@SchemaComicWiki
 	@ObjectIRI
-	public Collection<IRI> areasWorkedIn;
+	public IRI[] areasWorkedIn;
 
 	@Predicate("colleague")
 	@ObjectIRI
-	public Collection<IRI> colleagues;
+	public IRI[] colleagues;
 
 	@Predicate("familyName")
 	@ObjectString
@@ -62,18 +57,18 @@ public class Person extends Thing {
 
 	@Predicate("jobTitle")
 	@ObjectString
-	public Collection<String> jobTitle;
+	public String[] jobTitle;
 
 	/*
 	 * The most generic bi-directional social/work relation.
 	 */
 	@Predicate("knows")
 	@ObjectIRI
-	public Collection<IRI> knows;
+	public IRI[] knows;
 
 	@Predicate("memberOf")
 	@ObjectIRI
-	public Collection<IRI> memberOf;// Organization
+	public IRI[] memberOf;// Organization
 
 	@Predicate("nationality")
 	@ObjectIRI
@@ -81,97 +76,67 @@ public class Person extends Thing {
 
 	@Predicate("parents")
 	@ObjectIRI
-	public Collection<IRI> parents;
+	public IRI[] parents;
 
 	@Predicate("relatedTo")
 	@ObjectIRI
-	public Collection<IRI> relatedTo;
+	public IRI[] relatedTo;
 
 	@Predicate("sibling")
 	@ObjectIRI
-	public Collection<IRI> sibling;
+	public IRI[] sibling;
 
 	@Predicate("workedOn")
 	@SchemaComicWiki
 	@ObjectIRI
 	//creativeWork,story,character,organization
-	public Collection<IRI> workedOn;
+	public IRI[] workedOn;
 
 	@Predicate("worksFor")
 	@ObjectIRI
-	public Collection<IRI> worksFor;
+	public IRI[] worksFor;
 
 	public Person() {
 	}
 
 	public void addAreasWorkedIn(IRI workedIn) {
-		if (areasWorkedIn   == null) {
-			areasWorkedIn   = new HashSet<>(3);
-		}
-		areasWorkedIn.add(workedIn);
+		areasWorkedIn = Add.one(areasWorkedIn, workedIn);	
 	}
 	
 	public void addWorkedOn(IRI worked) {
-		if (workedOn  == null) {
-			workedOn  = new HashSet<>(3);
-		}
-		workedOn.add(worked);
+		workedOn = Add.one(workedOn, worked);
 	}
 	
 	public void addWorksFor(IRI works) {
-		if (worksFor == null) {
-			worksFor = new HashSet<>(3);
-		}
-		worksFor.add(works);
+		worksFor = Add.one(worksFor, works);
 	}
 	
 	public void addColleague(IRI colleague) {
-		if (colleagues == null) {
-			colleagues = new HashSet<>(3);
-		}
-		colleagues.add(colleague);
+		colleagues = Add.one(colleagues, colleague);
 	}
 
 	public void addJobTitle(String title) {
-		if (jobTitle == null) {
-			jobTitle = new HashSet<>(3);
-		}
-		jobTitle.add(title);
+		jobTitle = Add.one(jobTitle, title);
 	}
 
 	public void addKnows(IRI know) {
-		if (knows == null) {
-			knows = new HashSet<>(3);
-		}
-		knows.add(know);
+		knows = Add.one(knows, know);
 	}
 
 	public void addMemberOf(IRI m) {
-		if (memberOf == null) {
-			memberOf = new HashSet<>(3);
-		}
-		memberOf.add(m);
+		memberOf = Add.one(memberOf, m);
 	}
 
 	public void addParent(IRI parent) {
-		if (parents == null) {
-			parents = new HashSet<>(2);
-		}
-		parents.add(parent);
+		parents = Add.one(parents, parent);
 	}
 
 	public void addRelatedTo(IRI related) {
-		if (relatedTo == null) {
-			relatedTo = new HashSet<>(2);
-		}
-		relatedTo.add(related);
+		relatedTo = Add.one(relatedTo, related);
 	}
 
 	public void addSibling(IRI s) {
-		if (sibling == null) {
-			sibling = new HashSet<>(2);
-		}
-		sibling.add(s);
+		sibling = Add.one(sibling, s);
 	}
 	
 	public void makeFemale() {

@@ -95,7 +95,7 @@ public class SeriesTableTest extends TableTestCase<SeriesTable> {
 
 		assertNotNull(seriesRow.country);
 		assertEquals("United States", seriesRow.country.name);
-		assertEquals("us", seriesRow.country.countryCode.iterator().next());
+		assertEquals("us", seriesRow.country.countryCode[0]);
 	}
 
 	@Override
@@ -202,7 +202,7 @@ public class SeriesTableTest extends TableTestCase<SeriesTable> {
 				seriesRow.instance.locationCreated);
 
 		assertEquals("United States", country.name);
-		assertEquals("us", country.countryCode.iterator().next());
+		assertEquals("us", country.countryCode[0]);
 	}
 
 	@Test
@@ -310,7 +310,7 @@ public class SeriesTableTest extends TableTestCase<SeriesTable> {
 
 		assertNotNull(seriesRow.instance.publishers);
 
-		IRI publisherIri = seriesRow.instance.publishers.iterator().next();
+		IRI publisherIri = seriesRow.instance.publishers[0];
 		Organization publisher = (Organization) thingFactory.getCache().get(
 				publisherIri);
 

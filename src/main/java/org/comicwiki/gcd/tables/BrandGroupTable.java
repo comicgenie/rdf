@@ -27,6 +27,7 @@ import org.comicwiki.BaseTable;
 import org.comicwiki.Join;
 import org.comicwiki.TableRow;
 import org.comicwiki.ThingFactory;
+import org.comicwiki.joinrules.IdToInstanceJoinRule;
 import org.comicwiki.model.Instant;
 import org.comicwiki.model.schema.Brand;
 import org.comicwiki.model.schema.Organization;
@@ -36,8 +37,8 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 @Join(value = BrandEmblemGroupTable.class, leftKey = "id", leftField = "fkBrandId", rightKey = "brandGroupId", rightField = "brandId")
-@Join(value = BrandTable.class, leftKey = "fkBrandId", leftField = "subBrand")
-@Join(value = PublisherTable.class, leftKey = "fkParentId", leftField = "publisher")
+@Join(value = BrandTable.class, leftKey = "fkBrandId", leftField = "subBrand", withRule=IdToInstanceJoinRule.class)
+@Join(value = PublisherTable.class, leftKey = "fkParentId", leftField = "publisher", withRule=IdToInstanceJoinRule.class)
 @Singleton
 public class BrandGroupTable extends BaseTable<BrandGroupTable.BrandGroupRow> {
 
@@ -156,17 +157,17 @@ public class BrandGroupTable extends BaseTable<BrandGroupTable.BrandGroupRow> {
 		}
 
 		if (row.subBrand != null) {
-			brandGroup.subBrand.add(row.subBrand.instanceId);
+			brandGroup.addSubBrand(row.subBrand.instanceId);
 			row.subBrand.parentBrand = brandGroup.instanceId;
 			if (row.publisher != null) {
-				row.subBrand.publisher.add(row.publisher.instanceId);
+				row.subBrand.addPublisher(row.publisher.instanceId);
 				row.publisher.addBrand(row.subBrand.instanceId);
 			}
 		}
 
 		if (row.publisher != null) {
 			row.publisher.addBrand(brandGroup.instanceId);
-			brandGroup.publisher.add(brandGroup.instanceId);
+			brandGroup.addPublisher(brandGroup.instanceId);
 		}
 
 		if (!Strings.isNullOrEmpty(row.notes)) {

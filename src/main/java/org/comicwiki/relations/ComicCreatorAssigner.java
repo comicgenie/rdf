@@ -158,7 +158,7 @@ public final class ComicCreatorAssigner {
 				+ organization.name);
 		creators.forEach(c -> {
 			c.addWorksFor(organization.instanceId);
-			organization.members.add(c.instanceId);
+			organization.addMembers(c.instanceId);
 		});
 	}
 

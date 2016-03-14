@@ -62,10 +62,10 @@ public class ComicCreatorAssignerTest {
 		ComicCharacter comicCharacter = factory.create(ComicCharacter.class);
 		assigner.characters(Sets.newHashSet(comicCharacter));
 
-		assertTrue(comicCharacter.creativeWork.colorists
+		assertTrue(Arrays.asList(comicCharacter.creativeWork.colorists)
 				.contains(p1Colorist.instanceId));
-		assertTrue(comicCharacter.creativeWork.inkers
-				.contains(p2Inker.instanceId));
+		assertTrue(Arrays.asList(comicCharacter.creativeWork.inkers).contains(
+				p2Inker.instanceId));
 	}
 
 	@Test(expected = NullPointerException.class)
@@ -80,17 +80,21 @@ public class ComicCreatorAssignerTest {
 		ComicCreatorAssigner assigner = assigner();
 		assigner.colleagues();
 
-		assertTrue(p1Colorist.colleagues.contains(p2Inker.instanceId));
-		assertTrue(p2Inker.colleagues.contains(p1Colorist.instanceId));
-		assertTrue(p3Letterer.colleagues.contains(p1Colorist.instanceId));
-		assertFalse(p3Letterer.colleagues.contains(p3Letterer.instanceId));
+		assertTrue(Arrays.asList(p1Colorist.colleagues).contains(
+				p2Inker.instanceId));
+		assertTrue(Arrays.asList(p2Inker.colleagues).contains(
+				p1Colorist.instanceId));
+		assertTrue(Arrays.asList(p3Letterer.colleagues).contains(
+				p1Colorist.instanceId));
+		assertFalse(Arrays.asList(p3Letterer.colleagues).contains(
+				p3Letterer.instanceId));
 
-		assertEquals(5, p1Colorist.colleagues.size());
-		assertEquals(5, p2Inker.colleagues.size());
-		assertEquals(5, p3Letterer.colleagues.size());
-		assertEquals(5, p3Letterer.colleagues.size());
-		assertEquals(5, p5Script.colleagues.size());
-		assertEquals(5, p6Editor.colleagues.size());
+		assertEquals(5, p1Colorist.colleagues.length);
+		assertEquals(5, p2Inker.colleagues.length);
+		assertEquals(5, p3Letterer.colleagues.length);
+		assertEquals(5, p3Letterer.colleagues.length);
+		assertEquals(5, p5Script.colleagues.length);
+		assertEquals(5, p6Editor.colleagues.length);
 
 	}
 
@@ -100,20 +104,28 @@ public class ComicCreatorAssignerTest {
 
 		ComicOrganization comicOrg = factory.create(ComicOrganization.class);
 		assigner.comicOrganizations(Sets.newHashSet(comicOrg));
-		assertTrue(p1Colorist.workedOn.contains(comicOrg.instanceId));
-		assertTrue(p2Inker.workedOn.contains(comicOrg.instanceId));
+		assertTrue(Arrays.asList(p1Colorist.workedOn).contains(
+				comicOrg.instanceId));
+		assertTrue(Arrays.asList(p2Inker.workedOn)
+				.contains(comicOrg.instanceId));
 	}
 
 	@Test
 	public void jobTitles() throws Exception {
 		ComicCreatorAssigner assigner = assigner();
 		assigner.jobTitles();
-		assertTrue(p1Colorist.jobTitle.contains(CreatorRole.colorist.name()));
-		assertTrue(p2Inker.jobTitle.contains(CreatorRole.inker.name()));
-		assertTrue(p3Letterer.jobTitle.contains(CreatorRole.letterist.name()));
-		assertTrue(p4Penciler.jobTitle.contains(CreatorRole.penciller.name()));
-		assertTrue(p5Script.jobTitle.contains(CreatorRole.writer.name()));
-		assertTrue(p6Editor.jobTitle.contains(CreatorRole.editor.name()));
+		assertTrue(Arrays.asList(p1Colorist.jobTitle).contains(
+				CreatorRole.colorist.name()));
+		assertTrue(Arrays.asList(p2Inker.jobTitle).contains(
+				CreatorRole.inker.name()));
+		assertTrue(Arrays.asList(p3Letterer.jobTitle).contains(
+				CreatorRole.letterist.name()));
+		assertTrue(Arrays.asList(p4Penciler.jobTitle).contains(
+				CreatorRole.penciller.name()));
+		assertTrue(Arrays.asList(p5Script.jobTitle).contains(
+				CreatorRole.writer.name()));
+		assertTrue(Arrays.asList(p6Editor.jobTitle).contains(
+				CreatorRole.editor.name()));
 	}
 
 	@Before
@@ -142,7 +154,8 @@ public class ComicCreatorAssignerTest {
 		ComicStory story = factory.create(ComicStory.class);
 		assigner.story(story);
 
-		assertTrue(Arrays.asList(story.colorists).contains(p1Colorist.instanceId));
+		assertTrue(Arrays.asList(story.colorists).contains(
+				p1Colorist.instanceId));
 		assertTrue(Arrays.asList(story.inkers).contains(p2Inker.instanceId));
 	}
 

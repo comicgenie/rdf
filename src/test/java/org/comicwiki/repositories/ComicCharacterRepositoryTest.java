@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 
 import org.comicwiki.DataFormat;
 import org.comicwiki.IRI;
@@ -40,12 +41,12 @@ public class ComicCharacterRepositoryTest {
 
 		Repositories repositories = new Repositories(new PersonNameMatcher());
 		repositories.COMIC_CHARACTERS.merge(c1, c2);
-		assertEquals(2, c2.alternateNames.size());
-		assertTrue(c2.alternateNames.contains("A1"));
-		assertTrue(c2.alternateNames.contains("A2"));
+		assertEquals(2, c2.alternateNames.length);
+		assertTrue(Arrays.asList(c2.alternateNames).contains("A1"));
+		assertTrue(Arrays.asList(c2.alternateNames).contains("A2"));
 
-		new Repositories(new PersonNameMatcher()).COMIC_CHARACTERS.save(System.out,
-				DataFormat.N_TRIPLES);
+		new Repositories(new PersonNameMatcher()).COMIC_CHARACTERS.save(
+				System.out, DataFormat.N_TRIPLES);
 	}
 
 	@Test
@@ -59,7 +60,7 @@ public class ComicCharacterRepositoryTest {
 		Repositories repositories = new Repositories(new PersonNameMatcher());
 		repositories.COMIC_CHARACTERS.merge(c1, c2);
 		assertEquals(IRI.create("pub1", new IRICache()),
-				c2.creativeWork.publishers.iterator().next());
+				c2.creativeWork.publishers[0]);
 	}
 
 	@Test
@@ -74,9 +75,9 @@ public class ComicCharacterRepositoryTest {
 
 		Repositories repositories = new Repositories(new PersonNameMatcher());
 		repositories.COMIC_CHARACTERS.merge(c1, c2);
-		assertEquals(2, c2.creativeWork.artists.size());
-		assertTrue(c2.creativeWork.artists.contains(IRI.create("ART2",
-				new IRICache())));
+		assertEquals(2, c2.creativeWork.artists.length);
+		assertTrue(Arrays.asList(c2.creativeWork.artists).contains(
+				IRI.create("ART2", new IRICache())));
 	}
 
 	@Test
@@ -90,7 +91,8 @@ public class ComicCharacterRepositoryTest {
 
 		Repositories repositories = new Repositories(new PersonNameMatcher());
 		repositories.COMIC_CHARACTERS.merge(c1, c2);
-		c2.creativeWork.publishers.contains(IRI.create("pub2", new IRICache()));
+		Arrays.asList(c2.creativeWork.publishers).contains(
+				IRI.create("pub2", new IRICache()));
 		System.out.println(JsonUtils.toPrettyString(c2));
 	}
 
@@ -142,7 +144,7 @@ public class ComicCharacterRepositoryTest {
 		assertEquals("Vaden", c1.givenName);
 		assertNull(c1.familyName);
 	}
-	
+
 	@Test
 	public void maleFirstNameWithMalePrefix() throws Exception {
 		ComicCharacter c1 = new ComicCharacter();
@@ -170,7 +172,7 @@ public class ComicCharacterRepositoryTest {
 		assertEquals("Alice", c1.givenName);
 		assertNull(c1.familyName);
 	}
-	
+
 	@Test
 	public void lastNameOnly() throws Exception {
 		ComicCharacter c1 = new ComicCharacter();
@@ -183,7 +185,7 @@ public class ComicCharacterRepositoryTest {
 
 		assertEquals("Smith", c1.familyName);
 	}
-	
+
 	@Test
 	public void lastNameWithSuffix() throws Exception {
 		ComicCharacter c1 = new ComicCharacter();
@@ -196,7 +198,7 @@ public class ComicCharacterRepositoryTest {
 
 		assertEquals("Smith", c1.familyName);
 	}
-	
+
 	@Test
 	public void femaleFirstNameWithPrefix() throws Exception {
 		ComicCharacter c1 = new ComicCharacter();
@@ -211,7 +213,7 @@ public class ComicCharacterRepositoryTest {
 		assertEquals("Ms", c1.honorificPrefix);
 		assertNull(c1.familyName);
 	}
-	
+
 	@Test
 	public void femaleFullNameWithPrefix() throws Exception {
 		ComicCharacter c1 = new ComicCharacter();
@@ -226,7 +228,7 @@ public class ComicCharacterRepositoryTest {
 		assertEquals("Smith", c1.familyName);
 		assertEquals("Ms", c1.honorificPrefix);
 	}
-	
+
 	@Test
 	public void maleFullNameWithPrefix() throws Exception {
 		ComicCharacter c1 = new ComicCharacter();
@@ -241,7 +243,7 @@ public class ComicCharacterRepositoryTest {
 		assertEquals("Smith", c1.familyName);
 		assertEquals("Mr", c1.honorificPrefix);
 	}
-	
+
 	@Test
 	public void maleFullNameWithFemalePrefix() throws Exception {
 		ComicCharacter c1 = new ComicCharacter();
@@ -256,7 +258,7 @@ public class ComicCharacterRepositoryTest {
 		assertEquals("F", c1.gender);
 		assertEquals("Ms", c1.honorificPrefix);
 	}
-	
+
 	@Test
 	public void fullMaleNameWithNoPrefix() throws Exception {
 		ComicCharacter c1 = new ComicCharacter();
@@ -272,7 +274,7 @@ public class ComicCharacterRepositoryTest {
 		assertEquals("M", c1.gender);
 		assertNull(c1.honorificPrefix);
 	}
-	
+
 	@Test
 	public void fullMaleNameWithNoPrefixAndMiddleInitial() throws Exception {
 		ComicCharacter c1 = new ComicCharacter();
@@ -288,7 +290,7 @@ public class ComicCharacterRepositoryTest {
 		assertEquals("M", c1.gender);
 		assertNull(c1.honorificPrefix);
 	}
-	
+
 	@Test
 	public void fullNameWithNoPrefixAndMiddleInitial() throws Exception {
 		ComicCharacter c1 = new ComicCharacter();
@@ -303,7 +305,7 @@ public class ComicCharacterRepositoryTest {
 		assertEquals("Smith", c1.familyName);
 		assertNull(c1.honorificPrefix);
 	}
-	
+
 	@Test
 	public void fullMaleNameWithNoPrefixAndMiddleName() throws Exception {
 		ComicCharacter c1 = new ComicCharacter();
@@ -319,9 +321,10 @@ public class ComicCharacterRepositoryTest {
 		assertEquals("M", c1.gender);
 		assertNull(c1.honorificPrefix);
 	}
-	
+
 	@Test
-	public void fullFemaleNameWithNoPrefixAndFirstInitialAndMiddleName() throws Exception {
+	public void fullFemaleNameWithNoPrefixAndFirstInitialAndMiddleName()
+			throws Exception {
 		ComicCharacter c1 = new ComicCharacter();
 		c1.name = "B. Alice Smith";
 		Repositories repositories = new Repositories(new PersonNameMatcher());
@@ -335,9 +338,10 @@ public class ComicCharacterRepositoryTest {
 		assertEquals("F", c1.gender);
 		assertNull(c1.honorificPrefix);
 	}
-	
+
 	@Test
-	public void fullMaleNameWithNoPrefixAndFirstInitialAndMiddleName() throws Exception {
+	public void fullMaleNameWithNoPrefixAndFirstInitialAndMiddleName()
+			throws Exception {
 		ComicCharacter c1 = new ComicCharacter();
 		c1.name = "J. Jim Smith";
 		Repositories repositories = new Repositories(new PersonNameMatcher());
@@ -351,7 +355,7 @@ public class ComicCharacterRepositoryTest {
 		assertEquals("M", c1.gender);
 		assertNull(c1.honorificPrefix);
 	}
-	
+
 	@Test
 	public void fullFemaleNameWithNoPrefixAndMiddleInitial() throws Exception {
 		ComicCharacter c1 = new ComicCharacter();
@@ -367,7 +371,7 @@ public class ComicCharacterRepositoryTest {
 		assertEquals("F", c1.gender);
 		assertNull(c1.honorificPrefix);
 	}
-	
+
 	@Test
 	public void fullFemaleNameWithNoPrefixAndMiddleName() throws Exception {
 		ComicCharacter c1 = new ComicCharacter();
@@ -383,7 +387,7 @@ public class ComicCharacterRepositoryTest {
 		assertEquals("F", c1.gender);
 		assertNull(c1.honorificPrefix);
 	}
-	
+
 	@Test
 	public void fullFemaleNameWithNoPrefix() throws Exception {
 		ComicCharacter c1 = new ComicCharacter();
@@ -399,10 +403,7 @@ public class ComicCharacterRepositoryTest {
 		assertEquals("F", c1.gender);
 		assertNull(c1.honorificPrefix);
 	}
-	
-	
-	
-	
+
 	@Test
 	public void femaleFullNameWithMalePrefix() throws Exception {
 		ComicCharacter c1 = new ComicCharacter();
@@ -417,7 +418,7 @@ public class ComicCharacterRepositoryTest {
 		assertEquals("M", c1.gender);
 		assertEquals("Mr", c1.honorificPrefix);
 	}
-	
+
 	@Test
 	public void testHonorific() throws Exception {
 		ComicCharacter c1 = new ComicCharacter();
@@ -467,6 +468,7 @@ public class ComicCharacterRepositoryTest {
 		assertEquals("Jim", c1.givenName);
 		assertEquals("Captain", c1.honorificPrefix);
 	}
+
 	@Test
 	public void testNeutralPrefixNoGender() throws Exception {
 
@@ -481,7 +483,7 @@ public class ComicCharacterRepositoryTest {
 		assertNull(c1.givenName);
 		assertEquals("Captain", c1.honorificPrefix);
 	}
-	
+
 	@Test
 	public void testNeutralPrefixNoGenderWithLastName() throws Exception {
 
@@ -497,8 +499,7 @@ public class ComicCharacterRepositoryTest {
 		assertEquals("Smith", c1.familyName);
 		assertEquals("Captain", c1.honorificPrefix);
 	}
-	
-	
+
 	@Test
 	public void testHonorificNeutralButFemale() throws Exception {
 

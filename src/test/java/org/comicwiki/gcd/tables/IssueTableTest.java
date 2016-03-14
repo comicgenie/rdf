@@ -88,7 +88,7 @@ public class IssueTableTest extends TableTestCase<IssueTable> {
 		IssueRow issueRow = table.process(row);
 		assertEquals(1, table.rowCache.size());
 
-		assertTrue(issueRow.price.contains(p1));
+		assertTrue(Arrays.asList(issueRow.price).contains(p1));
 	}
 
 	@Test
@@ -155,7 +155,7 @@ public class IssueTableTest extends TableTestCase<IssueTable> {
 		issueTable.joinTables(new BaseTable[] { pubTable });
 		issueTable.tranform();
 		
-		IRI iri = row2.instance.publisherImprints.iterator().next();
+		IRI iri = row2.instance.publisherImprints[0];
 		Organization org = (Organization) thingFactory.getCache().get(iri);
 		
 		assertNotNull(org);
@@ -207,18 +207,17 @@ public class IssueTableTest extends TableTestCase<IssueTable> {
 		table.joinTables(new BaseTable[] { seriesTable });
 		table.tranform();
 
-		Iterator<IRI> it = issueRow.instance.isPartOf.iterator();
-		IRI iri = null;
-		while(it.hasNext()) {
+		IRI partIRI = null;
+		for(int i = 0; i < issueRow.instance.isPartOf.length; i++) {
 			Thing thing = thingFactory.getCache().get(
-					it.next());
+					issueRow.instance.isPartOf[i]);
 			if(thing instanceof PublicationVolume) {
-				iri = thing.instanceId;
+				 partIRI = thing.instanceId;
 			}		
 		}
-
+	
 		PublicationVolume pv = (PublicationVolume) thingFactory.getCache().get(
-				iri);
+				partIRI);
 		assertEquals("3", pv.volumeNumber);
 		assertEquals("Amazing Spiderman", pv.name);
 	}

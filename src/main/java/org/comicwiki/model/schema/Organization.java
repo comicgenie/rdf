@@ -18,6 +18,7 @@ package org.comicwiki.model.schema;
 import java.util.Collection;
 import java.util.HashSet;
 
+import org.comicwiki.Add;
 import org.comicwiki.IRI;
 import org.comicwiki.rdf.annotations.ObjectIRI;
 import org.comicwiki.rdf.annotations.ObjectString;
@@ -29,14 +30,14 @@ public class Organization extends Thing {
 
 	@Predicate("brand")
 	@ObjectIRI
-	public Collection<IRI> brands;
+	public IRI[] brands;
 	
 	@Predicate("dissolutionDate")
 	@ObjectIRI
 	public IRI dissolutionDate;
 	
 	@Predicate("founder")
-	public Collection<IRI> founders;
+	public IRI[] founders;
 	
 	@Predicate("foundingDate")
 	@ObjectIRI
@@ -55,7 +56,7 @@ public class Organization extends Thing {
 	 */
 	@Predicate("member")
 	@ObjectIRI
-	public Collection<IRI> members = new HashSet<>(5);
+	public IRI[] members;
 	
 	@Predicate("parentOrganization")
 	@ObjectIRI
@@ -63,29 +64,21 @@ public class Organization extends Thing {
 	
 	@Predicate("subOrganization")
 	@ObjectIRI
-	public Collection<IRI> subOrganization;
+	public IRI[] subOrganization;
+	
+	public void addMembers(IRI member) {
+		members = Add.one(members, member);
+	}
 	
 	public void addSubOrganization(IRI org) {
-		if(subOrganization == null) {
-			subOrganization = new HashSet<>(3); 
-		}
-		subOrganization.add(org);
+		subOrganization = Add.one(subOrganization, org);
 	}
 	
 	public void addFounder(IRI founder) {
-		if(founders == null) {
-			founders  = new HashSet<>(3); 
-		}
-		founders.add(founder);
+		founders = Add.one(founders, founder);
 	}
 	
 	public void addBrand(IRI brand) {
-		if(brands== null) {
-			brands  = new HashSet<>(3); 
-		}
-		brands.add(brand);
+		brands= Add.one(brands, brand);
 	}
-	
-	
-	
 }

@@ -154,6 +154,7 @@ public class ETL {
 				try {
 					LOG.info("Transform table: " + table.datasourceName);
 					table.tranform();
+					table.getCache().clear();
 				} catch (Exception e) {
 					LOG.severe("Transform failure: " + table.datasourceName
 							+ ", " + e.getMessage());
@@ -161,20 +162,8 @@ public class ETL {
 				}
 			}
 		}
-
-		for (BaseTable<TableRow<?>> table : tables) {
-			if (table != null) {
-				try {
-					LOG.info("Clean table cache: " + table.datasourceName);
-					table.rowCache.clear();
-				} catch (Exception e) {
-					LOG.severe("Clean table failure: " + table.datasourceName
-							+ ", " + e.getMessage());
-					e.printStackTrace();
-				}
-			}
-		}
-
+		tables = null;
+		
 		LOG.info("Assign resource IDs");
 		thingCache.assignResourceIDs();
 

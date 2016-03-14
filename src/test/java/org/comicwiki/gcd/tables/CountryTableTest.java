@@ -31,8 +31,7 @@ public class CountryTableTest extends TableTestCase<CountryTable> {
 		Row row = RowFactory.create(1, "US", null);
 		table.process(row);
 		assertEquals(1, table.rowCache.size());
-		assertEquals("US", table.rowCache.get(1).instance.countryCode.iterator()
-				.next());
+		assertEquals("US", table.rowCache.get(1).instance.countryCode[0]);
 
 	}
 	

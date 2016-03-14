@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Arrays;
+
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
 import org.comicwiki.BaseTable;
@@ -112,12 +114,12 @@ public class IssueReprintTableTest extends TableTestCase<IssueReprintTable> {
 		ComicIssue ci1 = (ComicIssue) thingFactory.getCache().get(iriReprint);
 		ComicIssue  ci2 = (ComicIssue) thingFactory.getCache().get(iriOriginal);
 				
-		assertTrue(row2.instance.note.contains("MyNote"));
+		assertTrue(Arrays.asList(row2.instance.note).contains("MyNote"));
 		assertEquals("MyOriginal", ci2.name);
 		assertEquals("MyReprint", ci1.name);
 		
-		IRI reprintNote1IRI = ir1.instance.reprintNote.iterator().next();
-		IRI reprintNote2IRI = ir2.instance.reprintNote.iterator().next();
+		IRI reprintNote1IRI = ir1.instance.reprintNote[0];
+		IRI reprintNote2IRI = ir2.instance.reprintNote[0];
 		ReprintNote rn1 = (ReprintNote) thingFactory.getCache().get(reprintNote1IRI);
 		ReprintNote rn2 = (ReprintNote)thingFactory.getCache().get(reprintNote2IRI);
 		

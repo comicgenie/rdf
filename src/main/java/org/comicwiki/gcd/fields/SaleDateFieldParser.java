@@ -38,8 +38,8 @@ public class SaleDateFieldParser implements FieldParser<Instant> {
 				instant.day = Integer.parseInt(tokens[2]);
 			}
 		} catch (NumberFormatException e) {
-			System.out.println(instant.label);
-			e.printStackTrace();
+			//System.out.println(instant.label);
+			//e.printStackTrace();
 		}
 		return instant;
 	}

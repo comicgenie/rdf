@@ -18,6 +18,7 @@ package org.comicwiki;
 import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.logging.Logger;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.comicwiki.model.schema.Thing;
@@ -30,6 +31,8 @@ import com.google.inject.Singleton;
 @Singleton
 public final class ThingCache {
 
+	private static final Logger LOG = Logger.getLogger("ETL");
+	
 	private final KeyIDGenerator instanceIDGen = new KeyIDGenerator(0);
 
 	private IRI assignInstanceId(Thing thing) {
@@ -97,9 +100,9 @@ public final class ThingCache {
 		return null;
 	}
 
-	//protected final HashMap<IRI, Thing> instanceCache = new HashMap<>(Integer.MAX_VALUE);
+	protected final HashMap<IRI, Thing> instanceCache = new HashMap<>(1000000);
 
-	protected final HashMapShard instanceCache  = new HashMapShard(3);
+//	protected final HashMapShard instanceCache  = new HashMapShard(3);
 	
 	private final Repositories repositories;
 
@@ -129,17 +132,24 @@ public final class ThingCache {
 	}
 
 	public synchronized void assignResourceIDs() {
-		HashMap<IRI, String> instanceCpkMap = new HashMap<>(1000000);
+	
+	//	HashMap<IRI, String> instanceCpkMap = new HashMap<>(1000000);
 		HashMap<IRI, IRI> instanceResourceMap = new HashMap<>(1000000);
+		int count = 0;
 		for (Thing thing : instanceCache.values()) {
+			if (count++ % 100000 == 0) {
+				LOG.info("Rows with assigned IDs: " + count 
+						+ ", InstanceCpkMap =" + 0
+						+ ", InstanceResourceMap =" + instanceResourceMap.size());
+			}
 			Subject subjectAnnotation = (Subject) thing.getClass()
 					.getAnnotation(Subject.class);
 			if (subjectAnnotation.isBlankNode()) {
 				thing.resourceId = new IRI(
 						resourceIDCache.generateAnonymousId());
 				thing.compositePropertyKey = thing.resourceId.value;
-				instanceCpkMap
-						.put(thing.instanceId, thing.compositePropertyKey);
+				//instanceCpkMap
+				//		.put(thing.instanceId, thing.compositePropertyKey);
 				resourceIDCache.put(thing.compositePropertyKey,
 						thing.resourceId);
 			} else {
@@ -149,8 +159,8 @@ public final class ThingCache {
 				System.out.println("ETL: " +			"thing.compositePropertyKey is empty: "
 									+ thing.getClass() + ", thing.name=" + thing.name + ":" + thing);
 				}
-				instanceCpkMap
-						.put(thing.instanceId, thing.compositePropertyKey);
+			//	instanceCpkMap
+			//			.put(thing.instanceId, thing.compositePropertyKey);
 
 				if (!resourceIDCache.containsKey(thing.compositePropertyKey)) {
 					thing.resourceId = new IRI(
@@ -165,8 +175,9 @@ public final class ThingCache {
 
 			instanceResourceMap.put(thing.instanceId, thing.resourceId);
 		}
-		instanceCpkMap.clear();
-
+		//instanceCpkMap.clear();
+		
+		LOG.info("Assign iri values");
 		for (IRI iri : iriCache.values()) {
 			iri.value = instanceResourceMap.get(iri).value;
 		}

@@ -53,15 +53,24 @@ public class ComicOrganizationAssignerTest {
 
 		assigner.creators(colors, inks, letters, pencils, script, editors);
 		Stream.of(colors, inks, letters, pencils, script, editors)
-				.flatMap(Collection::stream).forEach(e -> {
-					assertTrue(e.workedOn.contains(org.instanceId));
-				});
-		assertTrue(org.creativeWork.colorists.contains(p1Colorist.instanceId));
-		assertTrue(org.creativeWork.inkers.contains(p2Inker.instanceId));
-		assertTrue(org.creativeWork.letterers.contains(p3Letterer.instanceId));
-		assertTrue(org.creativeWork.pencilers.contains(p4Penciler.instanceId));
-		assertTrue(org.creativeWork.authors.contains(p5Script.instanceId));
-		assertTrue(org.creativeWork.editors.contains(p6Editor.instanceId));
+				.flatMap(Collection::stream)
+				.forEach(
+						e -> {
+							assertTrue(Arrays.asList(e.workedOn).contains(
+									org.instanceId));
+						});
+		assertTrue(Arrays.asList(org.creativeWork.colorists).contains(
+				p1Colorist.instanceId));
+		assertTrue(Arrays.asList(org.creativeWork.inkers).contains(
+				p2Inker.instanceId));
+		assertTrue(Arrays.asList(org.creativeWork.letterers).contains(
+				p3Letterer.instanceId));
+		assertTrue(Arrays.asList(org.creativeWork.pencilers).contains(
+				p4Penciler.instanceId));
+		assertTrue(Arrays.asList(org.creativeWork.authors).contains(
+				p5Script.instanceId));
+		assertTrue(Arrays.asList(org.creativeWork.editors).contains(
+				p6Editor.instanceId));
 	}
 
 	@Test

@@ -16,13 +16,12 @@
 package org.comicwiki.model.schema;
 
 import java.util.Collection;
-import java.util.HashSet;
 
+import org.comicwiki.Add;
 import org.comicwiki.IRI;
 import org.comicwiki.rdf.annotations.ObjectBoolean;
 import org.comicwiki.rdf.annotations.ObjectIRI;
 import org.comicwiki.rdf.annotations.ObjectNonNegativeInteger;
-import org.comicwiki.rdf.annotations.ObjectNumber;
 import org.comicwiki.rdf.annotations.ObjectString;
 import org.comicwiki.rdf.annotations.Predicate;
 import org.comicwiki.rdf.annotations.SchemaBib;
@@ -34,11 +33,11 @@ public class CreativeWork extends Thing {
 
 	@Predicate("author")
 	@ObjectIRI
-	public Collection<IRI> authors;
+	public IRI[] authors;
 	
 	@Predicate("character")
 	@ObjectIRI
-	public Collection<IRI> characters;
+	public IRI[] characters;
 	
 	/**
 	 * A citation or reference to another creative work, such as another
@@ -50,7 +49,7 @@ public class CreativeWork extends Thing {
 	
 	@Predicate("comment")
 	@ObjectString
-	public Collection<String> comment;
+	public String[] comment;
 		
 	/**
 	 * Official rating of a piece of content—for example,'MPAA PG-13'.
@@ -62,7 +61,7 @@ public class CreativeWork extends Thing {
 	@Predicate("creatorAlias")
 	@ObjectIRI
 	@SchemaComicWiki
-	public Collection<IRI> creatorAlias;
+	public IRI[] creatorAlias;
 	
 	@Predicate("datePublished")
 	@ObjectIRI
@@ -70,24 +69,24 @@ public class CreativeWork extends Thing {
 	
 	@Predicate("editor")
 	@ObjectIRI
-	public Collection<IRI> editors;
+	public IRI[] editors;
 	
 	@Predicate("exampleOfWork")
 	@ObjectIRI
-	public Collection<IRI> exampleOfWork;
+	public IRI[] exampleOfWork;
 	
 	@Predicate("fictionalOrganizations")
 	@ObjectIRI
 	@SchemaComicWiki
-	public Collection<IRI> fictionalOrganizations;
+	public IRI[] fictionalOrganizations;
 	
 	@Predicate("genre")
 	@ObjectIRI
-	public Collection<IRI> genres;
+	public IRI[] genres;
 	
 	@Predicate("hasPart")
 	@ObjectIRI
-	public Collection<IRI> hasParts;// CreativeWork - PublicationVolume
+	public IRI[] hasParts;// CreativeWork - PublicationVolume
 
 	@Predicate("headline")
 	@ObjectString
@@ -114,7 +113,7 @@ public class CreativeWork extends Thing {
 	 */
 	@Predicate("isPartOf")
 	@ObjectIRI
-	public Collection<IRI> isPartOf;// CreativeWork
+	public IRI[] isPartOf;// CreativeWork
 
 	@Predicate("locationCreated")
 	@ObjectIRI
@@ -134,26 +133,26 @@ public class CreativeWork extends Thing {
 	@Predicate("publisherImprints")
 	@ObjectIRI
 	@SchemaBib
-	public Collection<IRI> publisherImprints;
+	public IRI[] publisherImprints;
 
 	@Predicate("publisher")
 	@ObjectIRI
-	public Collection<IRI> publishers;
+	public IRI[] publishers;
 
 	@Predicate("reprint")
 	@ObjectIRI
 	@SchemaComicWiki
-	public Collection<IRI> reprint;
+	public IRI[] reprint;
 
 	@Predicate("reprintNote")
 	@ObjectIRI
 	@SchemaComicWiki
-	public Collection<IRI> reprintNote;
+	public IRI[] reprintNote;
 	
 	@Predicate("reprintOf")
 	@ObjectIRI
 	@SchemaComicWiki
-	public Collection<IRI> reprintOf;
+	public IRI[] reprintOf;
 	
 	/**
 	 * The textual content of this CreativeWork.
@@ -170,118 +169,71 @@ public class CreativeWork extends Thing {
 	public String typicalAgeRange;
 	
 	public void addPublisherImprints(IRI publisher) {
-		if(publisherImprints == null) {
-			publisherImprints = new HashSet<>(2);
-		}
-		publisherImprints.add(publisher);
+		publisherImprints = Add.one(publisherImprints, publisher);
 	}
 	
 	public void addIsPartOf(IRI part) {
-		if(isPartOf == null) {
-			isPartOf = new HashSet<>(2);
-		}
-		isPartOf.add(part);
+		isPartOf = Add.one(isPartOf, part);
 	}
 	
 	public void addGenre(IRI genre) {
-		if(genres == null) {
-			genres = new HashSet<>(3);
-		}
-		genres.add(genre);
+		genres = Add.one(genres, genre);
 	}
 	
 	public void addGenre(Collection<IRI> genre) {
-		if(genre == null) {
-			return;
-		}
-		if(genres == null) {
-			genres = new HashSet<>(3);
-		}
-		genres.addAll(genre);
+		genres = Add.both(genres, genre, IRI.class);
+	}
+	
+	public void addGenre(IRI[] genre) {
+		genres = Add.both(genres, genre, IRI.class);
 	}
 	
 	public void addFictionalOrganization(IRI org) {
-		if(fictionalOrganizations == null) {
-			fictionalOrganizations = new HashSet<>(3);
-		}
-		fictionalOrganizations.add(org);
+		fictionalOrganizations = Add.one(fictionalOrganizations, org);
 	}
 	
 	public void addExampleOfWork(IRI example) {
-		if(exampleOfWork == null) {
-			exampleOfWork = new HashSet<>(3);
-		}
-		exampleOfWork.add(example);
+		exampleOfWork = Add.one(exampleOfWork, example);
 	}
 	
 	public void addComment(String c) {
-		if(comment == null) {
-			comment = new HashSet<>(3);
-		}
-		comment.add(c);
+		comment = Add.one(comment, c);
 	}
 	
 	public void addAuthor(IRI author) {
-		if(authors == null) {
-			authors = new HashSet<>(3);
-		}
-		authors.add(author);
+		authors = Add.one(authors, author);	
 	}
 
 	public void addCharacter(IRI character) {
-		if(characters == null) {
-			characters = new HashSet<>(5);
-		}
-		characters.add(character);
+		characters = Add.one(characters, character);
 	}
 
 	public void addCreatorAlias(IRI alias) {
-		if(creatorAlias == null) {
-			creatorAlias = new HashSet<>(1); 
-		}
-		creatorAlias.add(alias);
+		creatorAlias = Add.one(creatorAlias, alias);
 	}
 
 	public void addEditor(IRI editor) {
-		if(editors== null) {
-			editors = new HashSet<>(3); 
-		}
-		editors.add(editor);
+		editors = Add.one(editors, editor);
 	}
 
 	public void addHasPart(IRI part) {
-		if(hasParts== null) {
-			hasParts = new HashSet<>(3); 
-		}
-		hasParts.add(part);
+		hasParts = Add.one(hasParts, part);
 	}
 	
 	public void addPublisher(IRI publisher) {
-		if(publishers== null) {
-			publishers = new HashSet<>(1);
-		}
-		publishers.add(publisher);
+		publishers = Add.one(publishers, publisher);
 	}
 		
 	public void addReprint(IRI r) {
-		if(reprint == null) {
-			reprint = new HashSet<>(1);
-		}
-		reprint.add(r);
+		reprint = Add.one(reprint, r);
 	}
 	
 	public void addReprintNote(IRI note) {
-		if(reprintNote == null) {
-			reprintNote = new HashSet<>(1);
-		}
-		reprintNote.add(note);
+		reprintNote = Add.one(reprintNote, note);
 	}
 	
 	public void addReprintOf(IRI reprint) {
-		if(reprintOf == null) {
-			reprintOf = new HashSet<>(1);
-		}
-		reprintOf.add(reprint);
+		reprintOf = Add.one(reprintOf, reprint);
 	}
 		
 }

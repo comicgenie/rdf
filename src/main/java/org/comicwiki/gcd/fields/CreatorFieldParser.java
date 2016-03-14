@@ -109,7 +109,7 @@ public final class CreatorFieldParser extends BaseFieldParser implements
 				.create(CreatorIssueNote.class);
 		storyNote.issue = issue.instanceId;
 		storyNote.creator = creator.instanceId;
-		storyNote.note.add(note);
+		storyNote.addIssueNote(note);
 		issue.addIssueNote(storyNote.instanceId);
 		return storyNote;
 	}
@@ -123,7 +123,7 @@ public final class CreatorFieldParser extends BaseFieldParser implements
 				.create(CreatorStoryNote.class);
 		storyNote.story = story.instanceId;
 		storyNote.creator = creator.instanceId;
-		storyNote.note.add(note);
+		storyNote.addNote(note);
 		story.addStoryNote(storyNote.instanceId);
 		return storyNote;
 	}

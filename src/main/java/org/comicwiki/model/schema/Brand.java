@@ -18,6 +18,7 @@ package org.comicwiki.model.schema;
 import java.util.Collection;
 import java.util.HashSet;
 
+import org.comicwiki.Add;
 import org.comicwiki.IRI;
 import org.comicwiki.model.BrandUse;
 import org.comicwiki.rdf.annotations.ObjectIRI;
@@ -35,7 +36,7 @@ public class Brand extends Intangible {
 	@Predicate("brandUse")
 	@ObjectIRI
 	@SchemaComicWiki
-	public Collection<BrandUse> brandUse = new HashSet<>(1);
+	public IRI[] brandUse;
 	
 	@Predicate("endUseDate")
 	@ObjectIRI
@@ -50,7 +51,7 @@ public class Brand extends Intangible {
 	@Predicate("publisher")
 	@ObjectIRI
 	@SchemaComicWiki
-	public Collection<IRI> publisher  = new HashSet<>(3);
+	public IRI[] publisher;;
 	
 	@Predicate("startUseDate")
 	@ObjectIRI
@@ -60,5 +61,17 @@ public class Brand extends Intangible {
 	@Predicate("subBrand")
 	@ObjectIRI
 	@SchemaComicWiki
-	public Collection<IRI> subBrand  = new HashSet<>(3);
+	public IRI[] subBrand;
+	
+	public void addSubBrand(IRI brand) {
+		subBrand = Add.one(subBrand, brand);
+	}
+	
+	public void addPublisher(IRI pub) {
+		publisher = Add.one(publisher, pub);
+	}
+	
+	public void addBrandUse(IRI use) {
+		brandUse = Add.one(brandUse, use);
+	}
 }

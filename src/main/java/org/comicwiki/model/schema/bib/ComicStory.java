@@ -15,9 +15,6 @@
  *******************************************************************************/
 package org.comicwiki.model.schema.bib;
 
-import java.util.Collection;
-import java.util.HashSet;
-
 import org.comicwiki.Add;
 import org.comicwiki.IRI;
 import org.comicwiki.model.schema.CreativeWork;

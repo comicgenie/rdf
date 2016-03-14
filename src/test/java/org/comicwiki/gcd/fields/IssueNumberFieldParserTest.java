@@ -3,6 +3,8 @@ package org.comicwiki.gcd.fields;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Arrays;
+
 import org.comicwiki.ThingFactory;
 import org.comicwiki.model.ComicIssueNumber;
 import org.junit.Test;
@@ -15,7 +17,7 @@ public class IssueNumberFieldParserTest extends BaseFieldTest {
 		IssueNumberFieldParser parser = new IssueNumberFieldParser(thingFactory);
 		String input = "1";
 		ComicIssueNumber number = parser.parse(input);
-		assertEquals(Integer.valueOf(1), number.issueNumbers.iterator().next());
+		assertEquals(Integer.valueOf(1), number.issueNumbers[0]);
 	}
 	
 	@Test
@@ -25,7 +27,7 @@ public class IssueNumberFieldParserTest extends BaseFieldTest {
 		String input = "41/1984";
 		ComicIssueNumber number = parser.parse(input);
 		assertEquals(Integer.valueOf(1984), number.year);
-		assertEquals(Integer.valueOf(41), number.issueNumbers.iterator().next());
+		assertEquals(Integer.valueOf(41), number.issueNumbers[0]);
 	}
 	
 	@Test
@@ -35,7 +37,7 @@ public class IssueNumberFieldParserTest extends BaseFieldTest {
 		String input = "5/2015 (#191)";
 		ComicIssueNumber number = parser.parse(input);
 		assertEquals(Integer.valueOf(2015), number.year);
-		assertEquals(Integer.valueOf(5), number.issueNumbers.iterator().next());
+		assertEquals(Integer.valueOf(5), number.issueNumbers[0]);
 		assertEquals(Integer.valueOf(191), number.cover);
 	}
 	
@@ -46,7 +48,7 @@ public class IssueNumberFieldParserTest extends BaseFieldTest {
 		String input = "34 (132)";
 		ComicIssueNumber number = parser.parse(input);
 		assertEquals(Integer.valueOf(132), number.cover);
-		assertEquals(Integer.valueOf(34), number.issueNumbers.iterator().next());
+		assertEquals(Integer.valueOf(34), number.issueNumbers[0]);
 	}
 	
 	@Test
@@ -55,7 +57,7 @@ public class IssueNumberFieldParserTest extends BaseFieldTest {
 		IssueNumberFieldParser parser = new IssueNumberFieldParser(thingFactory);
 		String input = "34 [191]";
 		ComicIssueNumber number = parser.parse(input);
-		assertEquals(Integer.valueOf(34), number.issueNumbers.iterator().next());
+		assertEquals(Integer.valueOf(34), number.issueNumbers[0]);
 		assertEquals(Integer.valueOf(191), number.assigned);
 	}
 	
@@ -66,8 +68,8 @@ public class IssueNumberFieldParserTest extends BaseFieldTest {
 		String input = "69 / 9";
 		ComicIssueNumber number = parser.parse(input);
 		
-		assertTrue(number.issueNumbers.contains(69));
-		assertTrue(number.issueNumbers.contains(9));
+		assertTrue(Arrays.asList(number.issueNumbers).contains(69));
+		assertTrue(Arrays.asList(number.issueNumbers).contains(9));
 	}
 	
 	@Test

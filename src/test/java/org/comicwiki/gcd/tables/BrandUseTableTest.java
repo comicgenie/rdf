@@ -3,6 +3,8 @@ package org.comicwiki.gcd.tables;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Arrays;
+
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
 import org.comicwiki.ThingFactory;
@@ -74,7 +76,7 @@ public class BrandUseTableTest extends TableTestCase<BrandUseTable> {
 		BrandUseRow row2 = table.process(row);
 		table.tranform();
 		assertEquals("My note", row2.notes);
-		assertTrue(row2.instance.description.contains("My note"));
+		assertTrue(Arrays.asList(row2.instance.description).contains("My note"));
 	}
 
 }

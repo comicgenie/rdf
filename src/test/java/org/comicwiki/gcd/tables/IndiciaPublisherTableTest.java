@@ -56,7 +56,7 @@ public class IndiciaPublisherTableTest extends
 
 		assertNotNull(row2.country);
 		assertEquals("United States", row2.country.name);
-		assertEquals("us", row2.country.countryCode.iterator().next());
+		assertEquals("us", row2.country.countryCode[0]);
 	}
 
 	@Test

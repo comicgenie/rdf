@@ -61,7 +61,7 @@ public class CountryTable extends BaseTable<CountryTable.CountryRow> {
 		CountryRow countryRow = new CountryRow();
 		countryRow.instance.name = row.getString(Columns.NAME);
 		if (!row.isNullAt(Columns.CODE)) {
-			countryRow.instance.countryCode.add(row.getString(Columns.CODE));
+			countryRow.instance.addCountry(row.getString(Columns.CODE));
 		}
 		if (!row.isNullAt(Columns.ID)) {
 			countryRow.id = row.getInt(Columns.ID);

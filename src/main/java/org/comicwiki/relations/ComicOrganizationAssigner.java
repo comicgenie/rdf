@@ -46,7 +46,7 @@ public final class ComicOrganizationAssigner {
 					checkNotNull(cc.instanceId, "ComicCharacter.instanceId: "
 							+ cc.name);
 					cc.addMemberOf(organization.instanceId);
-					organization.members.add(cc.instanceId);
+					organization.addMembers(cc.instanceId);
 				});
 	}
 

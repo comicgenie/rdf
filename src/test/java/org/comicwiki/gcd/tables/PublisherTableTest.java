@@ -46,7 +46,7 @@ public class PublisherTableTest extends TableTestCase<PublisherTable> {
 
 		assertNotNull(row2.instance.location);
 		assertEquals("United States", row2.country.name);
-		assertEquals("us", row2.country.countryCode.iterator().next());
+		assertEquals("us", row2.country.countryCode[0]);
 	}
 	
 	@Test

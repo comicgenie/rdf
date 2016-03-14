@@ -27,13 +27,6 @@ public class Genre extends Thing {
 
 	public static Genre[] addGenre(Genre[] genres, Genre genre) {
 		return ObjectArrays.concat(genres, genre);
-		/*
-		if (!Arrays.asList(genres).contains(genre)) {
-			
-		} else {
-			return genres;
-		}
-		*/
 	}
 	
 	

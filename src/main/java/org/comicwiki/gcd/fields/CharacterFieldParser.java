@@ -104,7 +104,7 @@ public final class CharacterFieldParser implements
 				.create(ComicCharacterNote.class);
 		storyNote.story = story.instanceId;
 		storyNote.comicCharacter = character.instanceId;
-		storyNote.note.add(note);
+		storyNote.addNote(note);
 		story.addStoryNote(storyNote.instanceId);
 		return storyNote;
 	}
@@ -115,7 +115,7 @@ public final class CharacterFieldParser implements
 				.create(ComicOrganizationNote.class);
 		storyNote.story = story.instanceId;
 		storyNote.comicOrganization = org.instanceId;
-		storyNote.note.add(note);
+		storyNote.addNote(note);
 		story.addStoryNote(storyNote.instanceId);
 		return storyNote;
 	}
@@ -123,13 +123,15 @@ public final class CharacterFieldParser implements
 	private void assignColleagues() {
 		for (ComicOrganization comicOrganization : organizationsCache.values()) {
 			Collection<ComicCharacter> team = new HashSet<>();
-			for (IRI member : comicOrganization.members) {
-				ComicCharacter cc = getCharacter(member);
-				if (cc == null) {
+			if(comicOrganization.members != null) {
+				for (IRI member : comicOrganization.members) {
+					ComicCharacter cc = getCharacter(member);
+					if (cc == null) {
 
-				} else {
-					team.add(cc);
-				}
+					} else {
+						team.add(cc);
+					}
+				}				
 			}
 			if (!team.isEmpty()) {
 				ComicCharactersAssigner charAssigner = new ComicCharactersAssigner(
@@ -188,7 +190,7 @@ public final class CharacterFieldParser implements
 
 		for (String name : members) {
 			ComicCharacter member = createComicCharacter(name);
-			organization.members.add(member.instanceId);
+			organization.addMembers(member.instanceId);
 			member.addIdentity(organization.instanceId);
 			member.addMemberOf(organization.instanceId);
 		}

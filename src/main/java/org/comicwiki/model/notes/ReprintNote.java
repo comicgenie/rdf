@@ -3,6 +3,7 @@ package org.comicwiki.model.notes;
 import java.util.Collection;
 import java.util.HashSet;
 
+import org.comicwiki.Add;
 import org.comicwiki.IRI;
 import org.comicwiki.model.schema.Intangible;
 import org.comicwiki.rdf.annotations.ObjectIRI;
@@ -17,7 +18,7 @@ public class ReprintNote extends Intangible {
 
 	@Predicate("note")
 	@ObjectString
-	public Collection<String> note = new HashSet<>(3);
+	public String[] note;
 
 	@Predicate("print")
 	@ObjectIRI
@@ -28,16 +29,14 @@ public class ReprintNote extends Intangible {
 	public IRI reprint;
 	
 	public void addReprintNote(String n) {
-		if(note == null) {
-			note = new HashSet<>(3); 
-		}
-		note.add(n);
+		note = Add.one(note, n);
 	}
 	
 	public void addReprintNote(Collection<String> n) {
-		if(note == null) {
-			note = new HashSet<>(3); 
-		}
-		note.addAll(n);
+		note = Add.both(note, n, String.class);
+	}
+	
+	public void addReprintNote(String[] n) {
+		note = Add.both(note, n, String.class);
 	}
 }

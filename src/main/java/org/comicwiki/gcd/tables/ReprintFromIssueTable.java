@@ -24,6 +24,7 @@ import org.comicwiki.BaseTable;
 import org.comicwiki.Join;
 import org.comicwiki.TableRow;
 import org.comicwiki.ThingFactory;
+import org.comicwiki.joinrules.IdToInstanceJoinRule;
 import org.comicwiki.model.notes.ReprintNote;
 import org.comicwiki.model.schema.bib.ComicIssue;
 import org.comicwiki.model.schema.bib.ComicStory;
@@ -35,8 +36,8 @@ import com.google.inject.Singleton;
 /**
  * Issue has one of it's stories reprinted
  */
-@Join(value = IssueTable.class, leftKey = "fkOriginIssueId", leftField = "originalIssue")
-@Join(value = StoryTable.class, leftKey = "fkTargetStoryId", leftField = "reprintStory")
+@Join(value = IssueTable.class, leftKey = "fkOriginIssueId", leftField = "originalIssue", withRule=IdToInstanceJoinRule.class)
+@Join(value = StoryTable.class, leftKey = "fkTargetStoryId", leftField = "reprintStory", withRule=IdToInstanceJoinRule.class)
 @Singleton
 public class ReprintFromIssueTable extends
 		BaseTable<ReprintFromIssueTable.ReprintFromIssueRow> {

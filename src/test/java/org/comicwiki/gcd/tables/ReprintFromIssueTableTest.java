@@ -2,6 +2,8 @@ package org.comicwiki.gcd.tables;
 
 import static org.junit.Assert.*;
 
+import java.util.Arrays;
+
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
 import org.comicwiki.BaseTable;
@@ -114,7 +116,7 @@ public class ReprintFromIssueTableTest extends
 		assertEquals(reprintFromRow.instance.reprint,
 				tableRow.instance.instanceId);
 
-		assertTrue(reprintFromRow.originalIssue.reprintNote
+		assertTrue(Arrays.asList(reprintFromRow.originalIssue.reprintNote)
 				.contains(reprintFromRow.instance.instanceId));
 	}
 

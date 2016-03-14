@@ -27,6 +27,7 @@ import org.comicwiki.BaseTable;
 import org.comicwiki.Join;
 import org.comicwiki.TableRow;
 import org.comicwiki.ThingFactory;
+import org.comicwiki.joinrules.IdToInstanceJoinRule;
 import org.comicwiki.model.Instant;
 import org.comicwiki.model.schema.Country;
 import org.comicwiki.model.schema.Organization;
@@ -35,8 +36,8 @@ import com.google.common.base.Strings;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-@Join(value = CountryTable.class, leftKey = "fkCountryId", leftField = "country")
-@Join(value = PublisherTable.class, leftKey = "fkParentId", leftField = "parentOrganization")
+@Join(value = CountryTable.class, leftKey = "fkCountryId", leftField = "country", withRule=IdToInstanceJoinRule.class)
+@Join(value = PublisherTable.class, leftKey = "fkParentId", leftField = "parentOrganization", withRule=IdToInstanceJoinRule.class)
 @Singleton
 public class IndiciaPublisherTable extends
 		BaseTable<IndiciaPublisherTable.IndiciaPublisherRow> {

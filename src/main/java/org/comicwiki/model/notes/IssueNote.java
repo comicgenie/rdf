@@ -1,8 +1,6 @@
 package org.comicwiki.model.notes;
 
-import java.util.Collection;
-import java.util.HashSet;
-
+import org.comicwiki.Add;
 import org.comicwiki.IRI;
 import org.comicwiki.model.schema.Intangible;
 import org.comicwiki.rdf.annotations.ObjectIRI;
@@ -17,9 +15,13 @@ public class IssueNote extends Intangible {
 
 	@Predicate("note")
 	@ObjectString
-	public Collection<String> note = new HashSet<>(3);
+	public String[] note;
 
 	@Predicate("issue")
 	@ObjectIRI
 	public IRI issue;
+	
+	public void addIssueNote(String n) {
+		note = Add.one(note, n);
+	}
 }

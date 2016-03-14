@@ -29,8 +29,10 @@ public class PriceFieldParser extends BaseFieldParser implements
 	private static PriceFieldContext getContextOf(String textField,
 			boolean failOnError) {
 		PriceLexer lexer = new PriceLexer(new ANTLRInputStream(textField));
+		lexer.removeErrorListeners();
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
 		PriceParser parser = new PriceParser(tokens);
+		parser.removeParseListeners();
 		if (failOnError) {
 			// parser.setErrorHandler(new BailErrorStrategy());
 		}
@@ -104,15 +106,20 @@ public class PriceFieldParser extends BaseFieldParser implements
 		if (priceContext != null) {
 			DecimalPrice price = thingFactory.create(DecimalPrice.class);
 			price.display = priceContext.getText();
+			price.note = note;
+			
 			if (priceContext.PRICE() != null) {
-				price.amount = Double.valueOf(priceContext.PRICE().getText());
+				try {
+					price.amount = Double.valueOf(priceContext.PRICE().getText());
+				} catch (NumberFormatException e) {
+					//handle "1,10'
+				}
 			}
 			price.currency = getValue(priceContext.CURRENCY_CODE());
 			price.country = getValue(priceContext.COUNTRY());
 			if (isInferred) {
 				price.isInferred = true;
-			}
-			price.note = note;
+			}		
 			prices.add(price);
 		}
 	}

@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Scanner;
@@ -105,16 +106,16 @@ public class CharacterFieldParserTest {
 		assertEquals(1, field.comicOrganizations.size());
 
 		ComicOrganization co = field.comicOrganizations.iterator().next();
-		assertEquals(2, co.members.size());
+		assertEquals(2, co.members.length);
 
 		IRI jean = assertHasName(characters, "Jean Grey");
 		IRI rogue = assertHasName(characters, "Rogue");
-		assertTrue(co.members.contains(jean));
-		assertTrue(co.members.contains(rogue));
+		assertTrue(Arrays.asList(co.members).contains(jean));
+		assertTrue(Arrays.asList(co.members).contains(rogue));
 
 		IRI xmen = assertHasOrganization(Lists.newArrayList(co), "X-Men");
 		for (ComicCharacter cc : field.comicCharacters) {
-			assertTrue(cc.memberOf.contains(xmen));
+			assertTrue(Arrays.asList(cc.memberOf).contains(xmen));
 		}
 	}
 
@@ -150,22 +151,22 @@ public class CharacterFieldParserTest {
 		ComicCharacter AChar = (ComicCharacter) thingFactory.getCache().get(A);
 		ComicCharacter BChar = (ComicCharacter) thingFactory.getCache().get(B);
 
-		assertEquals(2, xmenOrg.members.size());
+		assertEquals(2, xmenOrg.members.length);
 
-		assertTrue(xmenOrg.members.contains(jean));
-		assertTrue(xmenOrg.members.contains(rogue));
+		assertTrue(Arrays.asList(xmenOrg.members).contains(jean));
+		assertTrue(Arrays.asList(xmenOrg.members).contains(rogue));
 
-		assertTrue(ymenOrg.members.contains(A));
-		assertTrue(ymenOrg.members.contains(B));
+		assertTrue(Arrays.asList(ymenOrg.members).contains(A));
+		assertTrue(Arrays.asList(ymenOrg.members).contains(B));
 
-		assertTrue(jeanChar.memberOf.contains(xmen));
-		assertFalse(jeanChar.memberOf.contains(ymen));
+		assertTrue(Arrays.asList(jeanChar.memberOf).contains(xmen));
+		assertFalse(Arrays.asList(jeanChar.memberOf).contains(ymen));
 
-		assertTrue(AChar.memberOf.contains(ymen));
-		assertFalse(AChar.memberOf.contains(xmen));
+		assertTrue(Arrays.asList(AChar.memberOf).contains(ymen));
+		assertFalse(Arrays.asList(AChar.memberOf).contains(xmen));
 
-		assertTrue(jeanChar.colleagues.contains(rogue));
-		assertFalse(jeanChar.colleagues.contains(A));
+		assertTrue(Arrays.asList(jeanChar.colleagues).contains(rogue));
+		assertFalse(Arrays.asList(jeanChar.colleagues).contains(A));
 	}
 
 	@Test
@@ -183,15 +184,15 @@ public class CharacterFieldParserTest {
 
 		for (ComicCharacter cc : field.comicCharacters) {
 			if (cc.instanceId.equals(robin)) {
-				assertEquals(1, cc.identities.size());
-				cc.identities.contains(dick);
+				assertEquals(1, cc.identities.length);
+				Arrays.asList(cc.identities).contains(dick);
 			} else if (cc.instanceId.equals(dick)) {
-				assertEquals(2, cc.identities.size());
-				cc.identities.contains(robin);
-				cc.identities.contains(name);
+				assertEquals(2, cc.identities.length);
+				Arrays.asList(cc.identities).contains(robin);
+				Arrays.asList(cc.identities).contains(name);
 			} else if (cc.instanceId.equals(name)) {
-				assertEquals(1, cc.identities.size());
-				cc.identities.contains(dick);
+				assertEquals(1, cc.identities.length);
+				Arrays.asList(cc.identities).contains(dick);
 			}
 		}
 	}
@@ -283,12 +284,12 @@ public class CharacterFieldParserTest {
 		assertEquals(2, field.comicCharacters.size());
 
 		for (ComicCharacter cc : field.comicCharacters) {
-			assertEquals(1, cc.identities.size());
+			assertEquals(1, cc.identities.length);
 			System.out.println(cc.instanceId);
 			if (cc.instanceId.equals(new IRI("-1"))) {
-				cc.identities.contains(new IRI("-2"));
+				Arrays.asList(cc.identities).contains(new IRI("-2"));
 			} else if (cc.instanceId.equals(new IRI("-2"))) {
-				cc.identities.contains(new IRI("-1"));
+				Arrays.asList(cc.identities).contains(new IRI("-1"));
 			} else {
 				throw new Exception();
 			}
@@ -339,7 +340,7 @@ public class CharacterFieldParserTest {
 		}
 
 		assertEquals(1, notes.size());
-		assertEquals("a note", notes.iterator().next().note.iterator().next());
+		assertEquals("a note", notes.iterator().next().note[0]);
 
 	}
 
@@ -369,10 +370,10 @@ public class CharacterFieldParserTest {
 		ComicOrganization xmenOrg = (ComicOrganization) thingFactory.getCache()
 				.get(xmen);
 
-		assertEquals(2, xmenOrg.members.size());
+		assertEquals(2, xmenOrg.members.length);
 
-		assertTrue(xmenOrg.members.contains(jean));
-		assertTrue(xmenOrg.members.contains(rogue));
+		assertTrue(Arrays.asList(xmenOrg.members).contains(jean));
+		assertTrue(Arrays.asList(xmenOrg.members).contains(rogue));
 
 		Collection<Thing> things = thingFactory.getCache().getThings();
 		Collection<ComicCharacterNote> notes = Lists.newArrayList();
@@ -386,8 +387,8 @@ public class CharacterFieldParserTest {
 		Iterator<ComicCharacterNote> it = notes.iterator();
 		ComicCharacterNote storyNote1 = it.next();
 		ComicCharacterNote storyNote2 = it.next();
-		assertEquals("GUEST", storyNote1.note.iterator().next());
-		assertEquals("GUEST", storyNote2.note.iterator().next());
+		assertEquals("GUEST", storyNote1.note[0]);
+		assertEquals("GUEST", storyNote2.note[0]);
 
 		assertTrue(storyNote1.comicCharacter.equals(nick)
 				|| storyNote1.comicCharacter.equals(shield));
@@ -420,10 +421,10 @@ public class CharacterFieldParserTest {
 		ComicOrganization xmenOrg = (ComicOrganization) thingFactory.getCache()
 				.get(xmen);
 
-		assertEquals(2, xmenOrg.members.size());
+		assertEquals(2, xmenOrg.members.length);
 
-		assertTrue(xmenOrg.members.contains(jean));
-		assertTrue(xmenOrg.members.contains(rogue));
+		assertTrue(Arrays.asList(xmenOrg.members).contains(jean));
+		assertTrue(Arrays.asList(xmenOrg.members).contains(rogue));
 
 		Collection<Thing> things = thingFactory.getCache().getThings();
 		Collection<ComicCharacterNote> notes = Lists.newArrayList();
@@ -439,10 +440,10 @@ public class CharacterFieldParserTest {
 		ComicCharacterNote storyNote2 = it.next();
 		ComicCharacterNote storyNote3 = it.next();
 		ComicCharacterNote storyNote4 = it.next();
-		assertEquals("female", storyNote1.note.iterator().next());
-		assertEquals("not male", storyNote2.note.iterator().next());
-		assertEquals("GUEST", storyNote3.note.iterator().next());
-		assertEquals("GUEST", storyNote4.note.iterator().next());
+		assertEquals("female", storyNote1.note[0]);
+		assertEquals("not male", storyNote2.note[0]);
+		assertEquals("GUEST", storyNote3.note[0]);
+		assertEquals("GUEST", storyNote4.note[0]);
 
 		assertTrue(storyNote3.comicCharacter.equals(nick)
 				|| storyNote3.comicCharacter.equals(shield));
@@ -475,10 +476,10 @@ public class CharacterFieldParserTest {
 		ComicOrganization xmenOrg = (ComicOrganization) thingFactory.getCache()
 				.get(xmen);
 
-		assertEquals(2, xmenOrg.members.size());
+		assertEquals(2, xmenOrg.members.length);
 
-		assertTrue(xmenOrg.members.contains(jean));
-		assertTrue(xmenOrg.members.contains(rogue));
+		assertTrue(Arrays.asList(xmenOrg.members).contains(jean));
+		assertTrue(Arrays.asList(xmenOrg.members).contains(rogue));
 
 		Collection<Thing> things = thingFactory.getCache().getThings();
 		Collection<ComicCharacterNote> notes = Lists.newArrayList();
@@ -492,8 +493,8 @@ public class CharacterFieldParserTest {
 		Iterator<ComicCharacterNote> it = notes.iterator();
 		ComicCharacterNote storyNote1 = it.next();
 		ComicCharacterNote storyNote2 = it.next();
-		assertEquals("GUEST", storyNote1.note.iterator().next());
-		assertEquals("GUEST", storyNote2.note.iterator().next());
+		assertEquals("GUEST", storyNote1.note[0]);
+		assertEquals("GUEST", storyNote2.note[0]);
 
 		assertTrue(storyNote1.comicCharacter.equals(nick)
 				|| storyNote1.comicCharacter.equals(shield));
@@ -552,10 +553,10 @@ public class CharacterFieldParserTest {
 		ComicCharacterNote storyNote3 = it.next();
 		ComicCharacterNote storyNote4 = it.next();
 
-		assertEquals("INTRODUCTION", storyNote1.note.iterator().next());
-		assertEquals("INTRODUCTION", storyNote2.note.iterator().next());
-		assertEquals("GUEST", storyNote3.note.iterator().next());
-		assertEquals("GUEST", storyNote4.note.iterator().next());
+		assertEquals("INTRODUCTION", storyNote1.note[0]);
+		assertEquals("INTRODUCTION", storyNote2.note[0]);
+		assertEquals("GUEST", storyNote3.note[0]);
+		assertEquals("GUEST", storyNote4.note[0]);
 
 		assertTrue(storyNote1.comicCharacter.equals(jean)
 				|| storyNote1.comicCharacter.equals(rogue));
@@ -601,11 +602,11 @@ public class CharacterFieldParserTest {
 		ComicCharacterNote storyNote4 = it.next();
 		ComicCharacterNote storyNote5 = it.next();
 
-		assertEquals("INTRODUCTION", storyNote1.note.iterator().next());
-		assertEquals("INTRODUCTION", storyNote2.note.iterator().next());
-		assertEquals("GUEST", storyNote3.note.iterator().next());
-		assertEquals("GUEST", storyNote4.note.iterator().next());
-		assertEquals("is organization", storyNote5.note.iterator().next());
+		assertEquals("INTRODUCTION", storyNote1.note[0]);
+		assertEquals("INTRODUCTION", storyNote2.note[0]);
+		assertEquals("GUEST", storyNote3.note[0]);
+		assertEquals("GUEST", storyNote4.note[0]);
+		assertEquals("is organization", storyNote5.note[0]);
 
 		assertTrue(storyNote1.comicCharacter.equals(jean)
 				|| storyNote1.comicCharacter.equals(rogue));

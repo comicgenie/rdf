@@ -18,11 +18,8 @@ package org.comicwiki.gcd.tables;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Collection;
 import java.util.Date;
-import java.util.HashSet;
 
-import org.apache.avro.ipc.specific.Person;
 import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
@@ -32,6 +29,7 @@ import org.comicwiki.Join;
 import org.comicwiki.TableRow;
 import org.comicwiki.ThingFactory;
 import org.comicwiki.gcd.fields.FieldParserFactory;
+import org.comicwiki.joinrules.IdToInstanceJoinRule;
 import org.comicwiki.model.Instant;
 import org.comicwiki.model.TemporalEntity;
 import org.comicwiki.model.schema.Country;
@@ -40,13 +38,12 @@ import org.comicwiki.model.schema.Organization;
 import org.comicwiki.model.schema.bib.ComicSeries;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-@Join(value = LanguageTable.class, leftKey = "fkLanguageId", leftField = "language")
-@Join(value = CountryTable.class, leftKey = "fkCountryId", leftField = "country")
-@Join(value = PublisherTable.class, leftKey = "fkPublisherId", leftField = "publisher")
+@Join(value = LanguageTable.class, leftKey = "fkLanguageId", leftField = "language", withRule=IdToInstanceJoinRule.class)
+@Join(value = CountryTable.class, leftKey = "fkCountryId", leftField = "country", withRule=IdToInstanceJoinRule.class)
+@Join(value = PublisherTable.class, leftKey = "fkPublisherId", leftField = "publisher", withRule=IdToInstanceJoinRule.class)
 @Join(value = SeriesPublicationTypeTable.class, leftKey = "fkPublicationTypeId", leftField = "publicationType", rightField = "name")
 @Singleton
 public class SeriesTable extends BaseTable<SeriesTable.SeriesRow> {
