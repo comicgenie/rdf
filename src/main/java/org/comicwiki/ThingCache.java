@@ -32,7 +32,7 @@ import com.google.inject.Singleton;
 public final class ThingCache {
 
 	private static final Logger LOG = Logger.getLogger("ETL");
-	
+
 	private final KeyIDGenerator instanceIDGen = new KeyIDGenerator(0);
 
 	private IRI assignInstanceId(Thing thing) {
@@ -69,8 +69,8 @@ public final class ThingCache {
 			}
 			if (sb.length() == 0) {
 				return "empty";
-				//throw new IllegalThingException("No values for any key: "
-				//		+ clazz.getName());
+				// throw new IllegalThingException("No values for any key: "
+				// + clazz.getName());
 			}
 			return DigestUtils.md5Hex(object.getClass().getCanonicalName()
 					+ ":" + sb.toString());
@@ -102,8 +102,8 @@ public final class ThingCache {
 
 	protected final HashMap<IRI, Thing> instanceCache = new HashMap<>(1000000);
 
-//	protected final HashMapShard instanceCache  = new HashMapShard(3);
-	
+	// protected final HashMapShard instanceCache = new HashMapShard(3);
+
 	private final Repositories repositories;
 
 	private final IRICache iriCache;
@@ -132,15 +132,13 @@ public final class ThingCache {
 	}
 
 	public synchronized void assignResourceIDs() {
-	
-	//	HashMap<IRI, String> instanceCpkMap = new HashMap<>(1000000);
 		HashMap<IRI, IRI> instanceResourceMap = new HashMap<>(1000000);
 		int count = 0;
 		for (Thing thing : instanceCache.values()) {
 			if (count++ % 100000 == 0) {
-				LOG.info("Rows with assigned IDs: " + count 
-						+ ", InstanceCpkMap =" + 0
-						+ ", InstanceResourceMap =" + instanceResourceMap.size());
+				LOG.info("Rows with assigned IDs: " + count
+						+ ", InstanceCpkMap =" + 0 + ", InstanceResourceMap ="
+						+ instanceResourceMap.size());
 			}
 			Subject subjectAnnotation = (Subject) thing.getClass()
 					.getAnnotation(Subject.class);
@@ -148,34 +146,29 @@ public final class ThingCache {
 				thing.resourceId = new IRI(
 						resourceIDCache.generateAnonymousId());
 				thing.compositePropertyKey = thing.resourceId.value;
-				//instanceCpkMap
-				//		.put(thing.instanceId, thing.compositePropertyKey);
-				resourceIDCache.put(thing.compositePropertyKey,
-						thing.resourceId);
 			} else {
 				thing.compositePropertyKey = readCompositePropertyKey(thing);
 				if (Strings.isNullOrEmpty(thing.compositePropertyKey)) {
-				//	throw new IllegalArgumentException(
-				System.out.println("ETL: " +			"thing.compositePropertyKey is empty: "
-									+ thing.getClass() + ", thing.name=" + thing.name + ":" + thing);
+					// throw new IllegalArgumentException(
+					System.out.println("ETL: "
+							+ "thing.compositePropertyKey is empty: "
+							+ thing.getClass() + ", thing.name=" + thing.name
+							+ ":" + thing);
 				}
-			//	instanceCpkMap
-			//			.put(thing.instanceId, thing.compositePropertyKey);
-
-				if (!resourceIDCache.containsKey(thing.compositePropertyKey)) {
+				IRI thingResourceId = resourceIDCache
+						.get(thing.compositePropertyKey);
+				if (thingResourceId != null) {
+					thing.resourceId = thingResourceId;
+				} else {
 					thing.resourceId = new IRI(
 							resourceIDCache.generateResourceId());
 					resourceIDCache.put(thing.compositePropertyKey,
 							thing.resourceId);
-				} else {
-					thing.resourceId = resourceIDCache
-							.get(thing.compositePropertyKey);
 				}
 			}
 
 			instanceResourceMap.put(thing.instanceId, thing.resourceId);
 		}
-		//instanceCpkMap.clear();
 		
 		LOG.info("Assign iri values");
 		for (IRI iri : iriCache.values()) {
@@ -187,9 +180,9 @@ public final class ThingCache {
 		for (Thing thing : instanceCache.values()) {
 			Repository<Thing> repo = repositories.getRepository(thing
 					.getClass());
-			if(repo != null) {
+			if (repo != null) {
 				repo.add(thing);
-			}		
+			}
 		}
 	}
 }

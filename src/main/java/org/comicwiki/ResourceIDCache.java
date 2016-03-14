@@ -48,7 +48,7 @@ public class ResourceIDCache {
 
 	private KeyIDGenerator anonymousIDGen = new KeyIDGenerator(0);
 
-	private final HashMap<String, IRI> cpkResourceMap = new HashMap<>();
+	private final HashMap<String, IRI> cpkResourceMap = new HashMap<>(100000);
 
 	private KeyIDGenerator resourceIDGen = new KeyIDGenerator(0);
 
