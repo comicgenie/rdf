@@ -1,9 +1,14 @@
 package org.comicwiki;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 
+import com.fasterxml.jackson.core.JsonEncoding;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import com.google.inject.Inject;
@@ -48,7 +53,7 @@ public class ResourceIDCache {
 
 	private KeyIDGenerator anonymousIDGen = new KeyIDGenerator(0);
 
-	private final HashMap<String, IRI> cpkResourceMap = new HashMap<>(100000);
+	private HashMap<String, IRI> cpkResourceMap = new HashMap<>(100000);
 
 	private KeyIDGenerator resourceIDGen = new KeyIDGenerator(0);
 
@@ -56,14 +61,29 @@ public class ResourceIDCache {
 	public ResourceIDCache() {
 	}
 
-	public boolean containsKey(String key) {
-		return cpkResourceMap.containsKey(key);
+	public void clear() {
+		cpkResourceMap.clear();
+		cpkResourceMap = null;
 	}
-
 	public void exportResourceIDs(File file) throws IOException {
-		ObjectMapper mapper = new ObjectMapper();
-		mapper.writeValue(System.out, cpkResourceMap);
-		// CPK_RESOURCE_MAP
+		//ObjectMapper mapper = new ObjectMapper();
+		//FileOutputStream fos = new FileOutputStream(file);		
+		//mapper.writeValue(fos, cpkResourceMap);
+		//fos.close();
+		
+		JsonFactory factory = new JsonFactory();
+		JsonGenerator generator = factory.createGenerator(file, JsonEncoding.UTF8);
+		
+		generator.writeStartObject();
+		generator.writeStartArray();
+		for(Map.Entry<String, IRI> e : cpkResourceMap.entrySet()) {
+			generator.writeStartObject();
+			generator.writeStringField(e.getKey(), e.getValue().value); 
+			generator.writeEndObject();
+		}
+		generator.writeEndArray();
+		generator.writeEndObject();
+		generator.close();
 	}
 
 	public String generateAnonymousId() {

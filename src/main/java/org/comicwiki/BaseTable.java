@@ -15,16 +15,15 @@
  *******************************************************************************/
 package org.comicwiki;
 
+import gnu.trove.map.hash.TIntObjectHashMap;
+
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 import java.util.logging.Logger;
 
 import org.apache.spark.sql.Column;
@@ -60,7 +59,7 @@ public abstract class BaseTable<ROW extends TableRow<?>> {
 
 	// public Map<Integer, ROW> rowCache = new Int2ObjectOpenHashMap<ROW>();
 
-	public Map<Integer, ROW> rowCache = new HashMap<>();
+	public TIntObjectHashMap<ROW> rowCache = new TIntObjectHashMap<ROW>();
 
 	protected final String datasourceName;
 
@@ -72,6 +71,11 @@ public abstract class BaseTable<ROW extends TableRow<?>> {
 		this(sqlContext, datasourceName, TableFormat.RDB);
 	}
 
+	public void clear() {
+		rowCache.clear();
+		rowCache = null;
+	}
+	
 	public BaseTable(SQLContext sqlContext, String datasourceName,
 			TableFormat tableFormat) {
 		this.sqlContext = sqlContext;
@@ -85,7 +89,7 @@ public abstract class BaseTable<ROW extends TableRow<?>> {
 
 	protected ArrayList<ROW> cacheToArray() {
 		ArrayList<ROW> ar = new ArrayList<>();
-		Collection<ROW> rightRows = getCache().values();
+		Collection<ROW> rightRows = getCache().valueCollection();
 		for (ROW row : rightRows) {
 			ar.add(row);
 		}
@@ -112,11 +116,11 @@ public abstract class BaseTable<ROW extends TableRow<?>> {
 		}
 
 		frame = sqlContext.read().load(datasourceName);
-		// frame.persist(StorageLevel.MEMORY_AND_DISK_SER());
 		frame.cache();
 		setCacheSize((int) frame.count());
 
 		Row[] rows = frame.collect();
+		frame.unpersist();
 		frame = null;
 
 		for (int i = 0; i < rows.length; i++) {
@@ -132,7 +136,7 @@ public abstract class BaseTable<ROW extends TableRow<?>> {
 
 	public final void parse() throws IOException {
 		int count = 0;
-		for (ROW row : rowCache.values()) {
+		for (ROW row : rowCache.valueCollection()) {
 			parseFields(row);
 			if (count++ % 100000 == 0) {
 				LOG.info("Parsed Rows: " + count);
@@ -148,7 +152,7 @@ public abstract class BaseTable<ROW extends TableRow<?>> {
 		return rowCache.get(id);
 	}
 
-	public final Map<Integer, ROW> getCache() {
+	public final TIntObjectHashMap<ROW> getCache() {
 		return rowCache;
 	}
 
@@ -181,7 +185,7 @@ public abstract class BaseTable<ROW extends TableRow<?>> {
 								+ getClass().getName() + ", Right Table= "
 								+ rightTable.getClass().getName() + ", LF ="
 								+ join.leftField() + ", LK=" + join.leftKey());
-						Map<Integer, ? extends TableRow<?>> cache = rightTable
+						TIntObjectHashMap  cache = rightTable
 								.getCache();
 						IdToInstanceJoinRule joinRule = (IdToInstanceJoinRule) join
 								.withRule().newInstance();
@@ -209,9 +213,9 @@ public abstract class BaseTable<ROW extends TableRow<?>> {
 								+ ", Right Table= "
 								+ rightTable.getClass().getName()
 								+ ", Rule Name = " + join.withRule().getName());
-						Map<Integer, ? extends TableRow<?>> cache = rightTable
+						TIntObjectHashMap<? extends TableRow<?>>  cache = rightTable
 								.getCache();
-						LookupJoinRule<ROW, Map<Integer, ? extends TableRow<?>>> joinRule = (LookupJoinRule<ROW, Map<Integer, ? extends TableRow<?>>>) join
+						LookupJoinRule<ROW, TIntObjectHashMap<? extends TableRow<?>>> joinRule = (LookupJoinRule<ROW, TIntObjectHashMap<? extends TableRow<?>> >) join
 								.withRule().newInstance();
 						int count = 0;
 						for (ROW leftRow : leftRows) {
@@ -425,14 +429,14 @@ public abstract class BaseTable<ROW extends TableRow<?>> {
 	}
 
 	private void setCacheSize(int size) {
-		rowCache = new HashMap<Integer, ROW>(size);
+		rowCache = new TIntObjectHashMap<ROW>(size);
 	}
 
 	public final void tranform() {
 		if (rowCache != null) {
 			LOG.info("Beginning tranform on rows: count = " + rowCache.size());
 			int count = 0;
-			Iterator<ROW> it = rowCache.values().iterator();
+			Iterator<ROW> it = rowCache.valueCollection().iterator();
 			while(it.hasNext()) {
 				ROW row = it.next();
 				transform(row);

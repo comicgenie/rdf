@@ -19,55 +19,17 @@ import java.io.File;
 import java.util.logging.Logger;
 
 import org.apache.spark.sql.SQLContext;
-import org.comicwiki.gcd.tables.BrandEmblemGroupTable;
-import org.comicwiki.gcd.tables.BrandGroupTable;
-import org.comicwiki.gcd.tables.BrandTable;
-import org.comicwiki.gcd.tables.BrandUseTable;
-import org.comicwiki.gcd.tables.CountryTable;
-import org.comicwiki.gcd.tables.IndiciaPublisherTable;
-import org.comicwiki.gcd.tables.IssueReprintTable;
-import org.comicwiki.gcd.tables.IssueTable;
-import org.comicwiki.gcd.tables.LanguageTable;
-import org.comicwiki.gcd.tables.PublisherTable;
-import org.comicwiki.gcd.tables.ReprintFromIssueTable;
-import org.comicwiki.gcd.tables.ReprintTable;
-import org.comicwiki.gcd.tables.ReprintToIssueTable;
-import org.comicwiki.gcd.tables.SeriesBondTable;
-import org.comicwiki.gcd.tables.SeriesBondTypeTable;
-import org.comicwiki.gcd.tables.SeriesPublicationTypeTable;
-import org.comicwiki.gcd.tables.SeriesTable;
-import org.comicwiki.gcd.tables.StoryTable;
-import org.comicwiki.gcd.tables.StoryTypeTable;
 
 import com.google.inject.Inject;
-import com.google.inject.Injector;
 
-public class ETL {
+final class ETL {
 
 	private static final Logger LOG = Logger.getLogger("ETL");
-
-	@SuppressWarnings("unchecked")
-	protected static final Class<? extends BaseTable<?>>[] tableClasses = new Class[] {
-			BrandEmblemGroupTable.class, BrandGroupTable.class,
-			BrandTable.class, BrandUseTable.class, CountryTable.class,
-			IndiciaPublisherTable.class, IssueReprintTable.class,
-			IssueTable.class, LanguageTable.class, PublisherTable.class,
-			ReprintFromIssueTable.class, ReprintTable.class,
-			ReprintToIssueTable.class, SeriesBondTable.class,
-			SeriesBondTypeTable.class, SeriesPublicationTypeTable.class,
-			SeriesTable.class, StoryTable.class, StoryTypeTable.class };
-
-	protected static BaseTable<TableRow<?>>[] getTables(Injector injector)
-			throws Exception {
-		BaseTable<TableRow<?>>[] tables = new BaseTable[tableClasses.length];
-		for (int i = 0; i < tableClasses.length; i++) {
-			tables[i] = (BaseTable<TableRow<?>>) injector
-					.getInstance(tableClasses[i]);
-		}
-		return tables;
-	}
-	private Injector injector;
+	
+	private WikiTableInjector injector;
+	
 	private Repositories repositories;
+	
 	private ResourceIDCache resourceIDCache;
 
 	private SQLContext sqlContext;
@@ -84,30 +46,17 @@ public class ETL {
 	}
 
 	public void fromRDB(String jdbcUrl) throws Exception {
-		for (BaseTable<?> table : getTables(injector)) {
+		for (BaseTable<?> table : injector.getTables()) {
 			if (table != null) {
 				table.saveToParquetFormat(jdbcUrl);
 			}
 		}
 	}
-
-	public void process(File resourceIds, File outputDir) throws Exception {
-		if (resourceIds == null) {
-			throw new IllegalArgumentException("resourceIds file not specified");
-		}
-
-		if (outputDir == null) {
-			throw new IllegalArgumentException("outputDir not specified");
-		} else {
-			outputDir.mkdirs();
-		}
-
-		if (resourceIds.exists()) {
-			resourceIDCache.loadResourceIDs(resourceIds);
-		}
-
-		BaseTable<TableRow<?>>[] tables = getTables(injector);
-
+	
+	protected void processTables() throws Exception {
+		BaseTable<TableRow<?>>[] tables = injector.getTables();
+		injector.destroy();
+		injector = null;
 		for (BaseTable<TableRow<?>> table : tables) {
 			if (table != null) {
 				try {
@@ -154,39 +103,61 @@ public class ETL {
 				try {
 					LOG.info("Transform table: " + table.datasourceName);
 					table.tranform();
-					table.getCache().clear();
+					table.clear();
 				} catch (Exception e) {
 					LOG.severe("Transform failure: " + table.datasourceName
 							+ ", " + e.getMessage());
 					e.printStackTrace();
 				}
 			}
+		}	
+	}
+
+	public void process(File resourceIds, File outputDir) throws Exception {
+		if (resourceIds == null) {
+			throw new IllegalArgumentException("resourceIds file not specified");
 		}
-		tables = null;
+
+		if (outputDir == null) {
+			throw new IllegalArgumentException("outputDir not specified");
+		} else {
+			outputDir.mkdirs();
+		}
 		
+		processTables();
+		
+		if (resourceIds.exists()) {
+			resourceIDCache.loadResourceIDs(resourceIds);
+		}
+
 		LOG.info("Assign resource IDs");
 		thingCache.assignResourceIDs();
-
+		//thingCache.clear();
+		
+		LOG.info("Export resource IDs: size = " + resourceIds.length());
+		resourceIDCache.exportResourceIDs(resourceIds);
+		resourceIDCache.clear();
+		
 		LOG.info("Export to repositories");
 		thingCache.exportToRepositories();
-
+		thingCache.clear();
+		
 		for (Repository<?> repo : repositories.getRepositories()) {
 			LOG.info("Export Repository: " + repo.getName());
 			repo.transform();
 			try {
-				repo.save(new File(outputDir, repo.getName() + ".json"),
-						DataFormat.JSON);
+			//	repo.save(new File(outputDir, repo.getName() + ".json"),
+			//			DataFormat.JSON);
 				repo.save(new File(outputDir, repo.getName() + ".ttl"),
 						DataFormat.TURTLE);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
-		LOG.info("Export resource IDs: size = " + resourceIds.length());
-		resourceIDCache.exportResourceIDs(resourceIds);
+
 	}
 
-	public void setInjector(Injector injector) {
+	public void setInjector(WikiTableInjector injector) {
 		this.injector = injector;
 	}
 }

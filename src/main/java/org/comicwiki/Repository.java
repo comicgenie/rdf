@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -67,22 +68,26 @@ public class Repository<T extends Thing> {
 				Object targetValue = field.get(target);
 				if (targetValue == null) {
 					field.set(target, sourceValue);
-				} else if (targetValue instanceof Collection) {
-					Collection tV = (Collection<?>) targetValue;
-					Collection sV = (Collection<?>) sourceValue;
-					
-					if(sV != null) {
-						if(tV != null) {
-							tV.addAll(sV);
-						} else {
-							tV = sV;
-						}
-					} else {
-						sV = tV;
-					}				
-				} else if (targetValue instanceof Thing) {
+				} else if (targetValue instanceof Thing) {// CreativeWork
 					mergeObjects(sourceValue, targetValue);
+				} else if (targetValue instanceof IRI[]) {
+					IRI[] tV = (IRI[]) targetValue;
+					IRI[] sV = (IRI[]) sourceValue;
+					field.set(target, Add.both(tV, sV, IRI.class));
+				} else if (targetValue instanceof String[]) {
+					String[] tV = (String[]) targetValue;
+					String[] sV = (String[]) sourceValue;
+					field.set(target, Add.both(sV, tV, String.class));
+				} else if (targetValue instanceof Number[]) {
+					Number[] tV = (Number[]) targetValue;
+					Number[] sV = (Number[]) sourceValue;
+					field.set(target, Add.both(tV, sV, Number.class));
+				} else if (targetValue instanceof URL[]) {
+					URL[] tV = (URL[]) targetValue;
+					URL[] sV = (URL[]) sourceValue;
+					field.set(target, Add.both(tV, sV, URL.class));
 				}
+
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -91,7 +96,7 @@ public class Repository<T extends Thing> {
 	}
 
 	// resourceId->Thing
-	public final HashMap<IRI, T> cache = new HashMap<>();
+	public final HashMap<IRI, T> cache = new HashMap<>(1000000);
 
 	protected ObjectMapper mapper = new ObjectMapper();
 
@@ -105,8 +110,9 @@ public class Repository<T extends Thing> {
 
 	public final void add(T item) {
 		IRI key = item.resourceId;
-		if (contains(key)) {
-			merge(item, getByKey(key));
+		T it = getByKey(key);
+		if (it != null) {
+			merge(item, it);
 		} else {
 			cache.put(key, item);
 		}
@@ -119,10 +125,6 @@ public class Repository<T extends Thing> {
 	public final void clear() {
 		cache.clear();
 		transforms.clear();
-	}
-
-	private boolean contains(IRI key) {
-		return cache.containsKey(key);
 	}
 
 	private T getByKey(IRI key) {

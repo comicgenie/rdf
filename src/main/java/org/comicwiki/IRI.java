@@ -18,12 +18,13 @@ public class IRI {
 			throw new IllegalArgumentException(
 					"value can't contain spaces " + value);
 		}
-		if (!cache.contains(value)) {
+		IRI iriValue = cache.get(value);
+		if(iriValue != null) {
+			return iriValue;
+		} else {
 			IRI iri = new IRI(value);
 			cache.add(iri);
 			return iri;
-		} else {
-			return cache.get(value);
 		}
 	}
 

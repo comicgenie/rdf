@@ -2,7 +2,6 @@ import static org.junit.Assert.*;
 
 import java.lang.reflect.Field;
 
-import org.comicwiki.ETL;
 import org.comicwiki.SparkUtils;
 import org.comicwiki.guice.ComicWikiModule;
 import org.junit.Test;
@@ -17,11 +16,13 @@ public class Main {
 	
 	//@Test
 	public void extract() throws Exception {
+		/*
 		Injector injector = Guice.createInjector(new ComicWikiModule(null));
 		ETL etl = injector.getInstance(ETL.class);
-		etl.setInjector(injector);
+	//	etl.setInjector(injector);
 		String jdbcUrl = SparkUtils.createJDBCUrl("root", "MyNewPass", "my_wiki");
 		etl.fromRDB(jdbcUrl);
+		*/
 	}
 	
 	@Test

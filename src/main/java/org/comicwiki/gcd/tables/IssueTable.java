@@ -97,7 +97,7 @@ public class IssueTable extends BaseTable<IssueTable.IssueRow> {
 
 	}
 
-	public static class IssueRow extends TableRow<ComicIssue> {
+	public static final class IssueRow extends TableRow<ComicIssue> {
 
 		public Person[] alaises;
 
@@ -330,6 +330,7 @@ public class IssueTable extends BaseTable<IssueTable.IssueRow> {
 		}
 		if (row.number != null) {
 			issue.issueNumber = row.number.instanceId;
+			issue.issueNumberLabel = row.number.name;
 		}
 
 		if (row.publisher != null) {

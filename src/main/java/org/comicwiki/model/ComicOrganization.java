@@ -27,8 +27,7 @@ import org.comicwiki.rdf.annotations.Subject;
 
 @SchemaComicWiki
 @Subject(value = "ComicOrganization", key = "name")
-//TODO: probably need to add universe/publisher
-public class ComicOrganization extends Organization /*[CreativeWork]*/{
+public class ComicOrganization extends Organization {
 
 	@Predicate("alignment")
 	@ObjectString

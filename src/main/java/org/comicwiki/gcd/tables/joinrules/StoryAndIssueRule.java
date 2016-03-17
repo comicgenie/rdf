@@ -1,21 +1,18 @@
 package org.comicwiki.gcd.tables.joinrules;
 
-import java.util.Map;
+import gnu.trove.map.hash.TIntObjectHashMap;
 
 import org.comicwiki.gcd.tables.IssueTable;
 import org.comicwiki.gcd.tables.IssueTable.IssueRow;
 import org.comicwiki.gcd.tables.StoryTable;
 import org.comicwiki.gcd.tables.StoryTable.StoryRow;
 import org.comicwiki.joinrules.LookupJoinRule;
-import org.comicwiki.model.schema.Person;
-
-import com.google.common.collect.ObjectArrays;
 
 public class StoryAndIssueRule implements
-		LookupJoinRule<StoryTable.StoryRow, Map<Integer, IssueTable.IssueRow>> {
+		LookupJoinRule<StoryTable.StoryRow,TIntObjectHashMap<IssueTable.IssueRow>> {
 
 	@Override
-	public boolean join(StoryRow storyRow, Map<Integer, IssueRow> map) {
+	public boolean join(StoryRow storyRow, TIntObjectHashMap<IssueRow> map) {
 		IssueRow issueRow = map.get(storyRow.fkIssueId);
 		if (issueRow != null) {
 			if (issueRow.editors != null) {

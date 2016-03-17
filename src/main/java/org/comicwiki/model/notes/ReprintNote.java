@@ -1,7 +1,6 @@
 package org.comicwiki.model.notes;
 
 import java.util.Collection;
-import java.util.HashSet;
 
 import org.comicwiki.Add;
 import org.comicwiki.IRI;

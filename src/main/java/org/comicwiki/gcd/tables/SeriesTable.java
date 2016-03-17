@@ -83,7 +83,7 @@ public class SeriesTable extends BaseTable<SeriesTable.SeriesRow> {
 		// public static final int KEY_DATE = 20;
 	}
 
-	public static class SeriesRow extends TableRow<ComicSeries> {
+	public static final class SeriesRow extends TableRow<ComicSeries> {
 
 		public String[] binding;
 
@@ -177,7 +177,6 @@ public class SeriesTable extends BaseTable<SeriesTable.SeriesRow> {
 		}
 
 		seriesRow.modified = row.getTimestamp(Columns.MODIFIED);
-		seriesRow.name = row.getString(Columns.NAME);
 		seriesRow.name = row.getString(Columns.NAME);
 
 		seriesRow.instance.name = row.getString(Columns.NAME);

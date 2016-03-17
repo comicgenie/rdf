@@ -44,7 +44,7 @@ public class SeriesBondTypeTable extends
 		public static final int NOTES = 3;
 	}
 
-	public static class SeriesBondTypeRow extends TableRow<ThingInItself> {
+	public static final class SeriesBondTypeRow extends TableRow<ThingInItself> {
 		public String description;
 
 		public String name;

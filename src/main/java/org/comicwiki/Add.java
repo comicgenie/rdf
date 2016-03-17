@@ -1,10 +1,8 @@
 package org.comicwiki;
 
 import java.lang.reflect.Array;
-import java.lang.reflect.ParameterizedType;
 import java.util.Collection;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.ObjectArrays;
 
 public class Add {
@@ -30,7 +28,8 @@ public class Add {
 			return null;
 		}
 		
-		return ObjectArrays.concat(array, object, type);
+		T[] concat = ObjectArrays.concat(array, object, type);
+		return concat;
 	}
 
 	public static <T> T[] toArray(Collection<T> object, Class<T> type) {

@@ -33,12 +33,13 @@ public class ComicCharacterRepositoryTest {
 
 	@Test
 	public void testMergeCollectionField() throws Exception {
-
+	
 		ComicCharacter c1 = new ComicCharacter();
 		c1.addAlternateName("A1");
 		ComicCharacter c2 = new ComicCharacter();
 		c2.addAlternateName("A2");
-
+		assertTrue(c1.alternateNames.getClass().isArray());
+		
 		Repositories repositories = new Repositories(new PersonNameMatcher());
 		repositories.COMIC_CHARACTERS.merge(c1, c2);
 		assertEquals(2, c2.alternateNames.length);

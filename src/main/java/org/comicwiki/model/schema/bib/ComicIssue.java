@@ -25,7 +25,7 @@ import org.comicwiki.rdf.annotations.SchemaBib;
 import org.comicwiki.rdf.annotations.SchemaComicWiki;
 import org.comicwiki.rdf.annotations.Subject;
 
-@Subject(value = "http://schema.org/ComicIssue",  compositeKey= {"name", "issueNumber"})
+@Subject(value = "http://schema.org/ComicIssue",  compositeKey= {"name", "issueNumberLabel"})
 @SchemaBib
 public class ComicIssue extends PublicationIssue {
 
@@ -65,6 +65,11 @@ public class ComicIssue extends PublicationIssue {
 	@ObjectIRI
 	@SchemaComicWiki
 	public IRI issueNumber;
+	
+	@Predicate("issueNumberLabel")
+	@ObjectString
+	@SchemaComicWiki
+	public String issueNumberLabel;
 	
 	@Predicate("letterer")
 	@ObjectIRI

@@ -15,9 +15,12 @@
  *******************************************************************************/
 package org.comicwiki;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.logging.Logger;
 
 import org.apache.commons.codec.digest.DigestUtils;
@@ -25,6 +28,8 @@ import org.comicwiki.model.schema.Thing;
 import org.comicwiki.rdf.annotations.Subject;
 
 import com.google.common.base.Strings;
+import com.google.common.hash.HashFunction;
+import com.google.common.hash.Hashing;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -34,6 +39,8 @@ public final class ThingCache {
 	private static final Logger LOG = Logger.getLogger("ETL");
 
 	private final KeyIDGenerator instanceIDGen = new KeyIDGenerator(0);
+	
+	private HashFunction hf = Hashing.goodFastHash(64);
 
 	private IRI assignInstanceId(Thing thing) {
 		if (thing.instanceId == null) {
@@ -67,13 +74,11 @@ public final class ThingCache {
 				}
 				sb.append('_');
 			}
-			if (sb.length() == 0) {
-				return "empty";
-				// throw new IllegalThingException("No values for any key: "
-				// + clazz.getName());
+			if (sb.length() > 0) {
+				return hf.hashBytes((object.getClass().getCanonicalName()
+						+ ":" + sb.toString()).getBytes()).toString();
+			//	return DigestUtils.md5Hex();
 			}
-			return DigestUtils.md5Hex(object.getClass().getCanonicalName()
-					+ ":" + sb.toString());
 		} else {
 			Field field = clazz.getField(subject.key());
 			field.setAccessible(true);
@@ -86,21 +91,23 @@ public final class ThingCache {
 				return readCompositePropertyKey((Thing) fieldValue);
 			}
 		}
+		LOG.warning("This class does not have a key assigned. Is it a blank node? "
+					+ clazz.getName());
+	
 		return null;
 	}
 
 	protected final String readCompositePropertyKey(Thing object) {
 		Class<?> clazz = object.getClass();
-		Subject subject = clazz.getAnnotation(Subject.class);
 		try {
-			return readCompositePropertyKey(subject, object);
+			return readCompositePropertyKey(clazz.getAnnotation(Subject.class), object);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return null;
 	}
 
-	protected final HashMap<IRI, Thing> instanceCache = new HashMap<>(1000000);
+	protected HashMap<IRI, Thing> instanceCache = new HashMap<>(1000000);
 
 	// protected final HashMapShard instanceCache = new HashMapShard(3);
 
@@ -108,7 +115,7 @@ public final class ThingCache {
 
 	private final IRICache iriCache;
 
-	private final ResourceIDCache resourceIDCache;
+	private ResourceIDCache resourceIDCache;
 
 	@Inject
 	public ThingCache(Repositories repositories, IRICache iriCache,
@@ -131,57 +138,93 @@ public final class ThingCache {
 		instanceCache.put(thing.instanceId, thing);
 	}
 
-	public synchronized void assignResourceIDs() {
-		HashMap<IRI, IRI> instanceResourceMap = new HashMap<>(1000000);
+	private void setResourceIdOnBlank(Thing thing) {
+		thing.resourceId = new IRI(resourceIDCache.generateAnonymousId());
+		thing.compositePropertyKey = thing.resourceId.value;
+	}
+
+	private void setResourceIdOn(Thing thing) {
+		IRI thingResourceId = resourceIDCache.get(thing.compositePropertyKey);
+		if (thingResourceId != null) {
+			thing.resourceId = thingResourceId;
+		} else {
+			thing.resourceId = new IRI(resourceIDCache.generateResourceId());
+			resourceIDCache.put(thing.compositePropertyKey, thing.resourceId);
+		}
+	}
+
+	public void assignResourceIDs() throws IOException {
+		@SuppressWarnings("resource")
+		FileOutputStream iriOut = new FileOutputStream("iri.txt");
+	//	FileOutputStream resOut = new FileOutputStream("resourceIds2.txt");
 		int count = 0;
+		//Iterator<Thing> it = instanceCache.values().iterator();
+	//	while(it.hasNext()) {
+			//Thing thing = it.next();
+		//	it.remove();
+		//}
 		for (Thing thing : instanceCache.values()) {
-			if (count++ % 100000 == 0) {
-				LOG.info("Rows with assigned IDs: " + count
-						+ ", InstanceCpkMap =" + 0 + ", InstanceResourceMap ="
-						+ instanceResourceMap.size());
+			if (count++ % 1000000 == 0) {
+				LOG.info("Rows with assigned IDs: " + count);
 			}
 			Subject subjectAnnotation = (Subject) thing.getClass()
 					.getAnnotation(Subject.class);
 			if (subjectAnnotation.isBlankNode()) {
-				thing.resourceId = new IRI(
-						resourceIDCache.generateAnonymousId());
-				thing.compositePropertyKey = thing.resourceId.value;
+				setResourceIdOnBlank(thing);
 			} else {
 				thing.compositePropertyKey = readCompositePropertyKey(thing);
 				if (Strings.isNullOrEmpty(thing.compositePropertyKey)) {
-					// throw new IllegalArgumentException(
-					System.out.println("ETL: "
-							+ "thing.compositePropertyKey is empty: "
-							+ thing.getClass() + ", thing.name=" + thing.name
-							+ ":" + thing);
+					throw new IllegalArgumentException(
+					// System.out.println("ETL: " +
+							"thing.compositePropertyKey is empty: "
+									+ thing.getClass() + ", thing.name="
+									+ thing.name + ":" + thing);
 				}
-				IRI thingResourceId = resourceIDCache
-						.get(thing.compositePropertyKey);
-				if (thingResourceId != null) {
-					thing.resourceId = thingResourceId;
-				} else {
-					thing.resourceId = new IRI(
-							resourceIDCache.generateResourceId());
-					resourceIDCache.put(thing.compositePropertyKey,
-							thing.resourceId);
-				}
+				setResourceIdOn(thing);
 			}
-
-			instanceResourceMap.put(thing.instanceId, thing.resourceId);
+			// swap instance id for resourceId in cache
+			IRI v = iriCache.get(thing.instanceId.value);
+			v.value = thing.resourceId.value;
+			iriOut.write((v.value + "\r\n").getBytes());	
+			/*
+			Repository<Thing> repo = repositories.getRepository(thing
+					.getClass());
+			if (repo != null) {
+				repo.add(thing);		
+			} else {
+				//Blank nodes repo?					
+			}	
+			*/			
+			//it.remove();
 		}
-		
-		LOG.info("Assign iri values");
-		for (IRI iri : iriCache.values()) {
-			iri.value = instanceResourceMap.get(iri).value;
-		}
+		iriCache.clear();
+		iriOut.close();
 	}
 
+	public void clear() {
+		instanceCache.clear();
+		instanceCache = null;
+	//	iriCache.clear();
+	}
+	
 	public void exportToRepositories() {
+		//iterate and remove as add
+		int count = 0;
+	//	Iterator<Thing> it = instanceCache.values().iterator();
+		//while(it.hasNext()) {
+			//Thing thing = it.next();
+		//	it.remove();
 		for (Thing thing : instanceCache.values()) {
 			Repository<Thing> repo = repositories.getRepository(thing
 					.getClass());
 			if (repo != null) {
-				repo.add(thing);
+				repo.add(thing);		
+			} else {
+				//Blank nodes repo?					
+			}		
+			
+			if (count++ % 100000 == 0) {
+				LOG.info("Exported thing " + count);
 			}
 		}
 	}

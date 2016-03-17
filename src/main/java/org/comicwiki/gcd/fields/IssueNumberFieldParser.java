@@ -48,7 +48,7 @@ public class IssueNumberFieldParser extends BaseFieldParser implements FieldPars
 		ComicIssueNumber issueNumber = thingFactory
 				.create(ComicIssueNumber.class);
 		issueNumber.label = textField;
-
+		issueNumber.name = textField;
 		try {
 			IssueContext issueContext = getContextOf(textField, true);
 			if (issueContext.NO_NUMBER() != null) {

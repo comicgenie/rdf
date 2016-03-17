@@ -8,14 +8,14 @@ import com.google.inject.Singleton;
 @Singleton
 public class IRICache {
 
-	private final HashMap<String, IRI> sIriMap = new HashMap<>(1000000);
+	private HashMap<String, IRI> sIriMap = new HashMap<>(1000000);
 	
+	public void clear() {
+		sIriMap.clear();
+		sIriMap = null;
+	}
 	public Collection<IRI> values() {
 		return sIriMap.values();
-	}
-	
-	public boolean contains(String iri) {
-		return sIriMap.containsKey(iri);
 	}
 	
 	public IRI get(String iri) {
@@ -24,5 +24,9 @@ public class IRICache {
 	
 	public void add(IRI iri) {
 		sIriMap.put(iri.value, iri);
+	}
+	
+	public IRI remove(String iri) {
+		return sIriMap.remove(iri);
 	}
 }

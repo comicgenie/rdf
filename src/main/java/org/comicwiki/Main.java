@@ -11,9 +11,6 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.comicwiki.guice.ComicWikiModule;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-
 public class Main {
 	private static Options addOptions() {
 		Options options = new Options();
@@ -71,7 +68,8 @@ public class Main {
 		if(resourceDir == null) {
 			resourceDir = ".";
 		}
-		Injector injector = Guice.createInjector(new ComicWikiModule(new File(resourceDir)));
+	
+		ComicWikiModule module = new ComicWikiModule(new File(resourceDir));
 		File rootDir = new File("build");
 		File resources = new File("resourceIds.txt");
 
@@ -90,12 +88,11 @@ public class Main {
 				exit("Invalid command arguments for import");
 			}
 		} else if (commandLine.hasOption("etl")) {
-			ETL etl = injector.getInstance(ETL.class);
-			etl.setInjector(injector);
-			try {
-				etl.process(resources, rootDir);
+			MainETLRunner runner = new MainETLRunner(module);
+			try { 
+				runner.start(resources, rootDir);
 			} catch (Exception e) {
-				System.out.println("ETL: Critical");
+				System.out.println("ETL: Critical"); 
 				e.printStackTrace();
 			}
 		} else if (commandLine.hasOption("exportDB")) {
@@ -110,11 +107,9 @@ public class Main {
 
 			String jdbcUrl = SparkUtils.createJDBCUrl(username, password,
 					database);
-
-			ETL etl = injector.getInstance(ETL.class);
-			etl.setInjector(injector);
+			MainETLRunner runner = new MainETLRunner(module);
 			try {
-				etl.fromRDB(jdbcUrl);
+				runner.fromRDB(jdbcUrl);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

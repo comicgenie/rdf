@@ -1,8 +1,5 @@
 package org.comicwiki.gcd.fields;
 
-import java.util.Collection;
-import java.util.HashSet;
-
 import org.comicwiki.model.CreatorAlias;
 import org.comicwiki.model.schema.Person;
 

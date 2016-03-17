@@ -27,8 +27,8 @@ public final class SparkUtils {
 	}
 
 	public static SQLContext createLocalContext() {
-		SparkConf conf = new SparkConf().setAppName("GCDB").setMaster("local");
-			//	.set("spark.executor.memory", "6g");
+		SparkConf conf = new SparkConf().setAppName("GCDB").setMaster("local")
+				.set("spark.executor.memory", "2g");
 		return new SQLContext(new JavaSparkContext(conf));
 	}
 }
